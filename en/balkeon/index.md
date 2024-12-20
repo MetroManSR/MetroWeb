@@ -18,6 +18,8 @@ language: en
  Join the Discord!
  </span> </button>
 
+ <button class="button-16" role="button" onclick="location.href='./dictionary'">Dictionary</button>
+
 <!-- Link to the external JavaScript file -->
 
 <!--<script src="redirect.js"></script>-->
