@@ -26,7 +26,8 @@ author: MetroMan
 navbar-links:
   Home: "https://www.metroman.me"
   Balkeon Menu: 
-    - Lexicon: "https://lexiconga.com/100250694"
+    - Diccionario: "https://www.metroman.me/balkeon/dictionary"
+    - Dictionary: "https://www.metroman.me/en/balkeon/dictionary"
     - English: "https://www.metroman.me/en/balkeon"
     - Español: "https://www.metroman.me/balkeon"
 
