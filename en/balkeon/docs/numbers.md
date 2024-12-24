@@ -56,7 +56,7 @@ language: en
 
  <td>2</td>
 
- <td>Chos</td>
+ <td>Cos</td>
 
  <td>7</td>
 
@@ -72,7 +72,7 @@ language: en
 
  <td>8</td>
 
- <td>Oich</td>
+ <td>Oic</td>
 
  </tr>
  <tr>
@@ -125,9 +125,9 @@ language: en
 
 👀 Numbers are read from right to left.
 
-`2024` `Kuar chostek chosmiri`
+`2024` `Kuar costek cosmiri`
 
-`1987` `Seti oichtek nuefdien uanmiri`
+`1987` `Seti oictek nuefdien uanmiri`
 
 ## Suffixes of Numbers
 
@@ -141,12 +141,12 @@ Chosulteon: Double.
 
 For Fractions use `-ake`.
 
-- Chosake - ½
+- Cosake - ½
 - Treake - 1/3
 - Tekake- 1/10
 - Miriake- 1/1000
 - Miliarake- 1/1000000
-- Sink Oichake - 5/8
+- Sink Oicake - 5/8
 
 Using the Collective Suffix the following is obtained:
 
@@ -158,5 +158,5 @@ Using the Collective Suffix the following is obtained:
 To create Distributives one must use the suffix `-is-`:
 
 - Uanisideon = One to each
-- Chosisideon = Two each
+- Cosisideon = Two each
 - Treisideon = Three each
