@@ -23,7 +23,7 @@ language: en
 
 ## Conversation
 
-- Hello = Chulin
+- Hello = Culin
 
 - How are you? = Kaum genkir yu?
 
@@ -158,7 +158,7 @@ language: en
 
 - Back = Dak
 
-- Left = Chaelsin
+- Left = Caelsin
 
 - Right = Niotsin
 
@@ -168,7 +168,7 @@ language: en
 
 - Little = Nekyum
 
-- Enough = Achkin
+- Enough = Ackin
 
 - Too much = Dae
 
