@@ -10,7 +10,7 @@ language: en
 
 'I like it when you're silent, because you're like absent'
 
-`Plachir erok yu kasir, pok yu sir lak nosirian`
+`Placir erok yu kasir, pok yu sir lak nosirian`
 
 > Where is [Kua](../../grammar/complexsentences) used (Complex Sentences)
 
