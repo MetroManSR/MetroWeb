@@ -106,7 +106,7 @@ language: en
         <td>Diminutive</td>
         <td>-alk-</td>
         <td>To punch with</td>
-        <td>-uch-</td>
+        <td>-uc-</td>
     </tr>
     <tr>
         <td>Son of, descendant</td>
@@ -166,6 +166,6 @@ language: en
         <td>To be</td>
         <td>-es-</td>
         <td>To be in temporal or new state</td>
-        <td>-ados-</td>
+        <td>-ac-/-est-</td>
     </tr>
 </table>
