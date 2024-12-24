@@ -153,14 +153,14 @@ language: en
  <td>19</td>
  <td>K</td>
  <td>Potassium</td>
- <td>Shintelpotemikeon</td>
+ <td>Xintelpotemikeon</td>
  <td>Kaliremikeon</td>
  </tr>
  <tr>
  <td>20</td>
  <td>Ca</td>
  <td>Calcium</td>
- <td>Chalkemikeon</td>
+ <td>Calkemikeon</td>
  <td>Kalsemikeon</td>
  </tr>
  <tr>
@@ -230,7 +230,7 @@ language: en
  <td>30</td>
  <td>Zn</td>
  <td>Zinc</td>
- <td>Ascutemikeon</td>
+ <td>Askutemikeon</td>
  <td>Sinkemikeon</td>
  </tr>
  <tr>
@@ -244,7 +244,7 @@ language: en
  <td>32</td>
  <td>Ge</td>
  <td>Germanium</td>
- <td>Doishemikeon</td>
+ <td>Doixemikeon</td>
  <td>Germanemikeon</td>
  </tr>
  <tr>
@@ -286,8 +286,8 @@ language: en
  <td>38</td>
  <td>Sr</td>
  <td>Strontium</td>
- <td>Eshtrontianemikeon</td>
- <td>Estrontianemikeon</td>
+ <td>Extrontianemikeon</td>
+ <td>Extrontianemikeon</td>
  </tr>
  <tr>
  <td>39</td>
@@ -384,7 +384,7 @@ language: en
  <td>52</td>
  <td>Te</td>
  <td>Tellurium</td>
- <td>Grondchuchemikeon</td>
+ <td>Grondcucemikeon</td>
  <td>Teluremikeon</td>
  </tr>
  <tr>
@@ -482,7 +482,7 @@ language: en
  <td>66</td>
  <td>Dy</td>
  <td>Dysprosium</td>
- <td>Nekfasrichademikeon</td>
+ <td>Nekfasricademikeon</td>
  <td>Disprosemikeon</td>
  </tr>
  <tr>
@@ -643,7 +643,7 @@ language: en
  <td>89</td>
  <td>Ac</td>
  <td>Actinium</td>
- <td>Bliakagchastemikeon</td>
+ <td>Ipanagemikeon</td>
  <td>Aktinemikeon</td>
  </tr>
  <tr>
@@ -657,7 +657,7 @@ language: en
  <td>91</td>
  <td>Pa</td>
  <td>Protactinium</td>
- <td>Uananbliakagchastemikeon</td>
+ <td>Uananipanagemikeon</td>
  <td>Protaktinemikeon</td>
  </tr>
  <tr>
@@ -713,8 +713,8 @@ language: en
  <td>99</td>
  <td>It</td>
  <td>Einsteinium</td>
- <td>Ainshtainemikeon</td>
- <td>Ainshtainemikeon</td>
+ <td>Ainxtainemikeon</td>
+ <td>Ainxtainemikeon</td>
  </tr>
  <tr>
  <td>100</td>
@@ -776,7 +776,7 @@ language: en
  <td>108</td>
  <td>Hs</td>
  <td>Hasio</td>
- <td>Oichnauluanemikeon<br>&nbsp;&nbsp;&nbsp;Hasiremikeon</td>
+ <td>Oicnauluanemikeon<br>&nbsp;&nbsp;&nbsp;Hasiremikeon</td>
  <td>Hasiremikeon</td>
  </tr>
  <tr>
@@ -790,8 +790,8 @@ language: en
  <td>110</td>
  <td>Ds</td>
  <td>Darmstatio</td>
- <td>Nauluanuanenhemikeon<br>&nbsp;&nbsp;&nbsp;Damshtatemikeon</td>
- <td>Damshtatemikeon</td>
+ <td>Nauluanuanenhemikeon<br>&nbsp;&nbsp;&nbsp;Damxtatemikeon</td>
+ <td>Damxtatemikeon</td>
  </tr>
  <tr>
  <td>111</td>
@@ -804,7 +804,7 @@ language: en
  <td>112</td>
  <td>Cn</td>
  <td>Copernicius</td>
- <td>Chosuanuanenhemikeon<br>&nbsp;&nbsp;&nbsp;Kopernikemikeon</td>
+ <td>Cosuanuanenhemikeon<br>&nbsp;&nbsp;&nbsp;Kopernikemikeon</td>
  <td>Kopernikemikeon</td>
  </tr>
  <tr>
@@ -825,8 +825,8 @@ language: en
  <td>115</td>
  <td>Mc</td>
  <td>Muscovium</td>
- <td>Sinkuanuanenhemikeon<br>&nbsp;&nbsp;&nbsp;Moscobemikeon</td>
- <td>Moscobemikeon</td>
+ <td>Sinkuanuanenhemikeon<br>&nbsp;&nbsp;&nbsp;Moskobemikeon</td>
+ <td>Moskobemikeon</td>
  </tr>
  <tr>
  <td>116</td>
