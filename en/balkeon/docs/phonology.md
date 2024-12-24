@@ -30,11 +30,17 @@ In these examples we have the letter `T` and the letter `F`, which when together
 
 ### Consonants
 
-There are 15 consonants, here is the list:
+There are 17 consonants, here is the list:
 
-- B, C, D, F, G, H, K, L, M, N, P, R, S, T, Y.
+- B, C, D, F, G, H, K, L, M, N, P, R, S, T, X, Y, Z.
 
-With the consonants the only issue would be the `C` that never appears alone, but accompanied by the `H`. In conclusion, they are almost the same sounds as in English, only in smaller quantities.
+## Modern Consonants
+
+For `C` its sound is `CH`, since its adoption it has been spread and pretty much replaced the `CH` affricative. If you still want to use `CH` no one can tell you not to.
+
+For `X` its sound is `SH` its use is less recommended than `C` for `CH` but it is just a stylistic choice.
+
+For `Z` its sound is `TS` its use is also barely recommended, another stylistic option.
 
 In case you need to know, the IPA for Y is: [ʝ](https://es.m.wikipedia.org/wiki/%EA%9E%B2). *That is your average Spanish ll/y*
 
@@ -48,13 +54,13 @@ In case you need to know, the IPA for these is: [t͡ʃ](https://es.m.wikipedia.o
 
 - Balkeon is quite free with its rules, however it still has its restrictions.
 
-- Tryptongs can never appear, if a tryptone is formed by combining two roots they must be separated using the wildcard `r`.
+- Tryptongs can never appear, if a tryptong is formed by combining two roots they must be separated using the wildcard `r`.
 
 - In 99% of the cases no word can begin with `s` or `l` if its successor consonant is the same, a consonant, this includes consonants such as `b, d, h, k, p, t, y` plus any combination that can be made between them (`bd`, `hk`, `kh`). There are less than 10 roots with these exceptions.
 
 - Adding to this it is common practice that any word borrowed from another language beginning in one of these combinations should either be simplified to a single consonant or have `e` added if appropriate) e.g. `espokeon`.
 
-- When converting a loanword to Balkeon and it ends in a vowel, `r` can be added to place the appropriate suffix.
+- When converting a loanword to Balkeon and it ends in a vowel, `r` can be added to place the appropriate suffix and `b` if possible when it end with `u` and behind it a vowel (`eu`, `au`).
 
 - This is useful for converting Proper Names to Balkeon. 
 
