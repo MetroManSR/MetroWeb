@@ -101,7 +101,7 @@ language: es
         </tr>
         <tr>
             <td>Aumentativo</td>
-            <td>-ag-</td>
+            <td>-aeg-</td>
             <td>Muy</td>
             <td>-um-</td>
         </tr>
@@ -109,7 +109,7 @@ language: es
             <td>Diminutivo</td>
             <td>-alk-</td>
             <td>Golpe con</td>
-            <td>-uch-</td>
+            <td>-uc-</td>
         </tr>
         <tr>
             <td>Descendiente</td>
@@ -169,7 +169,7 @@ language: es
             <td>Ser</td>
             <td>-es-</td>
             <td>Estar</td>
-            <td>-ados-</td>
+            <td>-ac-/-est-</td>
         </tr>
     </tbody>
 </table>
