@@ -135,26 +135,30 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
             .filter(row => {
                 const titleMatch = searchIn.word && row.type === 'word' && row.title.toLowerCase().includes(searchTerm);
                 const rootMatch = searchIn.root && row.type === 'root' && row.title.toLowerCase().includes(searchTerm);
-                const definitionMatch = searchIn.definition && row.meta && row.meta.toLowerCase().includes(searchTerm); // Added check for meta existence
+                const definitionMatch = searchIn.definition && row.meta && row.meta.toLowerCase().includes(searchTerm);
                 const etymologyMatch = searchIn.etymology && row.morph.some(morphItem => morphItem.toLowerCase().includes(searchTerm));
                 return titleMatch || rootMatch || definitionMatch || etymologyMatch;
             })
             .slice(0, 10) // Limit to the first 10 matches
-            .map(row => ({ title: row.title, meta: row.meta || '' })); // Added fallback for meta
+            .map(row => ({ title: row.title, meta: row.meta || '' }));
 
         console.log('Predictions:', predictions); // Debug log
 
         if (predictions.length === 0) {
             // If no predictions, suggest possible corrections
             const suggestions = allRows
-                .map(row => ({
-                    title: row.title,
-                    similarity: getSimilarity(row.title, searchTerm),
-                    metaSimilarity: row.meta ? getSimilarity(row.meta, searchTerm) : 0 // Added check for meta existence
-                }))
+                .map(row => {
+                    const metaParts = row.meta ? row.meta.split(',').map(part => part.trim()) : [];
+                    const metaSimilarity = metaParts.map(part => getSimilarity(part, searchTerm)).reduce((max, current) => Math.max(max, current), 0);
+                    return {
+                        title: row.title,
+                        similarity: getSimilarity(row.title, searchTerm),
+                        metaSimilarity: metaSimilarity
+                    };
+                })
                 .map(row => ({
                     ...row,
-                    displayText: row.similarity > row.metaSimilarity ? row.title : (row.meta || ''), // Added fallback for meta
+                    displayText: row.similarity > row.metaSimilarity ? row.title : (row.meta || ''),
                     totalSimilarity: Math.max(row.similarity, row.metaSimilarity)
                 }))
                 .sort((a, b) => b.totalSimilarity - a.totalSimilarity)
@@ -221,7 +225,7 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
         currentPage = 1;
         await updatePendingChangesList(language);
     }, 300); // Debounce delay (300ms)
-});
+}); 
     
     document.addEventListener('focusin', (e) => {
         if (!searchInput.contains(e.target) && !predictionBox.contains(e.target)) {
