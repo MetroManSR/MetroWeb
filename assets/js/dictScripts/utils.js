@@ -173,14 +173,17 @@ export function levenshteinDistance(a, b) {
 /**
  * Function to calculate similarity between two strings.
  *
- * @param {string} a - The first string.
- * @param {string} b - The second string.
+ * @param {string} str1 - The first string.
+ * @param {string} str2 - The second string.
  * @returns {number} - A similarity score between 0 and 1.
  */
-export function getSimilarity(a, b) {
-    // Simple similarity calculation using string length
-    const longer = a.length > b.length ? a : b;
-    const shorter = a.length > b.length ? b : a;
+export function getSimilarity(str1, str2) {
+    let longer = str1;
+    let shorter = str2;
+    if (str1.length < str2.length) {
+        longer = str2;
+        shorter = str1;
+    }
     const longerLength = longer.length;
     if (longerLength === 0) {
         return 1.0;
@@ -189,40 +192,36 @@ export function getSimilarity(a, b) {
 }
 
 /**
- * Function to calculate the edit distance between two strings.
- *
- * @param {string} a - The first string.
- * @param {string} b - The second string.
- * @returns {number} - The edit distance between the two strings.
+ * Compute the edit distance between two strings.
+ * @param {string} str1 - The first string.
+ * @param {string} str2 - The second string.
+ * @returns {number} - The edit distance.
  */
-export function editDistance(a, b) {
-    const matrix = [];
-
-    // Increment along the first column of each row
-    for (let i = 0; i <= b.length; i++) {
-        matrix[i] = [i];
-    }
-
-    // Increment each column in the first row
-    for (let j = 0; j <= a.length; j++) {
-        matrix[0][j] = j;
-    }
-
-    // Fill in the rest of the matrix
-    for (let i = 1; i <= b.length; i++) {
-        for (let j = 1; j <= a.length; j++) {
-            if (b.charAt(i - 1) === a.charAt(j - 1)) {
-                matrix[i][j] = matrix[i - 1][j - 1];
+export function editDistance(str1, str2) {
+    const costs = [];
+    for (let i = 0; i <= str1.length; i++) {
+        let lastValue = i;
+        for (let j = 0; j <= str2.length; j++) {
+            if (i === 0) {
+                costs[j] = j;
             } else {
-                matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, // Substitution
-                    Math.min(matrix[i][j - 1] + 1, // Insertion
-                        matrix[i - 1][j] + 1)); // Deletion
+                if (j > 0) {
+                    let newValue = costs[j - 1];
+                    if (str1.charAt(i - 1) !== str2.charAt(j - 1)) {
+                        newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                    }
+                    costs[j - 1] = lastValue;
+                    lastValue = newValue;
+                }
             }
         }
+        if (i > 0) {
+            costs[str2.length] = lastValue;
+        }
     }
-
-    return matrix[b.length][a.length];
+    return costs[str2.length];
 }
+
 // Function to display an error message
 export function displayError(message) {
     // Get the existing error container
