@@ -1,5 +1,5 @@
 import { getTranslatedText } from './loadTexts.js';
-import { highlight } from './utils.js';
+import { highlight, getSimilarity } from './utils.js';
 import { initAdvancedSearchPopup } from './popups.js';
 
 export const defaultPendingChanges = {
@@ -108,51 +108,66 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
             currentPage = 1;
         });
     }
+    
+searchInput.addEventListener('input', function () {
+    clearTimeout(debounceTimeout); // Clear the previous debounce timer
 
-    searchInput.addEventListener('input', function () {
-        clearTimeout(debounceTimeout); // Clear the previous debounce timer
+    const searchTerm = this.value.trim().toLowerCase();
+    predictionBox.style.width = `${searchInput.offsetWidth}px`;
 
-        const searchTerm = this.value.trim().toLowerCase();
-        predictionBox.style.width = `${searchInput.offsetWidth}px`;
+    debounceTimeout = setTimeout(async () => { // Set a new debounce timer
+        if (searchTerm.length === 0) {
+            predictionBox.innerHTML = '';
+            pendingChanges.searchTerm = ''; // Clear searchTerm in pending changes
+            universalPendingChanges = pendingChanges;
+            currentPage = 1;
+            predictionBox.classList.remove("active");
+            predictionBox.classList.add("hidden");
+            await updatePendingChangesList(language);
+            return;
+        }
 
-        debounceTimeout = setTimeout(async () => { // Set a new debounce timer
-            if (searchTerm.length === 0) {
+        predictionBox.classList.remove("hidden");
+        predictionBox.classList.add("active");
+
+        const searchIn = pendingChanges.searchIn;
+        const predictions = allRows
+            .filter(row => {
+                const titleMatch = searchIn.word && row.type === 'word' && row.title.toLowerCase().includes(searchTerm);
+                const rootMatch = searchIn.root && row.type === 'root' && row.title.toLowerCase().includes(searchTerm);
+                const definitionMatch = searchIn.definition && row.meta.toLowerCase().includes(searchTerm);
+                const etymologyMatch = searchIn.etymology && row.morph.some(morphItem => morphItem.toLowerCase().includes(searchTerm));
+                return titleMatch || rootMatch || definitionMatch || etymologyMatch;
+            })
+            .slice(0, 10) // Limit to the first 10 matches
+            .map(row => ({ title: row.title, meta: row.meta }));
+
+        if (predictions.length === 0) {
+            // If no predictions, suggest possible corrections
+            const suggestions = allRows
+                .map(row => ({
+                    title: row.title,
+                    similarity: getSimilarity(row.title, searchTerm)
+                }))
+                .sort((a, b) => b.similarity - a.similarity)
+                .slice(0, 10);
+
+            if (suggestions.length > 0) {
+                predictionBox.innerHTML = suggestions.map(({ title, similarity }) =>
+                    `<div>${title} (${(similarity * 100).toFixed(2)}%)</div>`
+                ).join('');
+            } else {
                 predictionBox.innerHTML = '';
-                pendingChanges.searchTerm = ''; // Clear searchTerm in pending changes
-                universalPendingChanges = pendingChanges;
-                currentPage = 1;
-                predictionBox.classList.remove("active");
-                predictionBox.classList.add("hidden");
-                await updatePendingChangesList(language);
-                return;
             }
 
-            predictionBox.classList.remove("hidden");
-            predictionBox.classList.add("active");
-
-            const searchIn = pendingChanges.searchIn;
-            const predictions = allRows
-                .filter(row => {
-                    const titleMatch = searchIn.word && row.type === 'word' && row.title.toLowerCase().includes(searchTerm);
-                    const rootMatch = searchIn.root && row.type === 'root' && row.title.toLowerCase().includes(searchTerm);
-                    const definitionMatch = searchIn.definition && row.meta.toLowerCase().includes(searchTerm);
-                    const etymologyMatch = searchIn.etymology && row.morph.some(morphItem => morphItem.toLowerCase().includes(searchTerm));
-                    return titleMatch || rootMatch || definitionMatch || etymologyMatch;
-                })
-                .slice(0, 10) // Limit to the first 10 matches
-                .map(row => ({ title: row.title, meta: row.meta }));
-
-            if (predictions.length === 0) {
-                predictionBox.innerHTML = '';
-                pendingChanges.searchTerm = searchTerm; // Update searchTerm in pending changes
-                universalPendingChanges = pendingChanges;
-                currentPage = 1;
-                await updatePendingChangesList(language);
-                return;
-            }
-
-            predictionBox.innerHTML = predictions.map(({ title, meta }) => 
-                `<div>${highlight(title, searchTerm, pendingChanges.searchIn, { title })} (${meta})</div>`
+            pendingChanges.searchTerm = searchTerm; // Update searchTerm in pending changes
+            universalPendingChanges = pendingChanges;
+            currentPage = 1;
+            await updatePendingChangesList(language);
+            return;
+        } else {
+            predictionBox.innerHTML = predictions.map(({ title, meta }) =>
+                `<div>${title} (${meta})</div>`
             ).join('');
 
             Array.from(predictionBox.children).forEach((prediction, index) => {
@@ -166,12 +181,23 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
                 });
             });
 
-            pendingChanges.searchTerm = searchTerm;
-            universalPendingChanges = pendingChanges;
-            currentPage = 1;
-            await updatePendingChangesList(language);
-        }, 300); // Debounce delay (300ms)
-    });
+            // Remove suggestions if the input matches 100%
+            if (predictions.some(p => p.title.toLowerCase() === searchTerm)) {
+                predictionBox.innerHTML = '';
+                pendingChanges.searchTerm = searchTerm; // Update searchTerm in pending changes
+                universalPendingChanges = pendingChanges;
+                currentPage = 1;
+                await updatePendingChangesList(language);
+                return;
+            }
+        }
+
+        pendingChanges.searchTerm = searchTerm;
+        universalPendingChanges = pendingChanges;
+        currentPage = 1;
+        await updatePendingChangesList(language);
+    }, 300); // Debounce delay (300ms)
+});
 
     document.addEventListener('focusin', (e) => {
         if (!searchInput.contains(e.target) && !predictionBox.contains(e.target)) {
