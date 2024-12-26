@@ -67,6 +67,9 @@ export async function updatePendingChangesList(language) {
         changesList.push(`<strong>${translatedRowsPerPage}</strong>: ${rowsPerPage}`);
     }
     if (sortOrder) {
+
+        console.log(sortOrder);
+        
         const translatedSortOrder = await getTranslatedText('sortOrder', language);
         const sortOrderTranslation = await getTranslatedText(sortOrder, language); // Get the translated value for sortOrder
         changesList.push(`<strong>${translatedSortOrder}</strong>: ${sortOrderTranslation}`);
