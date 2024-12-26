@@ -145,6 +145,14 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
  * @returns {Promise<Element>} - A promise that resolves to the no match box element.
  */
 export async function createNoMatchBox(language, searchTerm, allRows) {
+    const dictionaryContainer = document.getElementById('dict-dictionary');
+
+    // Check for existing no match box
+    const existingNoMatchBox = dictionaryContainer.querySelector('.dict-no-match-box');
+    if (existingNoMatchBox) {
+        return existingNoMatchBox;
+    }
+
     const noMatchBox = document.createElement('div');
     noMatchBox.className = 'dict-no-match-box';
 
