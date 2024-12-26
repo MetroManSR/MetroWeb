@@ -9,7 +9,7 @@ title: Unidad 04
 
 <ul>
   {% for lesson in site.pages %}
-    {% if lesson.path contains 'balkeon/letslearn/unit03/lessons' and lesson.language == 'en' and lesson.lesson_number %}
+    {% if lesson.path contains 'balkeon/letslearn/unit04/lessons' and lesson.language == 'en' and lesson.lesson_number %}
       <li><a href="{{ lesson.url }}">{{ lesson.title }}</a></li>
     {% endif %}
   {% endfor %}
