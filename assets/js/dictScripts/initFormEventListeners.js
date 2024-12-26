@@ -109,7 +109,7 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
         });
     }
     
-searchInput.addEventListener('input', function () {
+    searchInput.addEventListener('input', function () {
     clearTimeout(debounceTimeout); // Clear the previous debounce timer
 
     const searchTerm = this.value.trim().toLowerCase();
@@ -147,15 +147,23 @@ searchInput.addEventListener('input', function () {
             const suggestions = allRows
                 .map(row => ({
                     title: row.title,
-                    similarity: getSimilarity(row.title, searchTerm)
+                    similarity: getSimilarity(row.title, searchTerm),
+                    metaSimilarity: getSimilarity(row.meta, searchTerm)
                 }))
-                .sort((a, b) => b.similarity - a.similarity)
+                .map(row => ({
+                    ...row,
+                    displayText: row.similarity > row.metaSimilarity ? row.title : row.meta,
+                    totalSimilarity: Math.max(row.similarity, row.metaSimilarity)
+                }))
+                .sort((a, b) => b.totalSimilarity - a.totalSimilarity)
                 .slice(0, 10);
 
             if (suggestions.length > 0) {
-                predictionBox.innerHTML = suggestions.map(({ title, similarity }) =>
-                    `<div>${title} (${(similarity * 100).toFixed(2)}%)</div>`
-                ).join('');
+                predictionBox.innerHTML = suggestions.map(({ displayText, totalSimilarity }) => {
+                    const percentage = (totalSimilarity * 100).toFixed(2);
+                    const color = `rgb(${255 - totalSimilarity * 255}, ${totalSimilarity * 255}, 0)`; // Shades of green and red
+                    return `<div style="background-color: ${color};">${displayText} (${percentage}%)</div>`;
+                }).join('');
             } else {
                 predictionBox.innerHTML = '';
             }
@@ -198,7 +206,7 @@ searchInput.addEventListener('input', function () {
         await updatePendingChangesList(language);
     }, 300); // Debounce delay (300ms)
 });
-
+    
     document.addEventListener('focusin', (e) => {
         if (!searchInput.contains(e.target) && !predictionBox.contains(e.target)) {
             predictionBox.innerHTML = '';
