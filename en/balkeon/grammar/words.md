@@ -1,4 +1,3 @@
-
 ---
 layout: default
 title: "Balkeon Word Construction"
