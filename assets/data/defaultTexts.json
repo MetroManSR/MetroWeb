@@ -37,12 +37,6 @@
         "clearSettingsButton": "Clear Settings",
 
         "orderByLabel": "Order By:",
-        "titleAsc": "Title (Ascending)",
-        "titleDesc": "Title (Descending)",
-        "metaAsc": "Meta (Ascending)",
-        "metaDesc": "Meta (Descending)",
-        "morphAsc": "Morphology (Ascending)",
-        "morphDesc": "Morphology (Descending)",
 
         "translation": "Translation",
         "notes": "Notes",
@@ -86,7 +80,12 @@
         "totalRoots": "Total Roots",
         "partOfSpeechTitle": "Total Words per Part of Speech", 
 
-        "metaup": "Translation (Ascending)",
+        "metaup": "Translation (Ascending)", 
+        "metadown" : "Translation (Descending)", 
+        "titleup": "Balkeon (Ascending)",  
+        "titledown" : "Balkeon (Descending)", 
+        "morphup": "Morphology (Ascending)", 
+        "morphdown" : "Morphology (Descending)"
     
     },
     "es": {
@@ -125,14 +124,6 @@
 
         "applySettingsButton": "Aplicar Configuraciones",
         "clearSettingsButton": "Limpiar Configuraciones",
-
-        "orderByLabel": "Ordenar Por:",
-        "titleAsc": "Título (Ascendente)",
-        "titleDesc": "Título (Descendente)",
-        "metaAsc": "Meta (Ascendente)",
-        "metaDesc": "Meta (Descendente)",
-        "morphAsc": "Morfología (Ascendente)",
-        "morphDesc": "Morfología (Descendente)",
 
         "translation": "Traducción",
         "notes": "Notas",
@@ -174,7 +165,15 @@
         "statisticsTitle": "Estadísticas",
         "totalWords": "Palabras Totales",
         "totalRoots": "Raíces Totales",
-        "partOfSpeechTitle": "Palabras Totales por Parte del Habla"
+        "partOfSpeechTitle": "Palabras Totales por Parte del Habla", 
+
+        "orderByLabel": "Ordenar Por:",
+        "metaup" = "Traducción (Ascendente)", 
+        "metadown" = "Traducción (Descendente)",
+        "titleup": "Balkeon (Ascendente)",  
+        "titledown" : "Balkeon (Descendente)", 
+        "morphup": "Morfología (Ascendente)", 
+        "morphdown" : "Morfología (Descendente)" 
     },
     "eo": {},
     "blk": {}
