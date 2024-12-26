@@ -142,6 +142,8 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
             .slice(0, 10) // Limit to the first 10 matches
             .map(row => ({ title: row.title, meta: row.meta || '' })); // Added fallback for meta
 
+        console.log('Predictions:', predictions); // Debug log
+
         if (predictions.length === 0) {
             // If no predictions, suggest possible corrections
             const suggestions = allRows
@@ -157,6 +159,8 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
                 }))
                 .sort((a, b) => b.totalSimilarity - a.totalSimilarity)
                 .slice(0, 10);
+
+            console.log('Suggestions:', suggestions); // Debug log
 
             if (suggestions.length > 0) {
                 predictionBox.innerHTML = suggestions.map(({ displayText, totalSimilarity }) => {
@@ -217,8 +221,7 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
         currentPage = 1;
         await updatePendingChangesList(language);
     }, 300); // Debounce delay (300ms)
-}); 
- 
+});
     
     document.addEventListener('focusin', (e) => {
         if (!searchInput.contains(e.target) && !predictionBox.contains(e.target)) {
