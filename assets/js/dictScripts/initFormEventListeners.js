@@ -108,7 +108,7 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
             currentPage = 1;
         });
     }
-    
+
     searchInput.addEventListener('input', function () {
     clearTimeout(debounceTimeout); // Clear the previous debounce timer
 
@@ -135,12 +135,12 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
             .filter(row => {
                 const titleMatch = searchIn.word && row.type === 'word' && row.title.toLowerCase().includes(searchTerm);
                 const rootMatch = searchIn.root && row.type === 'root' && row.title.toLowerCase().includes(searchTerm);
-                const definitionMatch = searchIn.definition && row.meta.toLowerCase().includes(searchTerm);
+                const definitionMatch = searchIn.definition && row.meta && row.meta.toLowerCase().includes(searchTerm); // Added check for meta existence
                 const etymologyMatch = searchIn.etymology && row.morph.some(morphItem => morphItem.toLowerCase().includes(searchTerm));
                 return titleMatch || rootMatch || definitionMatch || etymologyMatch;
             })
             .slice(0, 10) // Limit to the first 10 matches
-            .map(row => ({ title: row.title, meta: row.meta }));
+            .map(row => ({ title: row.title, meta: row.meta || '' })); // Added fallback for meta
 
         if (predictions.length === 0) {
             // If no predictions, suggest possible corrections
@@ -148,11 +148,11 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
                 .map(row => ({
                     title: row.title,
                     similarity: getSimilarity(row.title, searchTerm),
-                    metaSimilarity: getSimilarity(row.meta, searchTerm)
+                    metaSimilarity: row.meta ? getSimilarity(row.meta, searchTerm) : 0 // Added check for meta existence
                 }))
                 .map(row => ({
                     ...row,
-                    displayText: row.similarity > row.metaSimilarity ? row.title : row.meta,
+                    displayText: row.similarity > row.metaSimilarity ? row.title : (row.meta || ''), // Added fallback for meta
                     totalSimilarity: Math.max(row.similarity, row.metaSimilarity)
                 }))
                 .sort((a, b) => b.totalSimilarity - a.totalSimilarity)
@@ -218,6 +218,7 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
         await updatePendingChangesList(language);
     }, 300); // Debounce delay (300ms)
 }); 
+ 
     
     document.addEventListener('focusin', (e) => {
         if (!searchInput.contains(e.target) && !predictionBox.contains(e.target)) {
