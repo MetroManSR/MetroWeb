@@ -164,9 +164,15 @@ export async function createNoMatchBox(language, searchTerm, allRows) {
     const suggestions = allRows
         .map(row => ({
             title: row.title,
-            similarity: getSimilarity(row.title, searchTerm)
+            similarity: getSimilarity(row.title, searchTerm),
+            metaSimilarity: row.meta ? getSimilarity(row.meta, searchTerm) : 0
         }))
-        .sort((a, b) => b.similarity - a.similarity)
+        .map(row => ({
+            ...row,
+            displayText: row.similarity > row.metaSimilarity ? row.title : (row.meta || ''),
+            totalSimilarity: Math.max(row.similarity, row.metaSimilarity)
+        }))
+        .sort((a, b) => b.totalSimilarity - a.totalSimilarity)
         .slice(0, 20);
 
     if (suggestions.length > 0) {
@@ -179,13 +185,22 @@ export async function createNoMatchBox(language, searchTerm, allRows) {
 
         const suggestionsParagraph = document.createElement('p');
 
-        for (const { title } of suggestions) {
+        for (const { displayText, totalSimilarity } of suggestions) {
             const suggestionLink = document.createElement('span');
-            suggestionLink.innerHTML = await createHyperlink(title, searchTerm, allRows); // Await the hyperlink creation
+            const percentage = (totalSimilarity * 100).toFixed(2);
+            const color = `rgb(${255 - totalSimilarity * 255}, ${totalSimilarity * 255}, 0)`; // Shades of green and red
+            suggestionLink.innerHTML = `<div style="background-color: ${color}; cursor: pointer;">${displayText} (${percentage}%)</div>`;
             suggestionLink.className = 'dict-suggestion-link';
             suggestionLink.style.marginRight = '10px';
 
             suggestionsParagraph.appendChild(suggestionLink);
+
+            // Add click event to suggestions to paste them into the search input
+            suggestionLink.addEventListener('click', () => {
+                const searchInput = document.getElementById('dict-search-input');
+                searchInput.value = displayText;
+                noMatchBox.innerHTML = '';
+            });
         }
 
         suggestionsContainer.appendChild(suggestionsParagraph);
