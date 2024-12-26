@@ -9,7 +9,8 @@ import { cleanData } from './dictScripts/csvUtils.js';
 import { getRelatedWordsByRoot, displayError } from './dictScripts/utils.js';
 import { renderBox } from './dictScripts/boxes.js';
 import { initUrl } from './dictScripts/urlParameters.js';
-
+import { initializeErrorButton } from './dictScripts/errorModule.js';
+    
 export let filteredRows;
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -34,6 +35,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     showLoadingMessage();
+
+    initializeErrorButton();
 
     let allRows = []; // Ensure allRows is defined outside the try-catch block
     let rowsPerPage = 20; // Default rows per page
