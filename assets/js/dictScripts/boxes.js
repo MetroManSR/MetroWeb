@@ -159,8 +159,7 @@ export async function createNoMatchBox(language, searchTerm, allRows) {
             similarity: getSimilarity(row.title, searchTerm)
         }))
         .sort((a, b) => b.similarity - a.similarity)
-        .slice(0, 20)
-        .map(row => row.title);
+        .slice(0, 20);
 
     if (suggestions.length > 0) {
         const suggestionsContainer = document.createElement('div');
@@ -172,9 +171,9 @@ export async function createNoMatchBox(language, searchTerm, allRows) {
 
         const suggestionsParagraph = document.createElement('p');
 
-        for (const suggestion of suggestions) {
+        for (const { title } of suggestions) {
             const suggestionLink = document.createElement('span');
-            suggestionLink.innerHTML = await createHyperlink(suggestion, searchTerm, allRows); // Await the hyperlink creation
+            suggestionLink.innerHTML = await createHyperlink(title, searchTerm, allRows); // Await the hyperlink creation
             suggestionLink.className = 'dict-suggestion-link';
             suggestionLink.style.marginRight = '10px';
 
