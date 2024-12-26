@@ -84,7 +84,10 @@
         "statisticsTitle": "Statistics",
         "totalWords": "Total Words",
         "totalRoots": "Total Roots",
-        "partOfSpeechTitle": "Total Words per Part of Speech"
+        "partOfSpeechTitle": "Total Words per Part of Speech", 
+
+        "metaup": "Translation (Ascending)",
+    
     },
     "es": {
         "searchPlaceholder": "Buscar...",
