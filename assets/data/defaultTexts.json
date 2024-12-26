@@ -168,8 +168,8 @@
         "partOfSpeechTitle": "Palabras Totales por Parte del Habla", 
 
         "orderByLabel": "Ordenar Por:",
-        "metaup" = "Traducción (Ascendente)", 
-        "metadown" = "Traducción (Descendente)",
+        "metaup" : "Traducción (Ascendente)", 
+        "metadown" : "Traducción (Descendente)",
         "titleup": "Balkeon (Ascendente)",  
         "titledown" : "Balkeon (Descendente)", 
         "morphup": "Morfología (Ascendente)", 
