@@ -162,8 +162,20 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
                 predictionBox.innerHTML = suggestions.map(({ displayText, totalSimilarity }) => {
                     const percentage = (totalSimilarity * 100).toFixed(2);
                     const color = `rgb(${255 - totalSimilarity * 255}, ${totalSimilarity * 255}, 0)`; // Shades of green and red
-                    return `<div style="background-color: ${color};">${displayText} (${percentage}%)</div>`;
+                    return `<div style="background-color: ${color}; cursor: pointer;">${displayText} (${percentage}%)</div>`;
                 }).join('');
+
+                // Add click event to suggestions to paste them into the search input
+                Array.from(predictionBox.children).forEach((suggestion, index) => {
+                    suggestion.addEventListener('click', () => {
+                        searchInput.value = suggestions[index].displayText;
+                        predictionBox.innerHTML = '';
+                        pendingChanges.searchTerm = suggestions[index].displayText; // Update searchTerm in pending changes
+                        universalPendingChanges = pendingChanges;
+                        currentPage = 1;
+                        updatePendingChangesList(language); // No need to await here
+                    });
+                });
             } else {
                 predictionBox.innerHTML = '';
             }
@@ -205,7 +217,7 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
         currentPage = 1;
         await updatePendingChangesList(language);
     }, 300); // Debounce delay (300ms)
-});
+}); 
     
     document.addEventListener('focusin', (e) => {
         if (!searchInput.contains(e.target) && !predictionBox.contains(e.target)) {
