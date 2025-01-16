@@ -32,7 +32,7 @@ Al combinar **"Ast"** y **"Ats"** con varios sufijos, puedes crear significados 
 
 1. **Sufijo de Persona - "em":**
    - *"Astem"* - Esta persona (persona cercana).
-   - *"Ats'em"* - Esa persona (persona lejana).
+   - *"Atsem"* - Esa persona (persona lejana).
 
 2. **Sufijo de Adjetivo - "idu":**
    - *"Astidu"* - Atributo cercano (por ejemplo, de este tipo).
@@ -53,11 +53,7 @@ Al combinar **"Ast"** y **"Ats"** con varios sufijos, puedes crear significados 
      - Ejemplos:
        - *"Astkron"* - Ahora.
        - *"Atskron"* - Entonces.
-     
-2. **Uso de Prefijos con Deícticos Temporales:**
-   - **"Atskronam"** - Algún tiempo después.
-   - **"Astkronam"** - Algún tiempo pronto.
-
+   
 ### Deícticos Personales:
 
 Los deícticos personales ayudan a clarificar relaciones y puntos de vista:
@@ -80,8 +76,8 @@ Los deícticos personales ayudan a clarificar relaciones y puntos de vista:
 
 1. **Comparación con "Dan" (que):**
    - Ejemplos:
-     - *"Astedu"* - Más cerca que (comparación cercana).
-     - *"Atsedu"* - Más lejos que (comparación lejana).
+     - *"Astupridu"* - Más cerca que (comparación cercana).
+     - *"Atsupridu"* - Más lejos que (comparación lejana).
 
 ### Deícticos Interrogativos:
 
@@ -95,15 +91,13 @@ Los deícticos personales ayudan a clarificar relaciones y puntos de vista:
 1. **Adjetivo Cercano - "Astidu":**
    - **"Ast"** + **"idu"** (sufijo de adjetivo)
    - **Significado:** Describir algo como cercano.
-   - Ejemplo de Oración: *"Astidulo yereon"* - Esta casa está cerca.
+   - Ejemplo de Oración: *"Astidu yereon"* - Esta casa está cerca.
 
 2. **Adjetivo Lejano - "Atsidu":**
    - **"Ats"** + **"idu"** (sufijo de adjetivo)
    - **Significado:** Describir algo como lejano.
-   - Ejemplo de Oración: *"Atsidulo libreon"* - Ese libro está lejos.
+   - Ejemplo de Oración: *"Atsidu libreon"* - Ese libro está lejos.
 
 ### Conclusión:
 
-Usar **"Ast"** y **"Ats"** como prefijos (o infijos) en Balkeon permite un contexto espacial claro y preciso. Estos elementos son flexibles, permitiendo diversas transformaciones y combinaciones con sufijos para mejorar la comunicación de manera efectiva. Explorar los posibles usos de estos deícticos revela aún más el rico marco lingüístico de Balkeon.
-
-       
+Usar **"Ast"** y **"Ats"** como prefijos (o infijos) en Balkeon permite un contexto espacial claro y preciso. Estos elementos son flexibles, permitiendo diversas transformaciones y combinaciones con sufijos para mejorar la comunicación de manera efectiva. Explorar los posibles usos de estos deícticos revela aún más el rico marco lingüístico de Balkeon.      
