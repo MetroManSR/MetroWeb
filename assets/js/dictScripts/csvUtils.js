@@ -115,6 +115,7 @@ export async function cleanData(data, type, allRows) {
     progressBar.style.width = `100%`;
     progressText.textContent = `Parsing complete!`;
 
+  /* 
     // After 3 seconds, display anomalies if any
     setTimeout(() => {
         if (anomalies.length > 0) {
@@ -122,7 +123,7 @@ export async function cleanData(data, type, allRows) {
         } else {
             progressText.textContent = `No anomalies found!`;
         }
-    }, 3000);
+    }, 3000);*/
 
     //console.log("Cleaned Data:", cleanedData);
 
