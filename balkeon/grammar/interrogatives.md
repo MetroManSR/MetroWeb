@@ -50,6 +50,7 @@ Todas las palabras de pregunta se pueden tratar de manera similar:
 - **Hirian:** *¿Qué?* (caso especial, usa "H" y agrega tiempos al final para cuestionar la acción)
 - **Haum / Kaum:** *¿Cómo?* (ambas alternativas son válidas, derivadas cambiando la primera letra de "Faum" (forma de manera))
 - **Hopar / Prok:** *¿Por qué?* (del Raíz "Sopar" (Razón))
+- **Heis / Kaul:** *¿Cuál?* 
 
 ## La Pregunta de Acción
 
