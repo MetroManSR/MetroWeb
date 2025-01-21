@@ -1,65 +1,64 @@
 ---
 layout: default
-title: "Balkeon Questions"
-language: en
+title: "Preguntas en Balkeon"
+language: es
 ---
 
-# Questions
+# Preguntas
 
-In Balkeon, questions can be constructed in several ways, allowing you to choose the form that best suits your needs. We'll use the following example and adapt it:
+En Balkeon, las preguntas se pueden construir de varias maneras, lo que te permite elegir la forma que mejor se adapte a tus necesidades. Usaremos el siguiente ejemplo y lo adaptaremos:
 
-**Example:**  
+**Ejemplo:**  
 `Deon gonir kaneol?`  
-*Where's the dog going?*
+*¿A dónde va el perro?*
 
-## VSO (Verb-Subject-Object) Structure
+## Estructura VSO (Verbo-Sujeto-Objeto)
 
-The first method involves simply rearranging the word order.
+El primer método implica simplemente reorganizar el orden de las palabras.
 
-**Example:**  
+**Ejemplo:**  
 `Deon gonir kaneol?`  
-*Where's the dog going?*
+*¿A dónde va el perro?*
 
-## Emphasis Infix
+## Infix de Énfasis
 
-If you encounter a false question, such as `I don't know where the dog is going,` you can emphasize your doubt with the infix `eh`.
+Si te encuentras con una pregunta falsa, como `No sé a dónde va el perro,` puedes enfatizar tu duda con el infijo `eh`.
 
-**Example:**  
+**Ejemplo:**  
 `Deon gonehir kaneol?`  
-*(Seriously) where is the dog going?*
+*(En serio) ¿a dónde va el perro?*
 
-## Alternative Question Words
+## Palabras Alternativas de Pregunta
 
-Almost all question particles (where, how, why) have their regularized question form.
+Casi todas las partículas de pregunta (dónde, cómo, por qué) tienen su forma regularizada de pregunta.
 
-**Example:**  
+**Ejemplo:**  
 `Has gonehir kaneol?`  
-*Where is the dog going?*
+*¿Dónde va el perro?*
 
-**Explanation:**  
-"Has" is "Where." "Has" is derived from "Ast" and "Ats" deictics, minus the `t`, indicating an unknown location.
+**Explicación:**  
+"Has" es "Dónde." "Has" se deriva de los deícticos "Ast" y "Ats," sin la `t,` indicando una ubicación desconocida.
 
-> **And the rest?**
+> **¿Y el resto?**
 
-All question words can be treated similarly:
+Todas las palabras de pregunta se pueden tratar de manera similar:
 
-- **Hunri / Kaum:** *How?* (from Root "Bunrib," changing the initial letter to "H," and dropping the final hard vowel "b")
-- **Hron / Krion / Kron:** *When?* (from Root "Kron," changing the initial "K" to "H")
-- **Hen / Ken / Kanem:** *Who?* (from "H" + gender suffixes + indefinite case)
-  > Note: Unsure of what "Hel" would mean.
-- **Hirian:** *What?* (Special case, use "H" and add tenses at the end to question the action)
-- **Haum / Kaum:** *How?* (both valid alternatives, derived by changing the first letter of "Faum" (manner form))
-- **Hopar / Prok:** *Why?* (from Root "Sopar" (Reason))
-- **Heis / Kaul:** *Which?*
+- **Hunri / Kaum:** *¿Cómo?* (del Raíz "Bunrib," cambiando la letra inicial a "H," y eliminando la última vocal fuerte "b")
+- **Hron / Krion / Kron:** *¿Cuándo?* (del Raíz "Kron," cambiando la "K" inicial a "H")
+- **Hen / Ken / Kanem:** *¿Quién/qué?* (de "H" + sufijos de género + caso indefinido)
+  > Nota: No estoy seguro de lo que significaría "Hel."
+- **Hirian:** *¿Qué?* (caso especial, usa "H" y agrega tiempos al final para cuestionar la acción)
+- **Haum / Kaum:** *¿Cómo?* (ambas alternativas son válidas, derivadas cambiando la primera letra de "Faum" (forma de manera))
+- **Hopar / Prok:** *¿Por qué?* (del Raíz "Sopar" (Razón))
 
-## The Action Question
+## La Pregunta de Acción
 
-Balkeon allows you to suffix the Question Particle `H` with tense markers, creating a question regarding the previously mentioned action.
+Balkeon te permite sufijar la Partícula de Pregunta `H` con los marcadores de tiempo, creando una pregunta sobre la acción mencionada o contextualizada anteriormente.
 
-**Examples:**
+**Ejemplos:**
 
 ```
-Hingir yu? What are you doing? What is the action you are performing?
-Hip eo? What is the action it performed?
+Hingir yu? ¿Qué estás haciendo? ¿Cuál es la acción que estás realizando?
+Hip eo? ¿Cuál es la acción que realizó?
 ```
-…and many more.
+…y muchos más.
