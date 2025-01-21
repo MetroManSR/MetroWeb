@@ -1,12 +1,12 @@
 ---
 layout: default
-title: "Balkeon Determinants"
+title: "Balkeon Determiners"
 language: en
 ---
 
-# Determinants
+# Determiners
 
-In Balkeon, there exists a remnant of a determinant suffix `el`. This suffix is not always used, as some prepositions and words already specify their roles in the sentence.
+In Balkeon, there exists a remnant of a determiner suffix `el`. This suffix is not always used, as some prepositions and words already specify their roles in the sentence.
 
 ## Articles?
 
@@ -20,11 +20,11 @@ These are combinations of deictics and the demonstrative suffix:
 
 ## Possessives
 
-Possessives lost their determinant position and became fully established by the Genitive Case.
+Possessives lost their determiner position and became fully established by the Genitive Case.
 
 ## Quantifiers
 
-Using the determinant suffix with these particles is optional but recommended to clarify and distinguish different sentence components.
+Using the determiner suffix with these particles is optional but recommended to clarify and distinguish different sentence components.
 
 ### Examples
 
