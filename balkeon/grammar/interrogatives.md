@@ -50,6 +50,7 @@ All question words can be treated similarly:
 - **Hirian:** *What?* (Special case, use "H" and add tenses at the end to question the action)
 - **Haum / Kaum:** *How?* (both valid alternatives, derived by changing the first letter of "Faum" (manner form))
 - **Hopar / Prok:** *Why?* (from Root "Sopar" (Reason))
+- **Heis / Kaul:** *Which?*
 
 ## The Action Question
 
