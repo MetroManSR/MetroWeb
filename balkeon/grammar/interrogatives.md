@@ -6,52 +6,59 @@ language: en
 
 # Questions
 
-The Questions are made through several alternatives, you can choose what to use and what fits you the most. 
+In Balkeon, questions can be constructed in several ways, allowing you to choose the form that best suits your needs. We'll use the following example and adapt it:
 
-We'll be using the following example and adapt it:
+**Example:**  
+`Deon gonir kaneol?`  
+*Where's the dog going?*
 
-`Deon gonir kaneol?`
-`Where's the dog going?`
+## VSO (Verb-Subject-Object) Structure
 
-## VSO
+The first method involves simply rearranging the word order.
 
-The first form is just switching up some word order and there you have it. 
-
-`Deon gonir kaneol?`
+**Example:**  
+`Deon gonir kaneol?`  
+*Where's the dog going?*
 
 ## Emphasis Infix
 
-If you ever stumble into a false question, like `I don't know where is the dog going` you can emphasize your doubt with `eh`. 
+If you encounter a false question, such as `I don't know where the dog is going,` you can emphasize your doubt with the infix `eh`.
 
-`Deon gonehir kaneol?`
-`(Seriously) where is the dog going?`
+**Example:**  
+`Deon gonehir kaneol?`  
+*(Seriously) where is the dog going?*
 
-## Alternative Question Words?
+## Alternative Question Words
 
-Yes, almost all Question Particles (Where, how, why), have their Regularized Question Form. 
+Almost all question particles (where, how, why) have their regularized question form.
 
-`Has gonehir kaneol?`
+**Example:**  
+`Has gonehir kaneol?`  
+*Where is the dog going?*
 
-Has is Where, although Has comes from Ast and Ats Deictics without that `t` that make them different, as if we were talking about an unknown location. 
+**Explanation:**  
+"Has" is "Where." "Has" is derived from "Ast" and "Ats" deictics, minus the `t`, indicating an unknown location.
 
-> And the rest?
+> **And the rest?**
 
-All words can have this treatment:
+All question words can be treated similarly:
 
-- Hunri = Kaum = How? (from Root Bunrib, changing the Initial Letter to H, and dropping the last hard vowel b)
-- Hron = Krion = Kron = When (from Root Kron, changing the initial K to H)
-- Hen = Ken/Kanem = Who (from H + gender suffixes + indefinite case)
-> Ok, this is when I reveal I don't know what would Hel even mean.
-- Hirian (Special case, just use H and add some tenses at the end, this creates a question regarding the action, let me explain this later)
-- Haum = Kaum (both alternatives are valid to use, they come from switching up the first letter of Faum (manner way form)
-- Hopar = Prok (from Root Sopar (Reason))
+- **Hunri / Kaum:** *How?* (from Root "Bunrib," changing the initial letter to "H," and dropping the final hard vowel "b")
+- **Hron / Krion / Kron:** *When?* (from Root "Kron," changing the initial "K" to "H")
+- **Hen / Ken / Kanem:** *Who?* (from "H" + gender suffixes + indefinite case)
+  > Note: Unsure of what "Hel" would mean.
+- **Hirian:** *What?* (Special case, use "H" and add tenses at the end to question the action)
+- **Haum / Kaum:** *How?* (both valid alternatives, derived by changing the first letter of "Faum" (manner form))
+- **Hopar / Prok:** *Why?* (from Root "Sopar" (Reason))
 
 ## The Action Question
 
-The result of being able to suffix anything that moves is that in this Auxlang you can even suffix the Question Particle `H` with the Tenses Markers, this creates a question for the action that was mentioned previously in the conversation. 
+Balkeon allows you to suffix the Question Particle `H` with tense markers, creating a question regarding the previously mentioned action.
+
+**Examples:**
 
 ```
-Hingir yu? What are you doing? What is the action you are performing? 
+Hingir yu? What are you doing? What is the action you are performing?
 Hip eo? What is the action it performed?
-and a long etc...
 ```
+…and many more.
