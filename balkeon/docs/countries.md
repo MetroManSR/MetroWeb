@@ -106,51 +106,50 @@ Got it! Here’s the list of Asian countries with their endonyms transliterated 
 
 ### Asia:
 - Afghanistan: Afganisten
-- Armenia: Hayasten
+- Armenia: Hayasten, armenien
 - Azerbaijan: Aserbaiyen
 - Bahrain: Bahrainen
-- Bangladesh: Bangladen
-- Bhutan: Drukyulen
+- Bangladesh: Bangladen, Bangladeshen
+- Bhutan: Drukyulen, Butanen
 - Brunei: Bruneyen
-- Cambodia: Kampucen
-- China: Songupen
-- Cyprus: Kiprosen
-- Georgia: Sakartbelen
-- India: Baraten
+- Cambodia: Kampucen, Kamboyen
+- China: Songupen, conguayen, cinen
+- Georgia: Sakartbelen, yoryen
+- India: Baraten, Hinden
 - Indonesia: Indonesien
 - Iran: Iranen
 - Iraq: Iraken
-- Israel: Yisraelen
-- Japan: Nihonen/Nipponen
-- Jordan: Urdunen
-- Kazakhstan: Kasaksten
-- Kuwait: Kubaiten
+- Israel: Yisraelen, Israelen
+- Japan: Nihonen, Nipponen
+- Jordan: Urdunen, Hordaniyen
+- Kazakhstan: Kasaksten, kasahisten
+- Kuwait: Kubaiten 
 - Kyrgyzstan: Kirgisten
-- Laos: Pa-thet Laosen
-- Lebanon: Lubnen
-- Malaysia: Malaisien
-- Maldives: Dibehen
+- Laos: Laosen
+- Lebanon: Lubnen, Lebanen
+- Malaysia: Malaisien, Malashen
+- Maldives: Dibehen, Maldibinsulen
 - Mongolia: Mongolen
 - Myanmar: Mianmen
 - Nepal: Nepalen
-- North Korea: Cosonen
-- Oman: Umanen
+- North Korea: Cosonen, Nordkoreyen
+- Oman: Umanen, Omanen
 - Pakistan: Pakisten
-- Palestine: Filastinen
-- Philippines: Pilipinasen
+- Palestine: Filastinen, Palestinen
+- Philippines: Pilipinasen, Filipinen
 - Qatar: Kataren
-- Saudi Arabia: Sudiyanen
+- Saudi Arabia: Sudiyanen, Saudiyaraben
 - Singapore: Singapuren
-- South Korea: Daehanminguken
-- Sri Lanka: Srilanken/Ilangakien
-- Syria: Suriyen
+- South Korea: Daehanminguken, Surkoreyen
+- Sri Lanka: Srilanken, Ilangakien, Seilanen
+- Syria: Suriyen, Sirien
 - Taiwan: Taiben
-- Tajikistan: Toyikisten
-- Thailand: Taiyen
+- Tajikistan: Toyikisten, Tayikisten
+- Thailand: Taiyen, tailanden
 - Timor-Leste: Timorlesten
 - Turkey: Turkien
 - Turkmenistan: Turkmenisten
-- United Arab Emirates: Imaratarabutahiden
-- Uzbekistan: Osbekisten
+- United Arab Emirates: Imaratarabutahiden, UAE, Uanatarabemirsen
+- Uzbekistan: Osbekisten, Usbekisten
 - Vietnam: Bietnamen
 - Yemen: Yamen
