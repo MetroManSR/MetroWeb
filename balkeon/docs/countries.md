@@ -153,3 +153,59 @@ Got it! Here’s the list of Asian countries with their endonyms transliterated 
 - Uzbekistan: Osbekisten, Usbekisten
 - Vietnam: Bietnamen
 - Yemen: Yamen
+
+### **Africa:**
+- Algeria: Yasaeren
+- Angola: Angolen
+- Benin: Beninen
+- Botswana: Botsuanen
+- Burkina Faso: Burkinafasen
+- Burundi: Burundien
+- Cape Verde: Kaboberden
+- Cameroon: Kamerunen
+- Central African Republic: Sentrafrikemopiren
+- Chad: Caden
+- Comoros: Komorien
+- Democratic Republic of the Congo: rellenar
+- Djibouti: Yibutien
+- Egypt: Misren, Eyipten
+- Equatorial Guinea: Ekuadorgineyen
+- Eritrea: Eritren
+- Eswatini: Esuatinien
+- Ethiopia: Itiopien
+- Gabon: Gabonen
+- Gambia: Gambien
+- Ghana: Ganen
+- Guinea: Gineyen
+- Guinea-Bissau: Bisaugineyen
+- Ivory Coast: Kotdiboren
+- Kenya: Kenien
+- Lesotho: Lesoten
+- Liberia: Liberien
+- Libya: Libien
+- Madagascar: Madagaskaren
+- Malawi: Malabien
+- Mali: Malien
+- Mauritania: Muritanien
+- Mauritius: Mauritien
+- Morocco: Magriben
+- Mozambique: Mosambiken
+- Namibia: Namibien
+- Niger: Nigeren
+- Nigeria: Nigerien
+- Republic of the Congo: Kongobemopiren
+- Rwanda: Ruanden
+- São Tomé and Príncipe: Saotome-eprinsipen
+- Senegal: Senegalen
+- Seychelles: Seicelen
+- Sierra Leone: Sieraleonen
+- Somalia: Somalien
+- South Africa: Surafriken
+- South Sudan: Sursuden
+- Sudan: Suden
+- Tanzania: Tansanien
+- Togo: Togen
+- Tunisia: Tunisien
+- Uganda: Uganden
+- Zambia: Sambien
+- Zimbabwe: Simbaben
