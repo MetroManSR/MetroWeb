@@ -101,3 +101,56 @@ Got it! Let's format the list to match your request:
 - Ukraine: Ukrayinen, Ukranien
 - United Kingdom: Ukayen
 - Vatican City: Batikanmatsen
+
+Got it! Here’s the list of Asian countries with their endonyms transliterated into Esperanto from the IPA, without diacritics and using the format you requested:
+
+### Asia:
+- Afghanistan: Afganisten
+- Armenia: Hayasten
+- Azerbaijan: Aserbaiyen
+- Bahrain: Bahrainen
+- Bangladesh: Bangladen
+- Bhutan: Drukyulen
+- Brunei: Bruneyen
+- Cambodia: Kampucen
+- China: Songupen
+- Cyprus: Kiprosen
+- Georgia: Sakartbelen
+- India: Baraten
+- Indonesia: Indonesien
+- Iran: Iranen
+- Iraq: Iraken
+- Israel: Yisraelen
+- Japan: Nihonen/Nipponen
+- Jordan: Urdunen
+- Kazakhstan: Kasaksten
+- Kuwait: Kubaiten
+- Kyrgyzstan: Kirgisten
+- Laos: Pa-thet Laosen
+- Lebanon: Lubnen
+- Malaysia: Malaisien
+- Maldives: Dibehen
+- Mongolia: Mongolen
+- Myanmar: Mianmen
+- Nepal: Nepalen
+- North Korea: Cosonen
+- Oman: Umanen
+- Pakistan: Pakisten
+- Palestine: Filastinen
+- Philippines: Pilipinasen
+- Qatar: Kataren
+- Saudi Arabia: Sudiyanen
+- Singapore: Singapuren
+- South Korea: Daehanminguken
+- Sri Lanka: Srilanken/Ilangakien
+- Syria: Suriyen
+- Taiwan: Taiben
+- Tajikistan: Toyikisten
+- Thailand: Taiyen
+- Timor-Leste: Timorlesten
+- Turkey: Turkien
+- Turkmenistan: Turkmenisten
+- United Arab Emirates: Imaratarabutahiden
+- Uzbekistan: Osbekisten
+- Vietnam: Bietnamen
+- Yemen: Yamen
