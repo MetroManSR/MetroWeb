@@ -19,7 +19,7 @@ In Balkeon there are 3 Grammatical Cases, [here](../sentences) you can check the
 
 ## Indefinite and Definite
 
-> Added on January 21, 2024
+> Added on January 21, 2025
 - In Balkeon, there are no articles; however, the `Definite` and `Indefinite` forms of almost all words do exist.
 
 ### First Case
