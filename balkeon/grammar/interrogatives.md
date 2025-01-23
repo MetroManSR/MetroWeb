@@ -20,7 +20,7 @@ El primer método implica simplemente reorganizar el orden de las palabras.
 `Deon gonir kaneol?`  
 *¿A dónde va el perro?*
 
-## Infix de Énfasis
+## Infijo de Énfasis
 
 Si te encuentras con una pregunta falsa, como `No sé a dónde va el perro,` puedes enfatizar tu duda con el infijo `eh`.
 
@@ -43,7 +43,15 @@ Casi todas las partículas de pregunta (dónde, cómo, por qué) tienen su forma
 
 Todas las palabras de pregunta se pueden tratar de manera similar:
 
-- **Hunri / Kaum:** *¿Cómo?* (del Raíz "Bunrib," cambiando la letra inicial a "H," y eliminando la última vocal fuerte "b")
+
+- **Haum / Kaum:** *¿Cómo?* (de la Raíz "Faum") 
+- **Hunri / Yuan:** *¿Cuánto?* (de la raíz "Bunrib," cambiando la letra inicial por "H," y sacando la letra final "b")
+- **Hoft / Yuanoften:** *¿Cada cuánto?* (de la Raíz "Oft")
+- **Hlast:** *¿Cuánto dura?* (de la Raíz "Last")
+- **Hrats:** *¿Qué tan lejos?* (de "Rats")
+- **Hrast:** *¿Qué tan cerca?* (de "Rast" )
+- **Hras:** *¿Qué tan cerca/lejos?* (de "Ras")
+- **Hars:** *¿Cuántos años?* (de la Raíz "Yar") 
 - **Hron / Krion / Kron:** *¿Cuándo?* (del Raíz "Kron," cambiando la "K" inicial a "H")
 - **Hen / Ken / Kanem:** *¿Quién/qué?* (de "H" + sufijos de género + caso indefinido)
   > Nota: No estoy seguro de lo que significaría "Hel."
