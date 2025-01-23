@@ -209,3 +209,27 @@ Got it! Here’s the list of Asian countries with their endonyms transliterated 
 - Uganda: Uganden
 - Zambia: Sambien
 - Zimbabwe: Simbaben
+
+### **Oceania:**
+- Australia: Ostralien
+- Fiji: Figien
+- Kiribati: Kiribatien
+- Marshall Islands: Marshalinsulsen
+- Micronesia: Mikronesien
+- Nauru: Nauruben
+- New Zealand: Nobselanden
+- Palau: Palaulen
+- Papua New Guinea: Papuaneobgineyen, Papuaneobgineyen
+- Samoa: Samolen
+- Solomon Islands: Salomoninsulsen
+- Tonga: Tonganen
+- Tuvalu: Tubalen
+- Vanuatu: Banuatuben
+
+### **Additional Countries and Territories:**
+- Cook Islands: Kukinsulsen
+- Niue: Niuren
+- Tokelau: Tokelaben
+- French Polynesia: Franspolinesen
+- New Caledonia: Neobkaledonen
+- Wallis and Futuna: Ualisfutunen
