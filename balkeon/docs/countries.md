@@ -38,21 +38,28 @@ Got it! Let's format the list to match your request:
 - Antigua and Barbuda: Antiguabarbuden
 - Bahamas: Bahamen
 - Barbados: Barbaden
+- Bermuda: Bermuden
 - Cuba: Kubayen
 - Dominica: Dominikayen
 - Dominican Republic: Dominikayemopiren
 - Grenada: Granaden
 - Haiti: Haitiyen
 - Jamaica: Hamaiken
+- Puerto Rico: Puertoriken
 - Saint Kitts and Nevis: Sankitsnebisen
 - Saint Lucia: Sanlusiyen
 - Saint Vincent and the Grenadines: Sanbisentegranaden
 - Trinidad and Tobago: Trinidadtobagen
-
+- Virgin Islands: Birgininsulsen
+- 
 ## **North America:**
 - Canada: Kanaden
 - Mexico: Mehiken
 - United States: Usayen
+
+### **Additional Countries and Territories:**
+
+- Greenland:Grablanden
 
 ### **Europe:**
 - Albania: Shekiperen, Albaniyen
@@ -102,7 +109,9 @@ Got it! Let's format the list to match your request:
 - United Kingdom: Ukayen
 - Vatican City: Batikanmatsen
 
-Got it! Here’s the list of Asian countries with their endonyms transliterated into Esperanto from the IPA, without diacritics and using the format you requested:
+### **Additional Countries and Territories:**
+
+- Gibraltar: Gibraltaren
 
 ### Asia:
 - Afghanistan: Afganisten
