@@ -43,8 +43,15 @@ Almost all question particles (where, how, why) have their regularized question 
 
 All question words can be treated similarly:
 
-- **Hunri / Kaum:** *How?* (from Root "Bunrib," changing the initial letter to "H," and dropping the final hard vowel "b")
-- **Hron / Krion / Kron:** *When?* (from Root "Kron," changing the initial "K" to "H")
+- **Haum / Kaum:** *How?* (from Root "Faum") 
+- **Hunri / Yuan:** *How much/many?* (from Root "Bunrib," changing the initial letter to "H," and dropping the final hard vowel "b")
+- **Hoft / Yuanoften:** *How often* (from Root "Oft")
+- **Hlast:** *How long* (duration, from Root "Last")
+- **Hrats:** *How far* (from "Rats")
+- **Hrast:** *How close* (from "Rast" )
+- **Hras:** *How far/close* (from "Ras")
+- **Hars:** *How old* (from Root "Yar") 
+-  **Hron / Krion / Kron:** *When?* (from Root "Kron," changing the initial "K" to "H")
 - **Hen / Ken / Kanem:** *Who?* (from "H" + gender suffixes + indefinite case)
   > Note: Unsure of what "Hel" would mean.
 - **Hirian:** *What?* (Special case, use "H" and add tenses at the end to question the action)
