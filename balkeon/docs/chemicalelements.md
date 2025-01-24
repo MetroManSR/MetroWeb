@@ -230,15 +230,15 @@ language: es
     <td>30</td>
     <td>Zn</td>
     <td>Zinc</td>
-    <td>Ascutemikeon</td>
-    <td>Sinkemikeon</td>
+    <td>Askutemikeon</td>
+    <td>Tsinkemikeon</td>
   </tr>
   <tr>
     <td>31</td>
     <td>Ga</td>
     <td>Galio</td>
     <td>Fransemikeon</td>
-    <td>Galiremikeon</td>
+    <td>Galiyemikeon</td>
   </tr>
   <tr>
     <td>32</td>
