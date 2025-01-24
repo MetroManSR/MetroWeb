@@ -202,7 +202,7 @@ language: en
   </tr>
   <tr>
     <td>26</td>
-    <td>Faith</td>
+    <td>Fe</td>
     <td>Iron</td>
     <td>Feremikeon</td>
     <td>Feremikeon</td>
@@ -233,14 +233,14 @@ language: en
     <td>Zn</td>
     <td>Zinc</td>
     <td>Askutemikeon</td>
-    <td>Sinkemikeon</td>
+    <td>Tsinkemikeon</td>
   </tr>
   <tr>
     <td>31</td>
     <td>Ga</td>
     <td>Gallium</td>
     <td>Fransemikeon</td>
-    <td>Galiremikeon</td>
+    <td>Galiyemikeon</td>
   </tr>
   <tr>
     <td>32</td>
