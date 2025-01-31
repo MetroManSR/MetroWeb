@@ -38,6 +38,8 @@ export async function setTexts(language) {
             orderBySelect.options[3].textContent = currentTexts.metaDesc;
             orderBySelect.options[4].textContent = currentTexts.morphAsc;
             orderBySelect.options[5].textContent = currentTexts.morphDesc;
+            orderBySelect.options[6].textContent = currentTexts.titleLengthUp; // New option
+            orderBySelect.options[7].textContent = currentTexts.titleLengthDown; // New option
         }
 
         // Update the filter dropdown options text
