@@ -40,45 +40,45 @@ layout: default
       <div id="dict-pending-changes" class="dict-pending-changes"></div>
 
       <!-- Compact Filter Sorting Container -->
-<div id="dct-flt-srt-ctr" class="dct-flt-srt-ctr">
-    <div class="dct-ctr">
-        <label id="dct-rws-lbl" for="dct-rws-inp">Rows per page:</label>
-        <input type="number" id="dct-rws-inp" value="20" min="5" max="500" class="dct-inp" />
-    </div>
-    <div class="dct-ctr">
-        <label id="dct-flt-by-lbl" for="dct-wrd-flt">Filter by:</label>
-        <select id="dct-wrd-flt" multiple class="dct-slt">
-            <option value="word">Word</option>
-            <option value="root">Root</option>
-            <option value="noun">Noun</option>
-            <option value="verb">Verb</option>
-            <option value="adjective">Adjective</option>
-            <option value="adverb">Adverb</option>
-            <option value="conjunction">Conjunction</option>
-            <option value="interjection">Interjection</option>
-            <option value="preposition">Preposition</option>
-            <option value="expression">Expression</option>
-            <option value="pronoun">Pronoun</option>
-        </select>
-    </div>
-    <div class="dct-ctr">
-        <label for="dct-ord-slt" id="dct-ord-lbl">Order By:</label>
-        <select id="dct-ord-slt" class="dct-slt">
-    <option value="titleup">Title (Ascending)</option>
-    <option value="titledown">Title (Descending)</option>
-    <option value="metaup">Meta (Ascending)</option>
-    <option value="metadown">Meta (Descending)</option>
-    <option value="morphup">Morphology (Ascending)</option>
-    <option value="morphdown">Morphology (Descending)</option>
-    <option value="titleLengthUp">Title Length (Ascending)</option>
-    <option value="titleLengthDown">Title Length (Descending)</option>
-        </select>
-    </div>
-</div>
-
+      <div id="dct-flt-srt-ctr" class="dct-flt-srt-ctr">
+          <div class="dct-ctr">
+              <label id="dct-rws-lbl" for="dct-rws-inp">Rows per page:</label>
+              <input type="number" id="dct-rws-inp" value="20" min="5" max="500" class="dct-inp" />
+          </div>
+          <div class="dct-ctr">
+              <label id="dct-flt-by-lbl" for="dct-wrd-flt">Filter by:</label>
+              <select id="dct-wrd-flt" multiple class="dct-slt">
+                  <option value="word">Word</option>
+                  <option value="root">Root</option>
+                  <option value="noun">Noun</option>
+                  <option value="verb">Verb</option>
+                  <option value="adjective">Adjective</option>
+                  <option value="adverb">Adverb</option>
+                  <option value="conjunction">Conjunction</option>
+                  <option value="interjection">Interjection</option>
+                  <option value="preposition">Preposition</option>
+                  <option value="expression">Expression</option>
+                  <option value="pronoun">Pronoun</option>
+              </select>
+          </div>
+          <div class="dct-ctr">
+              <label for="dct-ord-slt" id="dct-ord-lbl">Order By:</label>
+              <select id="dct-ord-slt" class="dct-slt">
+                  <option value="titleup">Title (Ascending)</option>
+                  <option value="titledown">Title (Descending)</option>
+                  <option value="metaup">Translation (Ascending)</option>
+                  <option value="metadown">Translation (Descending)</option>
+                  <option value="morphup">Morphology (Ascending)</option>
+                  <option value="morphdown">Morphology (Descending)</option>
+                  <option value="titleLengthUp">Title Length (Ascending)</option>
+                  <option value="titleLengthDown">Title Length (Descending)</option>
+                  <option value="metaLengthUp">Translation Length (Ascending)</option>
+                  <option value="metaLengthDown">Translation Length (Descending)</option>
+              </select>
+          </div>
+      </div>
       
       <div class="dict-buttons">
-        
         <button id="dict-apply-settings-button" class="dict-apply-settings-button dict-filter-button">Apply Settings</button>
         <button id="dict-clear-settings-button" class="dict-clear-settings-button dict-filter-button btn-danger">Clear Settings</button>
       </div>
@@ -166,4 +166,4 @@ layout: default
       <div id="error-container" class="error-container hidden"></div>
     </main>
   </body>
-</html> 
+</html>                        
