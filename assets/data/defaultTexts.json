@@ -3,10 +3,8 @@
         "searchPlaceholder": "Search...",
         "searchButton": "Search",
         "clearSearchButton": "Clear Search",
-
         "rowsPerPageLabel": "Rows per page:",
         "rowsPerPageButton": "Submit",
-
         "advancedSearchButton": "Advanced Search",
         "applySearchButton": "Apply",
         "close": "Close",
@@ -15,9 +13,7 @@
         "searchInDefinition": "Definition",
         "searchInEtymology": "Etymology",
         "exactMatch": "Exact Match",
-
         "viewStatisticsButton": "View Statistics",
-
         "filterByLabel": "Filter by:",
         "applyFilterButton": "Apply",
         "noun": "Noun",
@@ -29,15 +25,11 @@
         "preposition": "Preposition",
         "expression": "Expression",
         "pronoun": "Pronoun",
-
         "loadingMessage": "Loading dictionary, please wait...",
         "errorLoadingData": "Failed to load dictionary data. Please try again later.",
-
         "applySettingsButton": "Apply Settings",
         "clearSettingsButton": "Clear Settings",
-
         "orderByLabel": "Order By:",
-
         "translation": "Translation",
         "notes": "Notes",
         "morphology": "Morphology",
@@ -54,7 +46,6 @@
         "withFilters": "with filters",
         "withAdvancedSearch": "with advanced search applied",
         "toggleFiltersButton": "Toggle Filters",
-
         "pendingChanges": "Pending Changes",
         "noPendingChanges": "No pending changes",
         "searchIn": "Search in",
@@ -66,37 +57,33 @@
         "endsWith": "Ends With",
         "sortOrder": "Sort Order",
         "rowsPerPage": "Rows Per Page",
-
         "bugCopyPaste01": "Hello I found a mistake or bug in ",
         "bugCopyPaste02": ": _your input_",
-
         "ideaCopyPaste01": "Hello I think I have an idea to improve word ",
         "ideaCopyPaste02": "_your suggestion here_",
-
         "advancedSearchTitle": "Advanced Search",
         "addSearch": "Add Search",
         "statisticsTitle": "Statistics",
         "totalWords": "Total Words",
         "totalRoots": "Total Roots",
-        "partOfSpeechTitle": "Total Words per Part of Speech", 
-
-        "metaup": "Translation (Ascending)", 
-        "metadown" : "Translation (Descending)", 
-        "titleup": "Balkeon (Ascending)",  
-        "titledown" : "Balkeon (Descending)", 
-        "morphup": "Morphology (Ascending)", 
-        "morphdown" : "Morphology (Descending)",
-        "titleLengthUp": "Title Length (Ascending)", // New option
-        "titleLengthDown": "Title Length (Descending)" // New option
+        "partOfSpeechTitle": "Total Words per Part of Speech",
+        "metaup": "Translation (Ascending)",
+        "metadown": "Translation (Descending)",
+        "titleup": "Balkeon (Ascending)",
+        "titledown": "Balkeon (Descending)",
+        "morphup": "Morphology (Ascending)",
+        "morphdown": "Morphology (Descending)",
+        "titleLengthUp": "Title Length (Ascending)",
+        "titleLengthDown": "Title Length (Descending)",
+        "metaLengthUp": "Translation Length (Ascending)",
+        "metaLengthDown": "Translation Length (Descending)"
     },
     "es": {
         "searchPlaceholder": "Buscar...",
         "searchButton": "Buscar",
         "clearSearchButton": "Limpiar Búsqueda",
-
         "rowsPerPageLabel": "Filas por página:",
         "rowsPerPageButton": "Enviar",
-
         "advancedSearchButton": "Búsqueda Avanzada",
         "applySearchButton": "Aplicar",
         "close": "Cerrar",
@@ -105,9 +92,7 @@
         "searchInDefinition": "Definición",
         "searchInEtymology": "Etimología",
         "exactMatch": "Coincidencia Exacta",
-
         "viewStatisticsButton": "Ver Estadísticas",
-
         "filterByLabel": "Filtrar por:",
         "applyFilterButton": "Aplicar",
         "noun": "Sustantivo",
@@ -119,13 +104,11 @@
         "preposition": "Preposición",
         "expression": "Expresión",
         "pronoun": "Pronombre",
-
         "loadingMessage": "Cargando diccionario, por favor espera...",
         "errorLoadingData": "No se pudo cargar los datos del diccionario. Por favor, inténtalo de nuevo más tarde.",
-
         "applySettingsButton": "Aplicar Configuraciones",
         "clearSettingsButton": "Limpiar Configuraciones",
-
+        "orderByLabel": "Ordenar Por:",
         "translation": "Traducción",
         "notes": "Notas",
         "morphology": "Morfología",
@@ -142,7 +125,6 @@
         "withFilters": "con filtros",
         "withAdvancedSearch": "con búsqueda avanzada aplicada",
         "toggleFiltersButton": "Mostrar o Esconder Filtros",
-
         "pendingChanges": "Cambios Pendientes",
         "noPendingChanges": "No hay cambios pendientes",
         "searchIn": "Buscar en",
@@ -154,29 +136,26 @@
         "endsWith": "Termina Con",
         "sortOrder": "Orden de Clasificación",
         "rowsPerPage": "Filas Por Página",
-
         "bugCopyPaste01": "Hola encontré un error en ",
         "bugCopyPaste02": ": _escribe aquí_",
-
         "ideaCopyPaste01": "Hola tengo una idea para mejorar la palabra ",
         "ideaCopyPaste02": ": _tu sugerencia_",
-
         "advancedSearchTitle": "Búsqueda Avanzada",
         "addSearch": "Agregar Búsqueda",
         "statisticsTitle": "Estadísticas",
         "totalWords": "Palabras Totales",
         "totalRoots": "Raíces Totales",
-        "partOfSpeechTitle": "Palabras Totales por Parte del Habla", 
-
-        "orderByLabel": "Ordenar Por:",
-        "metaup" : "Traducción (Ascendente)", 
-        "metadown" : "Traducción (Descendente)",
-        "titleup": "Balkeon (Ascendente)",  
-        "titledown" : "Balkeon (Descendente)", 
-        "morphup": "Morfología (Ascendente)", 
-        "morphdown" : "Morfología (Descendente)",
-        "titleLengthUp": "Longitud del Título (Ascendente)", // New option
-        "titleLengthDown": "Longitud del Título (Descendente)" // New option
+        "partOfSpeechTitle": "Palabras Totales por Parte del Habla",
+        "metaup": "Traducción (Ascendente)",
+        "metadown": "Traducción (Descendente)",
+        "titleup": "Balkeon (Ascendente)",
+        "titledown": "Balkeon (Descendente)",
+        "morphup": "Morfología (Ascendente)",
+        "morphdown": "Morfología (Descendente)",
+        "titleLengthUp": "Longitud del Título (Ascendente)",
+        "titleLengthDown": "Longitud del Título (Descendente)",
+        "metaLengthUp": "Longitud de la Traducción (Ascendente)",
+        "metaLengthDown": "Longitud de la Traducción (Descendente)"
     },
     "eo": {},
     "blk": {}
