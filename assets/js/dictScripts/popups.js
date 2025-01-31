@@ -1,3 +1,13 @@
+import { processAllSettings } from './processRows.js';
+import { universalPendingChanges, updateUniversalPendingChanges, defaultPendingChanges, updatePendingChangesList } from './initFormEventListeners.js';
+import { filteredRows } from '../mainDict.js';
+import { getTranslatedText } from './loadTexts.js';
+
+const advancedSearchPopup = document.getElementById('dict-advanced-search-popup');
+const advancedSearchOverlay = document.getElementById('popup-overlay');
+const closeAdvancedSearch = document.getElementById('dict-close-advanced-search');
+const addSearchBtnPopup = document.getElementById('dict-add-search-btn-popup');
+
 export async function initAdvancedSearchPopup(allRows, rowsPerPage, currentLanguage) {
     // Load previous selections from pendingChanges
     const pendingChanges = universalPendingChanges ? universalPendingChanges : { ...defaultPendingChanges };
@@ -66,3 +76,72 @@ export async function initAdvancedSearchPopup(allRows, rowsPerPage, currentLangu
         closeAdvancedSearch.classList.remove('active');
     });
 }
+
+export async function initStatisticsPopup(allRows) {
+    const statisticsPopup = document.getElementById('dict-statistics-popup');  
+    
+    if (statisticsPopup.classList.contains('active')) {
+        return;
+    }
+
+    const currentLanguage = document.querySelector('meta[name="language"]').content || 'en';
+    
+    const totalWords = allRows.filter(row => row.type === 'word').length;
+    const totalRoots = allRows.filter(row => row.type === 'root').length;
+
+    const partOfSpeechCounts = allRows.reduce((counts, row) => {
+        if (row.type === 'word' && row.partofspeech) {
+            counts[row.partofspeech] = (counts[row.partofspeech] || 0) + 1;
+        }
+        return counts;
+    }, {});
+
+    // Translations for Statistics Popup
+    const statisticsTitle = await getTranslatedText('statisticsTitle', currentLanguage);
+    const totalWordsText = await getTranslatedText('totalWords', currentLanguage);
+    const totalRootsText = await getTranslatedText('totalRoots', currentLanguage);
+    const partOfSpeechTitle = await getTranslatedText('partOfSpeechTitle', currentLanguage);
+    const closeStatsText = await getTranslatedText('close', currentLanguage);
+
+    const validPartOfSpeeches = [
+        "noun", "verb", "adjective", "adverb", "conjunction",
+        "interjection", "preposition", "expression", "pronoun", "root", "word"
+    ];
+
+    statisticsPopup.innerHTML = `
+        <h3>${statisticsTitle}</h3>
+        <p>${totalWordsText}: ${totalWords}</p>
+        <p>${totalRootsText}: ${totalRoots}</p>
+        <h4>${partOfSpeechTitle}</h4>
+        <ul>
+            ${await Promise.all(Object.entries(partOfSpeechCounts).map(async ([pos, count]) => {
+                const posParts = pos.split(',').map(part => part.trim());
+                const translatedParts = await Promise.all(posParts.map(async part => {
+                    return validPartOfSpeeches.includes(part) ? await getTranslatedText(part, currentLanguage) : part;
+                }));
+                const finalPos = translatedParts.join(', ');
+                return `<li>${finalPos}: ${count}</li>`;
+            })).then(items => items.join(''))}
+        </ul>
+        <button id="dict-close-statistics-button" class="btn">${closeStatsText}</button>
+    `;
+    
+    const popupOverlay = document.getElementById('popup-overlay');
+    const infoClose = document.getElementById('dict-close-statistics-button');
+
+    await statisticsPopup.classList.add('active');
+    await statisticsPopup.classList.remove('hidden');
+    await popupOverlay.classList.add('active');
+    await popupOverlay.classList.remove('hidden');
+    await infoClose.classList.add('active');
+    await infoClose.classList.remove('hidden');
+
+    infoClose.addEventListener('click', async () => {
+        await statisticsPopup.classList.remove('active');
+        await statisticsPopup.classList.add('hidden');
+        await popupOverlay.classList.remove('active');
+        await popupOverlay.classList.add('hidden');
+        await infoClose.classList.remove('active');
+        await infoClose.classList.add('hidden');
+    });
+        }
