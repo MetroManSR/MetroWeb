@@ -85,8 +85,9 @@
         "titleup": "Balkeon (Ascending)",  
         "titledown" : "Balkeon (Descending)", 
         "morphup": "Morphology (Ascending)", 
-        "morphdown" : "Morphology (Descending)"
-    
+        "morphdown" : "Morphology (Descending)",
+        "titleLengthUp": "Title Length (Ascending)", // New option
+        "titleLengthDown": "Title Length (Descending)" // New option
     },
     "es": {
         "searchPlaceholder": "Buscar...",
@@ -173,7 +174,9 @@
         "titleup": "Balkeon (Ascendente)",  
         "titledown" : "Balkeon (Descendente)", 
         "morphup": "Morfología (Ascendente)", 
-        "morphdown" : "Morfología (Descendente)" 
+        "morphdown" : "Morfología (Descendente)",
+        "titleLengthUp": "Longitud del Título (Ascendente)", // New option
+        "titleLengthDown": "Longitud del Título (Descendente)" // New option
     },
     "eo": {},
     "blk": {}
