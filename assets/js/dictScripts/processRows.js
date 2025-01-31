@@ -37,6 +37,10 @@ export function sortRows(rows, sortingManner) {
                 const morphB = Array.isArray(b.morph) ? b.morph.join(' ') : b.morph || '';
                 return morphB.localeCompare(morphA);
             });
+        case 'titleLengthUp': // Sort by title length (ascending)
+            return [...rows].sort((a, b) => a.title.length - b.title.length);
+        case 'titleLengthDown': // Sort by title length (descending)
+            return [...rows].sort((a, b) => b.title.length - a.title.length);
         default:
             return [...rows].sort((a, b) => a.title.localeCompare(b.title));
     }
