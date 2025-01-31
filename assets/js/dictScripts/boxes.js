@@ -1,13 +1,21 @@
 import { getRelatedWordsByRoot, highlight, createHyperlink } from './utils.js';
 import { updatePagination } from './pagination.js';
 import { getTranslatedText } from './loadTexts.js';
-import { copyToClipboard, getSimilarity, levenshteinDistance, editDistance } from './utils.js';
 import { loadInfoBox } from './boxEvents.js';
 import { filteredRows } from '../mainDict.js';
 import { universalPendingChanges } from './initFormEventListeners.js';
+
 let previouslySelectedBox = null;
 
-// Function to get part of speech abbreviation based on language
+// Cache frequently used translations
+const translationCache = {};
+
+/**
+ * Gets the part of speech abbreviation based on the language.
+ * @param {string} partOfSpeech - The part of speech.
+ * @param {string} language - The language code.
+ * @returns {string} - The abbreviated part of speech.
+ */
 function getPartOfSpeechAbbreviation(partOfSpeech, language) {
     const posAbbreviations = {
         en: {
@@ -32,10 +40,18 @@ function getPartOfSpeechAbbreviation(partOfSpeech, language) {
         }
     };
 
-    return posAbbreviations[language][partOfSpeech.toLowerCase()] || partOfSpeech;
+    return posAbbreviations[language]?.[partOfSpeech.toLowerCase()] || partOfSpeech;
 }
 
-// Function to create a dictionary box
+/**
+ * Creates a dictionary box for a given row.
+ * @param {Object} row - The dictionary row.
+ * @param {Array} allRows - All dictionary rows.
+ * @param {string} searchTerm - The search term.
+ * @param {boolean} exactMatch - Whether to perform an exact match.
+ * @param {Object} searchIn - Fields to search within.
+ * @returns {Promise<HTMLElement>} - The dictionary box element.
+ */
 export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, searchIn) {
     if (!row || !row.title) {
         console.error('Invalid row data:', row);
@@ -47,58 +63,63 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
     box.id = `${row.type}-${row.id}`;
 
     if (row.type === 'root') {
-        box.classList.add('root-word'); // Apply root word styling
+        box.classList.add('root-word');
     }
 
-    const language = document.querySelector('meta[name="language"]').content || 'en'; // Default to 'en' if not specified
+    const language = document.querySelector('meta[name="language"]').content || 'en';
     const partOfSpeechAbbr = getPartOfSpeechAbbreviation(row.partofspeech || '', language);
 
+    // Create title element
     const wordElement = document.createElement('div');
     wordElement.classList.add('dictionary-box-title');
-    wordElement.innerHTML = await highlight(row.title + (row.type !== 'root' ? ` (${partOfSpeechAbbr})` : ''), searchTerm, searchIn, row);
+    wordElement.innerHTML = await highlight(
+        row.title + (row.type !== 'root' ? ` (${partOfSpeechAbbr})` : ''),
+        searchTerm,
+        searchIn,
+        row
+    );
 
-    const hrElement = document.createElement('hr');
-
+    // Create meta element
     const metaElement = document.createElement('div');
     metaElement.classList.add('dictionary-box-meta');
     metaElement.innerHTML = await highlight(row.meta, searchTerm, searchIn, row);
 
+    // Create content box
     const contentBox = document.createElement('div');
     contentBox.classList.add('dictionary-box-content');
 
-    const notesElement = document.createElement('div');
-    notesElement.classList.add('dictionary-box-notes');
-
-    const morphElement = document.createElement('div');
-    morphElement.classList.add('dictionary-box-morph');
-
-    // Display morphology for words and etymology for roots
+    // Add meta and notes
     if (row.type === 'root') {
         metaElement.innerHTML = `<strong>${await getTranslatedText('translation', language)}:</strong> ${await highlight(row.meta, searchTerm, searchIn, row)}`;
+        const notesElement = document.createElement('div');
+        notesElement.classList.add('dictionary-box-notes');
         notesElement.innerHTML = `<strong>${await getTranslatedText('notes', language)}:</strong> ${await highlight(row.notes || '', searchTerm, searchIn, row)}`;
-        morphElement.innerHTML = `<strong>${await getTranslatedText('etymology', language)}:</strong> ${await highlight(row.morph.join(', ') || '', searchTerm, searchIn, row)}`;
         contentBox.appendChild(metaElement);
         contentBox.appendChild(notesElement);
-        contentBox.appendChild(morphElement);
     } else {
         metaElement.innerHTML = `<strong>${await getTranslatedText('translation', language)}:</strong> ${await highlight(row.meta, searchTerm, searchIn, row)}`;
+        const notesElement = document.createElement('div');
+        notesElement.classList.add('dictionary-box-notes');
         notesElement.innerHTML = `<strong>${await getTranslatedText('notes', language)}:</strong> ${await highlight(row.notes || '', searchTerm, searchIn, row)}`;
         contentBox.appendChild(metaElement);
         contentBox.appendChild(notesElement);
 
+        // Add morphology if available
         if (Array.isArray(row.morph) && row.morph.length > 0) {
-            morphElement.innerHTML = `<strong>${await getTranslatedText('morphology', language)}:</strong> `;
-            const morphLinks = await Promise.all(row.morph.map(async (morphTitle, index) => {
+            const morphElement = document.createElement('div');
+            morphElement.classList.add('dictionary-box-morph');
+            const morphLinks = await Promise.all(row.morph.map(async (morphTitle) => {
                 const matchingRoot = allRows.find(r => r.meta.toLowerCase() === morphTitle.toLowerCase() && r.type === 'root');
-                return matchingRoot 
-                    ? await createHyperlink(morphTitle, searchTerm, allRows, searchIn) 
+                return matchingRoot
+                    ? await createHyperlink(morphTitle, searchTerm, allRows, searchIn)
                     : await highlight(morphTitle, searchTerm, searchIn, row);
             }));
-            morphElement.innerHTML += morphLinks.join(', ');
+            morphElement.innerHTML = `<strong>${await getTranslatedText('morphology', language)}:</strong> ${morphLinks.join(', ')}`;
             contentBox.appendChild(morphElement);
         }
     }
 
+    // Add type tag
     const typeTag = document.createElement('span');
     typeTag.classList.add('type-tag');
     typeTag.textContent = row.type === 'root' ? await getTranslatedText('root', language) : await getTranslatedText('word', language);
@@ -106,13 +127,7 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
     typeTag.style.top = '10px';
     typeTag.style.right = '10px';
 
-    box.style.position = 'relative';  // Ensure the box is relatively positioned
-
-    box.appendChild(typeTag);
-    box.appendChild(wordElement);
-    box.appendChild(contentBox);
-
-    // Add ID display in bottom right
+    // Add ID display
     const idElement = document.createElement('div');
     idElement.className = 'id-display';
     idElement.textContent = `${await getTranslatedText('id', language)}: ${row.id}`;
@@ -120,39 +135,31 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
     idElement.style.bottom = '10px';
     idElement.style.right = '10px';
 
+    // Append elements to the box
+    box.appendChild(typeTag);
+    box.appendChild(wordElement);
+    box.appendChild(contentBox);
     box.appendChild(idElement);
-
-    // Ensure text does not overlap with type tag or ID box
-    wordElement.style.paddingRight = '50px'; // Adjust padding to avoid type tag
-    morphElement.style.paddingBottom = '30px'; // Adjust padding to avoid ID box
-
-    await loadInfoBox(box, row);
 
     // Add fade-in effect
     setTimeout(() => {
         box.classList.add('fade-in');
     }, 100);
 
+    // Load info box
+    await loadInfoBox(box, row);
+
     return box;
 }
 
 /**
- * Function to create a no match box with suggestions.
- *
- * @param {string} language - The language code for translations.
- * @param {string} searchTerm - The search term entered by the user.
- * @param {Array} allRows - The array of all dictionary rows.
- * @returns {Promise<Element>} - A promise that resolves to the no match box element.
+ * Creates a "no match" box with suggestions.
+ * @param {string} language - The language code.
+ * @param {string} searchTerm - The search term.
+ * @param {Array} allRows - All dictionary rows.
+ * @returns {Promise<HTMLElement>} - The "no match" box element.
  */
 export async function createNoMatchBox(language, searchTerm, allRows) {
-    const dictionaryContainer = document.getElementById('dict-dictionary');
-
-    // Check for existing no match box
-    const existingNoMatchBox = dictionaryContainer.querySelector('.dict-no-match-box');
-    if (existingNoMatchBox) {
-        return existingNoMatchBox;
-    }
-
     const noMatchBox = document.createElement('div');
     noMatchBox.className = 'dict-no-match-box';
 
@@ -160,7 +167,7 @@ export async function createNoMatchBox(language, searchTerm, allRows) {
     noMatchText.textContent = await getTranslatedText('noMatch', language);
     noMatchBox.appendChild(noMatchText);
 
-    // Calculate similarities and get the top 20 matching titles
+    // Calculate suggestions
     const suggestions = allRows
         .map(row => ({
             title: row.title,
@@ -193,14 +200,13 @@ export async function createNoMatchBox(language, searchTerm, allRows) {
             suggestionLink.className = 'dict-suggestion-link';
             suggestionLink.style.marginRight = '10px';
 
-            suggestionsParagraph.appendChild(suggestionLink);
-
-            // Add click event to suggestions to paste them into the search input
             suggestionLink.addEventListener('click', () => {
                 const searchInput = document.getElementById('dict-search-input');
                 searchInput.value = displayText;
                 noMatchBox.innerHTML = '';
             });
+
+            suggestionsParagraph.appendChild(suggestionLink);
         }
 
         suggestionsContainer.appendChild(suggestionsParagraph);
@@ -210,26 +216,24 @@ export async function createNoMatchBox(language, searchTerm, allRows) {
     return noMatchBox;
 }
 
-// Function to create a loading box
+/**
+ * Creates a loading box.
+ * @returns {HTMLElement} - The loading box element.
+ */
 export function createLoadingBox() {
     const loadingBox = document.createElement('div');
     loadingBox.className = 'dictionary-box loading';
-    loadingBox.textContent = "Loading..."; // Add some loading text or a spinner
+    loadingBox.textContent = "Loading...";
     return loadingBox;
 }
 
-function initializeFloatingText() {
-    const floatingButton = document.querySelector('.dictfloating-button');
-    const floatingText = document.querySelector('.dictfloating-text');
-    const floatingInfo = document.getElementById('dictfloating-info');
-
-    floatingButton.addEventListener('click', () => {
-        floatingText.classList.toggle('hidden');
-        floatingText.classList.toggle('visible');
-    });
-}
-
-// Function to update the floating text
+/**
+ * Updates the floating text with search and filter information.
+ * @param {string} searchTerm - The search term.
+ * @param {Array} filters - The applied filters.
+ * @param {Object} advancedSearchParams - Advanced search parameters.
+ * @param {string} language - The language code.
+ */
 export async function updateFloatingText(searchTerm, filters, advancedSearchParams, language) {
     let floatingTextContent = `${filteredRows.length} ${await getTranslatedText('wordsFound', language)}`;
 
@@ -238,15 +242,13 @@ export async function updateFloatingText(searchTerm, filters, advancedSearchPara
     }
     if (filters.length > 0) {
         const translatedFilters = await Promise.all(filters.map(async filter => {
-            const translatedFilter = await getTranslatedText(filter, language);
-            return translatedFilter;
+            return await getTranslatedText(filter, language);
         }));
         floatingTextContent += ` ${await getTranslatedText('withFilters', language)}: ${translatedFilters.join(", ")}`;
     }
     if (advancedSearchParams) {
         const translatedAdvancedParams = await Promise.all(Object.keys(advancedSearchParams).map(async param => {
-            const translatedParam = await getTranslatedText(param, language);
-            return translatedParam;
+            return await getTranslatedText(param, language);
         }));
         floatingTextContent += ` ${await getTranslatedText('withAdvancedSearch', language)}: ${translatedAdvancedParams.join(", ")}`;
     }
@@ -259,33 +261,32 @@ export async function updateFloatingText(searchTerm, filters, advancedSearchPara
     }
 }
 
+/**
+ * Renders the dictionary boxes for the current page.
+ * @param {Array} allRows - All dictionary rows.
+ * @param {string} searchTerm - The search term.
+ * @param {boolean} exactMatch - Whether to perform an exact match.
+ * @param {Object} searchIn - Fields to search within.
+ * @param {number} rowsPerPage - Rows per page.
+ * @param {number} currentPage - The current page number.
+ */
 export async function renderBox(allRows, searchTerm, exactMatch, searchIn, rowsPerPage, currentPage = 1) {
-
-    if (universalPendingChanges) {
-
-        rowsPerPage = universalPendingChanges.rowsPerPage;
-
-   } 
-    
-    initializeFloatingText();
-    
-    //onsole.log(`RenderBox called with currentPage: ${currentPage}, rowsPerPage: ${rowsPerPage}`);
-
     const dictionaryContainer = document.getElementById('dict-dictionary');
+    if (!dictionaryContainer) {
+        console.error('Dictionary container not found');
+        return;
+    }
+
     dictionaryContainer.innerHTML = ''; // Clear previous entries
 
     const language = document.querySelector('meta[name="language"]').content || 'en';
 
-    //console.log(rowsPerPage) 
-    
-    // Render the right amount of loading boxes with unique IDs
+    // Calculate rows to display
     const start = (currentPage - 1) * rowsPerPage;
     const end = start + rowsPerPage;
     const rowsToDisplay = filteredRows.slice(start, end);
 
-    //console.log(`Rows to display: ${rowsToDisplay.length}, Start: ${start}, End: ${end}`);
-
-    // Create a map to associate loading boxes with rows based on type and IDs
+    // Render loading boxes
     const loadingBoxesMap = new Map();
     rowsToDisplay.forEach(row => {
         const loadingBox = createLoadingBox();
@@ -293,26 +294,23 @@ export async function renderBox(allRows, searchTerm, exactMatch, searchIn, rowsP
         loadingBox.id = `loading-box-${uniqueId}`;
         dictionaryContainer.appendChild(loadingBox);
         loadingBoxesMap.set(uniqueId, loadingBox);
-        //console.log(`Appended loading box with ID: ${loadingBox.id}`);
     });
 
     if (filteredRows.length === 0) {
-        dictionaryContainer.innerHTML = ''; // Clear loading boxes
         dictionaryContainer.appendChild(await createNoMatchBox(language, searchTerm, allRows));
         updatePagination(currentPage, rowsPerPage);
         await updateFloatingText(searchTerm, [], {}, language);
         return;
     }
 
-    // Replace loading boxes with actual content based on type and IDs
+    // Replace loading boxes with actual content
     for (const row of rowsToDisplay) {
         const box = await createDictionaryBox(row, allRows, searchTerm, exactMatch, searchIn);
         const uniqueId = `${row.type}-${row.id}`;
         const loadingBox = loadingBoxesMap.get(uniqueId);
         if (loadingBox && box) {
-            //console.log(`Replacing loading box with ID: ${uniqueId}`);
             dictionaryContainer.replaceChild(box, loadingBox);
-            loadingBoxesMap.delete(uniqueId); // Remove the entry from the map as it's been used
+            loadingBoxesMap.delete(uniqueId);
         } else {
             console.warn(`Loading box with ID ${uniqueId} not found or box creation failed.`);
         }
@@ -321,7 +319,6 @@ export async function renderBox(allRows, searchTerm, exactMatch, searchIn, rowsP
     // Cleanup unused loading boxes
     loadingBoxesMap.forEach(loadingBox => {
         dictionaryContainer.removeChild(loadingBox);
-        //console.log(`Removed unused loading box with ID: ${loadingBox.id}`);
     });
 
     updatePagination(currentPage, rowsPerPage);
