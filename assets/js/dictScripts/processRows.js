@@ -41,6 +41,18 @@ export function sortRows(rows, sortingManner) {
             return [...rows].sort((a, b) => a.title.length - b.title.length);
         case 'titleLengthDown': // Sort by title length (descending)
             return [...rows].sort((a, b) => b.title.length - a.title.length);
+        case 'metaLengthUp': // Sort by meta length (ascending)
+            return [...rows].sort((a, b) => {
+                const metaA = (a.meta || '').length; // Handle undefined/null meta
+                const metaB = (b.meta || '').length;
+                return metaA - metaB; // Shortest first
+            });
+        case 'metaLengthDown': // Sort by meta length (descending)
+            return [...rows].sort((a, b) => {
+                const metaA = (a.meta || '').length;
+                const metaB = (b.meta || '').length;
+                return metaB - metaA; // Longest first
+            });
         default:
             return [...rows].sort((a, b) => a.title.localeCompare(b.title));
     }
@@ -129,7 +141,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         }
     });
     updatedRows = uniqueRows;
-    
+
     // Sort rows based on the sortingManner from pendingChanges
     updatedRows = sortRows(updatedRows, sortingManner);
 
@@ -204,4 +216,4 @@ function splitArrayIntoChunks(array, chunkSize) {
         result.push(chunk);
     }
     return result;
-}
+    }
