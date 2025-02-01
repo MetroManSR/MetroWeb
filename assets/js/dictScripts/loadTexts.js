@@ -124,17 +124,17 @@ export async function setTexts(language) {
         }
 
             // Translations for Advanced Search Popup
-    const advancedSearchTitle = await getTranslatedText('advancedSearchTitle', currentLanguage);
-    const addSearchText = await getTranslatedText('addSearch', currentLanguage);
-    const closeText = await getTranslatedText('close', currentLanguage);
-    const searchInWordText = await getTranslatedText('searchInWord', currentLanguage);
-    const searchInRootText = await getTranslatedText('searchInRoot', currentLanguage);
-    const searchInDefinitionText = await getTranslatedText('searchInDefinition', currentLanguage);
-    const searchInEtymologyText = await getTranslatedText('searchInEtymology', currentLanguage);
-    const exactMatchText = await getTranslatedText('exactMatch', currentLanguage);
-    const ignoreDiacriticsText = await getTranslatedText('ignoreDiacritics', currentLanguage);
-    const startsWithText = await getTranslatedText('startsWith', currentLanguage);
-    const endsWithText = await getTranslatedText('endsWith', currentLanguage);
+    const advancedSearchTitle = await getTranslatedText('advancedSearchTitle', language);
+    const addSearchText = await getTranslatedText('addSearch', language);
+    const closeText = await getTranslatedText('close', language);
+    const searchInWordText = await getTranslatedText('searchInWord', language);
+    const searchInRootText = await getTranslatedText('searchInRoot', language);
+    const searchInDefinitionText = await getTranslatedText('searchInDefinition', language);
+    const searchInEtymologyText = await getTranslatedText('searchInEtymology', language);
+    const exactMatchText = await getTranslatedText('exactMatch', language);
+    const ignoreDiacriticsText = await getTranslatedText('ignoreDiacritics', language);
+    const startsWithText = await getTranslatedText('startsWith', language);
+    const endsWithText = await getTranslatedText('endsWith', language);
 
     // Update Advanced Search Popup elements
     document.querySelector('.dict-popup-content h3').textContent = advancedSearchTitle;
