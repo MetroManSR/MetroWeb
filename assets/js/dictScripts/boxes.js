@@ -252,7 +252,7 @@ export async function updateFloatingText(searchTerm, filters, advancedSearchPara
         }
 
         // Add advanced search information if advanced search is applied
-        if (advancedSearchParams && Object.keys(advancedSearchParams).length > 0) {
+        if (advancedSearchParams) {
             const withAdvancedSearchText = await getTranslatedText('withAdvancedSearch', language);
             const translatedAdvancedParams = [];
 
