@@ -254,16 +254,38 @@ export async function updateFloatingText(searchTerm, filters, advancedSearchPara
         // Add advanced search information if advanced search is applied
         if (advancedSearchParams && Object.keys(advancedSearchParams).length > 0) {
             const withAdvancedSearchText = await getTranslatedText('withAdvancedSearch', language);
-            const translatedAdvancedParams = await Promise.all(
-                Object.entries(advancedSearchParams).map(async ([key, value]) => {
-                    if (value) {
-                        const translatedKey = await getTranslatedText(key, language);
-                        return translatedKey;
-                    }
-                    return null;
-                })
-            ).then(results => results.filter(Boolean)); // Remove null values
-            floatingTextContent += `, ${withAdvancedSearchText}: ${translatedAdvancedParams.join(', ')}`;
+            const translatedAdvancedParams = [];
+
+            // Check each advanced search parameter and add it to the list if enabled
+            if (advancedSearchParams.searchIn?.word) {
+                translatedAdvancedParams.push(await getTranslatedText('searchInWord', language));
+            }
+            if (advancedSearchParams.searchIn?.root) {
+                translatedAdvancedParams.push(await getTranslatedText('searchInRoot', language));
+            }
+            if (advancedSearchParams.searchIn?.definition) {
+                translatedAdvancedParams.push(await getTranslatedText('searchInDefinition', language));
+            }
+            if (advancedSearchParams.searchIn?.etymology) {
+                translatedAdvancedParams.push(await getTranslatedText('searchInEtymology', language));
+            }
+            if (advancedSearchParams.exactMatch) {
+                translatedAdvancedParams.push(await getTranslatedText('exactMatch', language));
+            }
+            if (advancedSearchParams.ignoreDiacritics) {
+                translatedAdvancedParams.push(await getTranslatedText('ignoreDiacritics', language));
+            }
+            if (advancedSearchParams.startsWith) {
+                translatedAdvancedParams.push(await getTranslatedText('startsWith', language));
+            }
+            if (advancedSearchParams.endsWith) {
+                translatedAdvancedParams.push(await getTranslatedText('endsWith', language));
+            }
+
+            // Add the translated advanced search parameters to the floating text
+            if (translatedAdvancedParams.length > 0) {
+                floatingTextContent += `, ${withAdvancedSearchText}: ${translatedAdvancedParams.join(', ')}`;
+            }
         }
 
         // Update the DOM with the constructed floating text content
@@ -276,7 +298,7 @@ export async function updateFloatingText(searchTerm, filters, advancedSearchPara
     } catch (error) {
         console.error('Error updating floating text:', error);
     }
-} 
+}
 
 export async function renderBox(allRows, searchTerm, exactMatch, searchIn, rowsPerPage, currentPage = 1) {
 
