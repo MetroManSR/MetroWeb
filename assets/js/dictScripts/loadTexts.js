@@ -17,6 +17,7 @@ export async function setTexts(language) {
 
         const currentTexts = texts[language] || texts['en'];
 
+        // Update search-related elements
         document.querySelector('.dict-search-input').placeholder = currentTexts.searchPlaceholder;
         document.querySelector('.dict-clear-search-button').textContent = currentTexts.clearSearchButton;
         document.querySelector('.dct-rws-lbl').textContent = currentTexts.rowsPerPageLabel;
@@ -32,16 +33,16 @@ export async function setTexts(language) {
         // Update the order by options text
         const orderBySelect = document.querySelector('.dct-ord-slt');
         if (orderBySelect) {
-            orderBySelect.options[0].textContent = currentTexts.titleAsc;
-            orderBySelect.options[1].textContent = currentTexts.titleDesc;
-            orderBySelect.options[2].textContent = currentTexts.metaAsc;
-            orderBySelect.options[3].textContent = currentTexts.metaDesc;
-            orderBySelect.options[4].textContent = currentTexts.morphAsc;
-            orderBySelect.options[5].textContent = currentTexts.morphDesc;
-            orderBySelect.options[6].textContent = currentTexts.titleLengthUp; // New option
-            orderBySelect.options[7].textContent = currentTexts.titleLengthDown; // New option
-            orderBySelect.options[8].textContent = currentTexts.metaLengthUp; // New option
-            orderBySelect.options[9].textContent = currentTexts.metaLengthDown; // New option
+            orderBySelect.options[0].textContent = currentTexts.titleup;
+            orderBySelect.options[1].textContent = currentTexts.titledown;
+            orderBySelect.options[2].textContent = currentTexts.metaup;
+            orderBySelect.options[3].textContent = currentTexts.metadown;
+            orderBySelect.options[4].textContent = currentTexts.morphup;
+            orderBySelect.options[5].textContent = currentTexts.morphdown;
+            orderBySelect.options[6].textContent = currentTexts.titleLengthUp;
+            orderBySelect.options[7].textContent = currentTexts.titleLengthDown;
+            orderBySelect.options[8].textContent = currentTexts.metaLengthUp;
+            orderBySelect.options[9].textContent = currentTexts.metaLengthDown;
         }
 
         // Update the filter dropdown options text
@@ -70,20 +71,23 @@ export async function setTexts(language) {
         document.querySelector('.dict-error-message').textContent = currentTexts.errorLoadingData;
 
         // Pending Changes Section
-        document.querySelector('.dict-pending-changes').innerHTML = `
-            <p>${currentTexts.pendingChanges}</p>
-            <p>${currentTexts.noPendingChanges}</p>
-            <ul>
-                <li><strong>${currentTexts.searchTerm}:</strong> ${pendingChanges.searchTerm}</li>
-                <li><strong>${currentTexts.exactMatch}:</strong> ${pendingChanges.exactMatch}</li>
-                <li><strong>${currentTexts.filters}:</strong> ${pendingChanges.filters.join(', ')}</li>
-                <li><strong>${currentTexts.ignoreDiacritics}:</strong> ${pendingChanges.ignoreDiacritics}</li>
-                <li><strong>${currentTexts.startsWith}:</strong> ${pendingChanges.startsWith}</li>
-                <li><strong>${currentTexts.endsWith}:</strong> ${pendingChanges.endsWith}</li>
-                <li><strong>${currentTexts.sortOrder}:</strong> ${pendingChanges.sortOrder}</li>
-                <li><strong>${currentTexts.rowsPerPage}:</strong> ${pendingChanges.rowsPerPage}</li>
-            </ul>
-        `;
+        const pendingChangesElement = document.querySelector('.dict-pending-changes');
+        if (pendingChangesElement) {
+            pendingChangesElement.innerHTML = `
+                <p>${currentTexts.pendingChanges}</p>
+                <p>${currentTexts.noPendingChanges}</p>
+                <ul>
+                    <li><strong>${currentTexts.searchTerm}:</strong> ${pendingChanges.searchTerm}</li>
+                    <li><strong>${currentTexts.exactMatch}:</strong> ${pendingChanges.exactMatch}</li>
+                    <li><strong>${currentTexts.filters}:</strong> ${pendingChanges.filters.join(', ')}</li>
+                    <li><strong>${currentTexts.ignoreDiacritics}:</strong> ${pendingChanges.ignoreDiacritics}</li>
+                    <li><strong>${currentTexts.startsWith}:</strong> ${pendingChanges.startsWith}</li>
+                    <li><strong>${currentTexts.endsWith}:</strong> ${pendingChanges.endsWith}</li>
+                    <li><strong>${currentTexts.sortOrder}:</strong> ${pendingChanges.sortOrder}</li>
+                    <li><strong>${currentTexts.rowsPerPage}:</strong> ${pendingChanges.rowsPerPage}</li>
+                </ul>
+            `;
+        }
     } catch (error) {
         console.error('Error loading texts:', error);
     }
@@ -99,4 +103,4 @@ export async function getTranslatedText(key, language, filePath = '/assets/data/
         console.error('Error fetching translated text:', error);
         return key; // Return the key as fallback
     }
-}
+            }
