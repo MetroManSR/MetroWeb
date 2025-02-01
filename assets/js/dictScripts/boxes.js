@@ -229,32 +229,32 @@ function initializeFloatingText() {
     });
 }
 
-export async function updateFloatingText(pendingChanges, language, filteredRows) {
+export async function updateFloatingText(searchTerm, filters, advancedSearchParams, language) {
     try {
         // Initialize the floating text content
         let floatingTextContent = '';
 
-        // Add the number of words found
+        // Add the number of words found (assuming filteredRows is available globally or in scope)
         const wordsFoundText = await getTranslatedText('wordsFound', language);
         floatingTextContent += `${filteredRows.length} ${wordsFoundText}`;
 
         // Add search term information if provided
-        if (pendingChanges.searchTerm) {
+        if (searchTerm) {
             const whenLookingForText = await getTranslatedText('whenLookingFor', language);
-            floatingTextContent += ` ${whenLookingForText} "${pendingChanges.searchTerm}"`;
+            floatingTextContent += ` ${whenLookingForText} "${searchTerm}"`;
         }
 
         // Add filters information if any filters are applied
-        if (pendingChanges.filters && pendingChanges.filters.length > 0) {
+        if (filters && filters.length > 0) {
             const withFiltersText = await getTranslatedText('withFilters', language);
-            const translatedFilters = await Promise.all(pendingChanges.filters.map(filter => getTranslatedText(filter, language)));
+            const translatedFilters = await Promise.all(filters.map(filter => getTranslatedText(filter, language)));
             floatingTextContent += `, ${withFiltersText}: ${translatedFilters.join(', ')}`;
         }
 
         // Add advanced search information if advanced search is applied
-        if (pendingChanges.advancedSearchParams) {
+        if (advancedSearchParams) {
             const withAdvancedSearchText = await getTranslatedText('withAdvancedSearch', language);
-            const translatedAdvancedParams = await Promise.all(Object.keys(pendingChanges.advancedSearchParams).map(param => getTranslatedText(param, language)));
+            const translatedAdvancedParams = await Promise.all(Object.keys(advancedSearchParams).map(param => getTranslatedText(param, language)));
             floatingTextContent += `, ${withAdvancedSearchText}: ${translatedAdvancedParams.join(', ')}`;
         }
 
@@ -268,7 +268,7 @@ export async function updateFloatingText(pendingChanges, language, filteredRows)
     } catch (error) {
         console.error('Error updating floating text:', error);
     }
-}
+} 
 
 export async function renderBox(allRows, searchTerm, exactMatch, searchIn, rowsPerPage, currentPage = 1) {
 
