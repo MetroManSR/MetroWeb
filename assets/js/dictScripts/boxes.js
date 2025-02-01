@@ -261,17 +261,17 @@ export async function updateFloatingText(searchTerm, filters, advancedSearchPara
             const translatedAdvancedParams = [];
 
             // Check each advanced search parameter and add it to the list if enabled
-            if (advancedSearchParams.searchIn?.word) {
+            if (advancedSearchParams.word) {
                 console.log("Search in word activated");
                 translatedAdvancedParams.push(await getTranslatedText('searchInWord', language));
             }
-            if (advancedSearchParams.searchIn?.root) {
+            if (advancedSearchParams.root) {
                 translatedAdvancedParams.push(await getTranslatedText('searchInRoot', language));
             }
-            if (advancedSearchParams.searchIn?.definition) {
+            if (advancedSearchParams.definition) {
                 translatedAdvancedParams.push(await getTranslatedText('searchInDefinition', language));
             }
-            if (advancedSearchParams.searchIn?.etymology) {
+            if (advancedSearchParams.etymology) {
                 translatedAdvancedParams.push(await getTranslatedText('searchInEtymology', language));
             }
             if (advancedSearchParams.exactMatch) {
