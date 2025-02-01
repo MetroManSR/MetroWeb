@@ -253,11 +253,14 @@ export async function updateFloatingText(searchTerm, filters, advancedSearchPara
 
         // Add advanced search information if advanced search is applied
         if (advancedSearchParams) {
+
+            console.log("Getting Advanced Search Parameters");
             const withAdvancedSearchText = await getTranslatedText('withAdvancedSearch', language);
             const translatedAdvancedParams = [];
 
             // Check each advanced search parameter and add it to the list if enabled
             if (advancedSearchParams.searchIn?.word) {
+                console.log("Search in word activated");
                 translatedAdvancedParams.push(await getTranslatedText('searchInWord', language));
             }
             if (advancedSearchParams.searchIn?.root) {
