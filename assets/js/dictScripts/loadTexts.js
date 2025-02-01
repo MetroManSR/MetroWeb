@@ -124,21 +124,21 @@ export async function setTexts(language) {
         }
 
         // Update texts for new filters
-        const ignoreDiacriticsLabel = document.querySelector('.dict_ignore-diacritics');
+        const ignoreDiacriticsLabel = document.querySelector('#dict-ignore-diacritics');
         if (ignoreDiacriticsLabel) {
             ignoreDiacriticsLabel.textContent = currentTexts.ignoreDiacritics;
         } else {
             console.error('Ignore diacritics label element not found');
         }
 
-        const startsWithLabel = document.querySelector('.dict-starts-with');
+        const startsWithLabel = document.querySelector('#dict-starts-with');
         if (startsWithLabel) {
             startsWithLabel.textContent = currentTexts.startsWith;
         } else {
             console.error('Starts with label element not found');
         }
 
-        const endsWithLabel = document.querySelector('.dict-ends-wit');
+        const endsWithLabel = document.querySelector('#dict-ends-wit');
         if (endsWithLabel) {
             endsWithLabel.textContent = currentTexts.endsWith;
         } else {
