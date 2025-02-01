@@ -229,32 +229,79 @@ function initializeFloatingText() {
     });
 }
 
-export async function updateFloatingText(searchTerm, filters, advancedSearchParams, language) {
+export async function updateFloatingText(pendingChanges, language) {
     try {
-        // Start building the floating text content
-        let floatingTextContent = `${filteredRows.length} ${await getTranslatedText('wordsFound', language)}`;
+        // Initialize the floating text content
+        let floatingTextContent = '';
 
         // Add search term information if provided
-        if (searchTerm) {
-            floatingTextContent += ` ${await getTranslatedText('whenLookingFor', language)} "${searchTerm}"`;
+        if (pendingChanges.searchTerm) {
+            const translatedSearchTerm = await getTranslatedText('searchTerm', language);
+            floatingTextContent += `<strong>${translatedSearchTerm}</strong>: "${pendingChanges.searchTerm}"<br>`;
         }
 
-        // Add filter information if filters are applied
-        if (filters.length > 0) {
-            const translatedFilters = await Promise.all(filters.map(filter => getTranslatedText(filter, language)));
-            floatingTextContent += ` ${await getTranslatedText('withFilters', language)}: ${translatedFilters.join(", ")}`;
+        // Add exact match information if enabled
+        if (pendingChanges.exactMatch) {
+            const translatedExactMatch = await getTranslatedText('exactMatch', language);
+            floatingTextContent += `<strong>${translatedExactMatch}</strong>: ${translatedExactMatch}<br>`;
         }
 
-        // Add advanced search information if advanced search is applied
-        if (advancedSearchParams) {
-            const translatedAdvancedParams = await Promise.all(Object.keys(advancedSearchParams).map(param => getTranslatedText(param, language)));
-            floatingTextContent += ` ${await getTranslatedText('withAdvancedSearch', language)}: ${translatedAdvancedParams.join(", ")}`;
+        // Add search-in fields information if any are enabled
+        if (pendingChanges.searchIn) {
+            const searchInFields = [];
+            if (pendingChanges.searchIn.word) searchInFields.push(await getTranslatedText('searchInWord', language));
+            if (pendingChanges.searchIn.root) searchInFields.push(await getTranslatedText('searchInRoot', language));
+            if (pendingChanges.searchIn.definition) searchInFields.push(await getTranslatedText('searchInDefinition', language));
+            if (pendingChanges.searchIn.etymology) searchInFields.push(await getTranslatedText('searchInEtymology', language));
+
+            if (searchInFields.length > 0) {
+                const translatedSearchIn = await getTranslatedText('searchIn', language);
+                floatingTextContent += `<strong>${translatedSearchIn}</strong>: ${searchInFields.join(', ')}<br>`;
+            }
+        }
+
+        // Add ignore diacritics information if enabled
+        if (pendingChanges.ignoreDiacritics) {
+            const translatedIgnoreDiacritics = await getTranslatedText('ignoreDiacritics', language);
+            floatingTextContent += `<strong>${translatedIgnoreDiacritics}</strong><br>`;
+        }
+
+        // Add startsWith information if enabled
+        if (pendingChanges.startsWith) {
+            const translatedStartsWith = await getTranslatedText('startsWith', language);
+            floatingTextContent += `<strong>${translatedStartsWith}</strong><br>`;
+        }
+
+        // Add endsWith information if enabled
+        if (pendingChanges.endsWith) {
+            const translatedEndsWith = await getTranslatedText('endsWith', language);
+            floatingTextContent += `<strong>${translatedEndsWith}</strong><br>`;
+        }
+
+        // Add filters information if any filters are applied
+        if (pendingChanges.filters && pendingChanges.filters.length > 0) {
+            const translatedFilters = await getTranslatedText('filters', language);
+            const translatedFilterValues = await Promise.all(pendingChanges.filters.map(filter => getTranslatedText(filter, language)));
+            floatingTextContent += `<strong>${translatedFilters}</strong>: ${translatedFilterValues.join(', ')}<br>`;
+        }
+
+        // Add rows per page information if not default
+        if (pendingChanges.rowsPerPage !== 20) {
+            const translatedRowsPerPage = await getTranslatedText('rowsPerPage', language);
+            floatingTextContent += `<strong>${translatedRowsPerPage}</strong>: ${pendingChanges.rowsPerPage}<br>`;
+        }
+
+        // Add sort order information if specified
+        if (pendingChanges.sortOrder) {
+            const translatedSortOrder = await getTranslatedText('sortOrder', language);
+            const sortOrderTranslation = await getTranslatedText(pendingChanges.sortOrder, language);
+            floatingTextContent += `<strong>${translatedSortOrder}</strong>: ${sortOrderTranslation}<br>`;
         }
 
         // Update the DOM with the constructed floating text content
         const floatingText = document.getElementById('dictfloating-info');
         if (floatingText) {
-            floatingText.textContent = floatingTextContent;
+            floatingText.innerHTML = floatingTextContent || await getTranslatedText('noPendingChanges', language);
         } else {
             console.error('Floating text element not found');
         }
