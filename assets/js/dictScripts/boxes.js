@@ -381,5 +381,5 @@ export async function renderBox(allRows, searchTerm, exactMatch, searchIn, rowsP
     });
 
     updatePagination(currentPage, rowsPerPage);
-    await updateFloatingText(searchTerm, [], {}, language);
+    await updateFloatingText(searchTerm, [], {}, language, []);
 }
