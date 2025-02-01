@@ -251,6 +251,8 @@ export async function updateFloatingText(searchTerm, filters, advancedSearchPara
             floatingTextContent += `, ${withFiltersText}: ${translatedFilters.join(', ')}`;
         }
 
+        console.log(advancedSearchParams);
+        
         // Add advanced search information if advanced search is applied
         if (advancedSearchParams) {
 
