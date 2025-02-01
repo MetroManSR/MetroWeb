@@ -229,7 +229,17 @@ function initializeFloatingText() {
     });
 }
 
-export async function updateFloatingText(searchTerm, filters, advancedSearchParams, language) {
+export async function updateFloatingText(searchTerm, filters, advancedSearchParams, language, extraParams) {
+
+    const moreParams =
+        {
+            exactMatch : extraParams[0], 
+            ignoreDiacritics : extraParams[1], 
+            startsWith : extraParams[2], 
+            endsWith : extraParams[3], 
+     
+        }  
+    
     try {
         // Initialize the floating text content
         let floatingTextContent = '';
@@ -274,16 +284,16 @@ export async function updateFloatingText(searchTerm, filters, advancedSearchPara
             if (advancedSearchParams.etymology) {
                 translatedAdvancedParams.push(await getTranslatedText('searchInEtymology', language));
             }
-            if (advancedSearchParams.exactMatch) {
+            if (moreParams.exactMatch) {
                 translatedAdvancedParams.push(await getTranslatedText('exactMatch', language));
             }
-            if (advancedSearchParams.ignoreDiacritics) {
+            if (moreParams.ignoreDiacritics) {
                 translatedAdvancedParams.push(await getTranslatedText('ignoreDiacritics', language));
             }
-            if (advancedSearchParams.startsWith) {
+            if (moreParams.startsWith) {
                 translatedAdvancedParams.push(await getTranslatedText('startsWith', language));
             }
-            if (advancedSearchParams.endsWith) {
+            if (moreParams.endsWith) {
                 translatedAdvancedParams.push(await getTranslatedText('endsWith', language));
             }
 
