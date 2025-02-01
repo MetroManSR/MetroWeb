@@ -117,7 +117,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         renderContainer.innerHTML = '';
         await renderBox(updatedRows, searchTerm, exactMatch, searchIn, rowsPerPage, currentPage);
         updatePagination(currentPage, rowsPerPage);
-        await updateFloatingText(searchTerm, filters, searchIn, [exactMatch, ignoreDiacritics, startsWith, endsWith] );
+        await updateFloatingText(searchTerm, filters, searchIn, language, [exactMatch, ignoreDiacritics, startsWith, endsWith] );
     } else {
         console.error("Error: 'dict-dictionary' element not found in the DOM.");
     }
