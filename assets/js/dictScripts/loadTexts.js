@@ -18,17 +18,82 @@ export async function setTexts(language) {
         const currentTexts = texts[language] || texts['en'];
 
         // Update search-related elements
-        document.querySelector('.dict-search-input').placeholder = currentTexts.searchPlaceholder;
-        document.querySelector('.dict-clear-search-button').textContent = currentTexts.clearSearchButton;
-        document.querySelector('.dct-rws-lbl').textContent = currentTexts.rowsPerPageLabel;
-        document.querySelector('.dct-tgl-flt-btn').textContent = currentTexts.toggleFiltersButton;
-        document.querySelector('.dict-apply-settings-button').textContent = currentTexts.applySettingsButton;
-        document.querySelector('.dict-clear-settings-button').textContent = currentTexts.clearSettingsButton;
-        document.querySelector('.dict-advanced-search-button').textContent = currentTexts.advancedSearchButton;
-        document.querySelector('.dict-view-statistics-button').textContent = currentTexts.viewStatisticsButton;
-        document.querySelector('.dict-close-popup-button').textContent = currentTexts.close;
-        document.querySelector('.dct-flt-by-lbl').textContent = currentTexts.filterByLabel;
-        document.querySelector('.dct-ord-lbl').textContent = currentTexts.orderByLabel;
+        const searchInput = document.querySelector('.dict-search-input');
+        if (searchInput) {
+            searchInput.placeholder = currentTexts.searchPlaceholder;
+        } else {
+            console.error('Search input element not found');
+        }
+
+        const clearSearchButton = document.querySelector('.dict-clear-search-button');
+        if (clearSearchButton) {
+            clearSearchButton.textContent = currentTexts.clearSearchButton;
+        } else {
+            console.error('Clear search button element not found');
+        }
+
+        const rowsPerPageLabel = document.querySelector('.dct-rws-lbl');
+        if (rowsPerPageLabel) {
+            rowsPerPageLabel.textContent = currentTexts.rowsPerPageLabel;
+        } else {
+            console.error('Rows per page label element not found');
+        }
+
+        const toggleFiltersButton = document.querySelector('.dct-tgl-flt-btn');
+        if (toggleFiltersButton) {
+            toggleFiltersButton.textContent = currentTexts.toggleFiltersButton;
+        } else {
+            console.error('Toggle filters button element not found');
+        }
+
+        const applySettingsButton = document.querySelector('.dict-apply-settings-button');
+        if (applySettingsButton) {
+            applySettingsButton.textContent = currentTexts.applySettingsButton;
+        } else {
+            console.error('Apply settings button element not found');
+        }
+
+        const clearSettingsButton = document.querySelector('.dict-clear-settings-button');
+        if (clearSettingsButton) {
+            clearSettingsButton.textContent = currentTexts.clearSettingsButton;
+        } else {
+            console.error('Clear settings button element not found');
+        }
+
+        const advancedSearchButton = document.querySelector('.dict-advanced-search-btn');
+        if (advancedSearchButton) {
+            advancedSearchButton.textContent = currentTexts.advancedSearchButton;
+        } else {
+            console.error('Advanced search button element not found');
+        }
+
+        const viewStatisticsButton = document.querySelector('.dict-view-statistics-button');
+        if (viewStatisticsButton) {
+            viewStatisticsButton.textContent = currentTexts.viewStatisticsButton;
+        } else {
+            console.error('View statistics button element not found');
+        }
+
+        const closePopupButton = document.querySelector('.dict-close-popup-button');
+        if (closePopupButton) {
+            closePopupButton.textContent = currentTexts.close;
+        } else {
+            console.error('Close popup button element not found');
+        }
+
+        const filterByLabel = document.querySelector('.dct-flt-by-lbl');
+        if (filterByLabel) {
+            filterByLabel.textContent = currentTexts.filterByLabel;
+        } else {
+            console.error('Filter by label element not found');
+        }
+
+        const orderByLabel = document.querySelector('.dct-ord-lbl');
+        if (orderByLabel) {
+            orderByLabel.textContent = currentTexts.orderByLabel;
+        } else {
+            console.error('Order by label element not found');
+        }
 
         // Update the order by options text
         const orderBySelect = document.querySelector('.dct-ord-slt');
@@ -43,6 +108,8 @@ export async function setTexts(language) {
             orderBySelect.options[7].textContent = currentTexts.titleLengthDown;
             orderBySelect.options[8].textContent = currentTexts.metaLengthUp;
             orderBySelect.options[9].textContent = currentTexts.metaLengthDown;
+        } else {
+            console.error('Order by select element not found');
         }
 
         // Update the filter dropdown options text
@@ -59,16 +126,46 @@ export async function setTexts(language) {
             filterSelect.options[8].textContent = currentTexts.preposition;
             filterSelect.options[9].textContent = currentTexts.expression;
             filterSelect.options[10].textContent = currentTexts.pronoun;
+        } else {
+            console.error('Filter select element not found');
         }
 
         // Update texts for new filters
-        document.querySelector('.dct-igr-dct-lbl').textContent = currentTexts.ignoreDiacritics;
-        document.querySelector('.dct-str-wth-lbl').textContent = currentTexts.startsWith;
-        document.querySelector('.dct-end-wth-lbl').textContent = currentTexts.endsWith;
+        const ignoreDiacriticsLabel = document.querySelector('.dct-igr-dct-lbl');
+        if (ignoreDiacriticsLabel) {
+            ignoreDiacriticsLabel.textContent = currentTexts.ignoreDiacritics;
+        } else {
+            console.error('Ignore diacritics label element not found');
+        }
+
+        const startsWithLabel = document.querySelector('.dct-str-wth-lbl');
+        if (startsWithLabel) {
+            startsWithLabel.textContent = currentTexts.startsWith;
+        } else {
+            console.error('Starts with label element not found');
+        }
+
+        const endsWithLabel = document.querySelector('.dct-end-wth-lbl');
+        if (endsWithLabel) {
+            endsWithLabel.textContent = currentTexts.endsWith;
+        } else {
+            console.error('Ends with label element not found');
+        }
 
         // Apply other labels as required
-        document.querySelector('.dict-loading-message-text').textContent = currentTexts.loadingMessage;
-        document.querySelector('.dict-error-message').textContent = currentTexts.errorLoadingData;
+        const loadingMessageText = document.querySelector('.dict-loading-message-text');
+        if (loadingMessageText) {
+            loadingMessageText.textContent = currentTexts.loadingMessage;
+        } else {
+            console.error('Loading message text element not found');
+        }
+
+        const errorMessage = document.querySelector('.dict-error-message');
+        if (errorMessage) {
+            errorMessage.textContent = currentTexts.errorLoadingData;
+        } else {
+            console.error('Error message element not found');
+        }
 
         // Pending Changes Section
         const pendingChangesElement = document.querySelector('.dict-pending-changes');
@@ -87,11 +184,13 @@ export async function setTexts(language) {
                     <li><strong>${currentTexts.rowsPerPage}:</strong> ${pendingChanges.rowsPerPage}</li>
                 </ul>
             `;
+        } else {
+            console.error('Pending changes element not found');
         }
     } catch (error) {
         console.error('Error loading texts:', error);
     }
-}
+} 
 
 export async function getTranslatedText(key, language, filePath = '/assets/data/defaultTexts.json') {
     try {
