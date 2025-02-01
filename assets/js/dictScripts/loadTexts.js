@@ -39,13 +39,6 @@ export async function setTexts(language) {
             console.error('Rows per page label element not found');
         }
 
-        const toggleFiltersButton = document.querySelector('.dct-tgl-flt-btn');
-        if (toggleFiltersButton) {
-            toggleFiltersButton.textContent = currentTexts.toggleFiltersButton;
-        } else {
-            console.error('Toggle filters button element not found');
-        }
-
         const applySettingsButton = document.querySelector('.dict-apply-settings-button');
         if (applySettingsButton) {
             applySettingsButton.textContent = currentTexts.applySettingsButton;
@@ -60,7 +53,7 @@ export async function setTexts(language) {
             console.error('Clear settings button element not found');
         }
 
-        const advancedSearchButton = document.querySelector('.dict-advanced-search-btn');
+        const advancedSearchButton = document.querySelector('.dict-advanced-search-button');
         if (advancedSearchButton) {
             advancedSearchButton.textContent = currentTexts.advancedSearchButton;
         } else {
@@ -96,7 +89,7 @@ export async function setTexts(language) {
         }
 
         // Update the order by options text
-        const orderBySelect = document.querySelector('.dct-ord-slt');
+        const orderBySelect = document.querySelector('#dct-ord-slt');
         if (orderBySelect) {
             orderBySelect.options[0].textContent = currentTexts.titleup;
             orderBySelect.options[1].textContent = currentTexts.titledown;
@@ -113,7 +106,7 @@ export async function setTexts(language) {
         }
 
         // Update the filter dropdown options text
-        const filterSelect = document.querySelector('.dct-wrd-flt');
+        const filterSelect = document.querySelector('#dct-wrd-flt');
         if (filterSelect) {
             filterSelect.options[0].textContent = currentTexts.searchInWord;
             filterSelect.options[1].textContent = currentTexts.searchInRoot;
