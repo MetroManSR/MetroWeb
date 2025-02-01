@@ -123,27 +123,31 @@ export async function setTexts(language) {
             console.error('Filter select element not found');
         }
 
-        // Update texts for new filters
-        const ignoreDiacriticsLabel = document.querySelector('#dict-ignore-diacritics');
-        if (ignoreDiacriticsLabel) {
-            ignoreDiacriticsLabel.textContent = currentTexts.ignoreDiacritics;
-        } else {
-            console.error('Ignore diacritics label element not found');
-        }
+            // Translations for Advanced Search Popup
+    const advancedSearchTitle = await getTranslatedText('advancedSearchTitle', currentLanguage);
+    const addSearchText = await getTranslatedText('addSearch', currentLanguage);
+    const closeText = await getTranslatedText('close', currentLanguage);
+    const searchInWordText = await getTranslatedText('searchInWord', currentLanguage);
+    const searchInRootText = await getTranslatedText('searchInRoot', currentLanguage);
+    const searchInDefinitionText = await getTranslatedText('searchInDefinition', currentLanguage);
+    const searchInEtymologyText = await getTranslatedText('searchInEtymology', currentLanguage);
+    const exactMatchText = await getTranslatedText('exactMatch', currentLanguage);
+    const ignoreDiacriticsText = await getTranslatedText('ignoreDiacritics', currentLanguage);
+    const startsWithText = await getTranslatedText('startsWith', currentLanguage);
+    const endsWithText = await getTranslatedText('endsWith', currentLanguage);
 
-        const startsWithLabel = document.querySelector('#dict-starts-with');
-        if (startsWithLabel) {
-            startsWithLabel.textContent = currentTexts.startsWith;
-        } else {
-            console.error('Starts with label element not found');
-        }
-
-        const endsWithLabel = document.querySelector('#dict-ends-with');
-        if (endsWithLabel) {
-            endsWithLabel.textContent = currentTexts.endsWith;
-        } else {
-            console.error('Ends with label element not found');
-        }
+    // Update Advanced Search Popup elements
+    document.querySelector('.dict-popup-content h3').textContent = advancedSearchTitle;
+    document.querySelector('#dict-add-search-btn-popup').textContent = addSearchText;
+    closeAdvancedSearch.textContent = closeText;
+    document.querySelector('label[for="dict-search-in-word"]').textContent = searchInWordText;
+    document.querySelector('label[for="dict-search-in-root"]').textContent = searchInRootText;
+    document.querySelector('label[for="dict-search-in-definition"]').textContent = searchInDefinitionText;
+    document.querySelector('label[for="dict-search-in-etymology"]').textContent = searchInEtymologyText;
+    document.querySelector('label[for="dict-exact-match"]').textContent = exactMatchText;
+    document.querySelector('label[for="dict-ignore-diacritics"]').textContent = ignoreDiacriticsText;
+    document.querySelector('label[for="dict-starts-with"]').textContent = startsWithText;
+    document.querySelector('label[for="dict-ends-with"]').textContent = endsWithText;
 
         // Apply other labels as required
         const loadingMessageText = document.querySelector('.dict-loading-message-text');
