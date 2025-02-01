@@ -233,10 +233,10 @@ export async function updateFloatingText(searchTerm, filters, advancedSearchPara
 
     const moreParams =
         {
-            exactMatch : extraParams[0], 
-            ignoreDiacritics : extraParams[1], 
-            startsWith : extraParams[2], 
-            endsWith : extraParams[3], 
+            exactMatch : extraParams[0] || false, 
+            ignoreDiacritics : extraParams[1] || false, 
+            startsWith : extraParams[2] || false, 
+            endsWith : extraParams[3] || false, 
      
         }  
     
