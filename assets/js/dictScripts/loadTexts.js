@@ -138,7 +138,7 @@ export async function setTexts(language) {
             console.error('Starts with label element not found');
         }
 
-        const endsWithLabel = document.querySelector('#dict-ends-wit');
+        const endsWithLabel = document.querySelector('#dict-ends-with');
         if (endsWithLabel) {
             endsWithLabel.textContent = currentTexts.endsWith;
         } else {
