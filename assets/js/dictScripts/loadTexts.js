@@ -32,7 +32,7 @@ export async function setTexts(language) {
             console.error('Clear search button element not found');
         }
 
-        const rowsPerPageLabel = document.querySelector('.dct-rws-lbl');
+        const rowsPerPageLabel = document.querySelector('#dct-rws-lbl');
         if (rowsPerPageLabel) {
             rowsPerPageLabel.textContent = currentTexts.rowsPerPageLabel;
         } else {
@@ -81,14 +81,14 @@ export async function setTexts(language) {
             console.error('Close popup button element not found');
         }
 
-        const filterByLabel = document.querySelector('.dct-flt-by-lbl');
+        const filterByLabel = document.querySelector('#dct-flt-by-lbl');
         if (filterByLabel) {
             filterByLabel.textContent = currentTexts.filterByLabel;
         } else {
             console.error('Filter by label element not found');
         }
 
-        const orderByLabel = document.querySelector('.dct-ord-lbl');
+        const orderByLabel = document.querySelector('#dct-ord-lbl');
         if (orderByLabel) {
             orderByLabel.textContent = currentTexts.orderByLabel;
         } else {
