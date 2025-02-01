@@ -229,33 +229,37 @@ function initializeFloatingText() {
     });
 }
 
-// Function to update the floating text
 export async function updateFloatingText(searchTerm, filters, advancedSearchParams, language) {
-    let floatingTextContent = `${filteredRows.length} ${await getTranslatedText('wordsFound', language)}`;
+    try {
+        // Start building the floating text content
+        let floatingTextContent = `${filteredRows.length} ${await getTranslatedText('wordsFound', language)}`;
 
-    if (searchTerm) {
-        floatingTextContent += ` ${await getTranslatedText('whenLookingFor', language)} "${searchTerm}"`;
-    }
-    if (filters.length > 0) {
-        const translatedFilters = await Promise.all(filters.map(async filter => {
-            const translatedFilter = await getTranslatedText(filter, language);
-            return translatedFilter;
-        }));
-        floatingTextContent += ` ${await getTranslatedText('withFilters', language)}: ${translatedFilters.join(", ")}`;
-    }
-    if (advancedSearchParams) {
-        const translatedAdvancedParams = await Promise.all(Object.keys(advancedSearchParams).map(async param => {
-            const translatedParam = await getTranslatedText(param, language);
-            return translatedParam;
-        }));
-        floatingTextContent += ` ${await getTranslatedText('withAdvancedSearch', language)}: ${translatedAdvancedParams.join(", ")}`;
-    }
+        // Add search term information if provided
+        if (searchTerm) {
+            floatingTextContent += ` ${await getTranslatedText('whenLookingFor', language)} "${searchTerm}"`;
+        }
 
-    const floatingText = document.getElementById('dictfloating-info');
-    if (floatingText) {
-        floatingText.textContent = floatingTextContent;
-    } else {
-        console.error('Floating text element not found');
+        // Add filter information if filters are applied
+        if (filters.length > 0) {
+            const translatedFilters = await Promise.all(filters.map(filter => getTranslatedText(filter, language)));
+            floatingTextContent += ` ${await getTranslatedText('withFilters', language)}: ${translatedFilters.join(", ")}`;
+        }
+
+        // Add advanced search information if advanced search is applied
+        if (advancedSearchParams) {
+            const translatedAdvancedParams = await Promise.all(Object.keys(advancedSearchParams).map(param => getTranslatedText(param, language)));
+            floatingTextContent += ` ${await getTranslatedText('withAdvancedSearch', language)}: ${translatedAdvancedParams.join(", ")}`;
+        }
+
+        // Update the DOM with the constructed floating text content
+        const floatingText = document.getElementById('dictfloating-info');
+        if (floatingText) {
+            floatingText.textContent = floatingTextContent;
+        } else {
+            console.error('Floating text element not found');
+        }
+    } catch (error) {
+        console.error('Error updating floating text:', error);
     }
 }
 
