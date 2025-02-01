@@ -252,9 +252,17 @@ export async function updateFloatingText(searchTerm, filters, advancedSearchPara
         }
 
         // Add advanced search information if advanced search is applied
-        if (advancedSearchParams) {
+        if (advancedSearchParams && Object.keys(advancedSearchParams).length > 0) {
             const withAdvancedSearchText = await getTranslatedText('withAdvancedSearch', language);
-            const translatedAdvancedParams = await Promise.all(Object.keys(advancedSearchParams).map(param => getTranslatedText(param, language)));
+            const translatedAdvancedParams = await Promise.all(
+                Object.entries(advancedSearchParams).map(async ([key, value]) => {
+                    if (value) {
+                        const translatedKey = await getTranslatedText(key, language);
+                        return translatedKey;
+                    }
+                    return null;
+                })
+            ).then(results => results.filter(Boolean)); // Remove null values
             floatingTextContent += `, ${withAdvancedSearchText}: ${translatedAdvancedParams.join(', ')}`;
         }
 
