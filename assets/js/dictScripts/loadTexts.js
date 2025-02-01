@@ -139,7 +139,6 @@ export async function setTexts(language) {
     // Update Advanced Search Popup elements
     document.querySelector('.dict-popup-content h3').textContent = advancedSearchTitle;
     document.querySelector('#dict-add-search-btn-popup').textContent = addSearchText;
-    closeAdvancedSearch.textContent = closeText;
     document.querySelector('label[for="dict-search-in-word"]').textContent = searchInWordText;
     document.querySelector('label[for="dict-search-in-root"]').textContent = searchInRootText;
     document.querySelector('label[for="dict-search-in-definition"]').textContent = searchInDefinitionText;
