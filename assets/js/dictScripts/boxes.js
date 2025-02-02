@@ -122,12 +122,16 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
     box.appendChild(idElement);
 
     // Add revision display in bottom left
-    const revisionElement = document.createElement('div');
-    revisionElement.className = 'revision-display';
-    revisionElement.textContent = `${await getTranslatedText('revision', language)}: ${row.revision || 'Non Defined Version'}`;
-    revisionElement.style.position = 'absolute';
-    revisionElement.style.bottom = '100px';
-    revisionElement.style.left = '10px';
+const revisionElement = document.createElement('div');
+revisionElement.className = 'revision-display';
+revisionElement.textContent = `${await getTranslatedText('revision', language)}: ${row.revision || 'Non Defined Version'}`;
+revisionElement.style.position = 'absolute';
+revisionElement.style.bottom = '100px';
+revisionElement.style.right = '10px';
+revisionElement.style.fontSize = '12px'; // Make the font smaller
+
+box.appendChild(revisionElement);
+
 
     box.appendChild(revisionElement);
 
