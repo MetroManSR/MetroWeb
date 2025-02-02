@@ -35,7 +35,6 @@ function getPartOfSpeechAbbreviation(partOfSpeech, language) {
     return posAbbreviations[language][partOfSpeech.toLowerCase()] || partOfSpeech;
 }
 
-// Function to create a dictionary box
 export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, searchIn) {
     if (!row || !row.title) {
         console.error('Invalid row data:', row);
@@ -121,6 +120,16 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
     idElement.style.right = '10px';
 
     box.appendChild(idElement);
+
+    // Add revision display in bottom left
+    const revisionElement = document.createElement('div');
+    revisionElement.className = 'revision-display';
+    revisionElement.textContent = `${await getTranslatedText('revision', language)}: ${row.revision || 'Non Defined Version'}`;
+    revisionElement.style.position = 'absolute';
+    revisionElement.style.bottom = '100px';
+    revisionElement.style.left = '10px';
+
+    box.appendChild(revisionElement);
 
     // Ensure text does not overlap with type tag or ID box
     wordElement.style.paddingRight = '50px'; // Adjust padding to avoid type tag
