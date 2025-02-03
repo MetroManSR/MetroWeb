@@ -106,6 +106,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
             uniqueRows.push(row);
         }
     });
+    
     updatedRows = uniqueRows;
 
     // Sort rows
