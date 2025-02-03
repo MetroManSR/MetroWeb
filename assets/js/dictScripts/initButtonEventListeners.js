@@ -78,7 +78,15 @@ export async function initializeButtonEventListeners(allRows, rowsPerPage, curre
                 },
                 filters: [],
                 rowsPerPage: 20,
-                sortOrder: 'titleup'
+                sortOrder: 'titleup', 
+                versionDisplay: {
+                    NR: true, 
+                    OV22: true, 
+                    NV24: true, 
+                    NV25: true, 
+                    V225: true
+    
+                }
             };
             // Reset form fields in the advanced search popup
             document.getElementById('dict-search-input').value = '';
@@ -92,6 +100,14 @@ export async function initializeButtonEventListeners(allRows, rowsPerPage, curre
             Array.from(wordFilterSelect.options).forEach(option => {
                 option.selected = false;
             });
+
+            //reset Version Checks
+            const versionChecks = document.querySelectorAll('input[name="version"]');
+
+            versionChecks.forEach(check => {
+                check.checked = !!pendingChanges.versionDisplay[check.value];  
+            });
+
             // Reset sort order
             document.getElementById('dct-ord-slt').selectedIndex = 0; // Set default sort order
             
