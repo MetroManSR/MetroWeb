@@ -19,8 +19,9 @@ export const defaultPendingChanges = {
         NV24: true, 
         NV25: true, 
         V225: true
-    }    
-
+    
+    }
+   
 };
 
 export let universalPendingChanges;
