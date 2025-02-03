@@ -4,6 +4,16 @@ import { highlight } from './utils.js';
 import { filteredRows, updateFilteredRows } from "../mainDict.js";
 import { universalPendingChanges, defaultPendingChanges } from './initFormEventListeners.js';
 
+function mapVersion(originalVersion) {
+    const versionMap = {
+        '22OV': 'OV22',
+        '24NV': 'NV24',
+        '25NV': 'NV25',
+        '25V2': 'V225'
+    };
+    return versionMap[originalVersion] || originalVersion;
+}
+
 /**
  * Sorts rows based on the specified sorting manner.
  * @param {Array} rows - The array of rows to sort.
@@ -39,9 +49,6 @@ export function sortRows(rows, sortingManner) {
  * @param {String} sortingManner - The sorting manner.
  */
 export async function processAllSettings(allRows = [], rowsPerPage = 20, currentPage = 1, sortingManner = 'titleup') {
-    
-    console.log("Booting up Settings")
-    
     const params = universalPendingChanges || defaultPendingChanges;
     const language = document.querySelector('meta[name="language"]').content || 'en';
 
@@ -52,8 +59,8 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     const normalize = (text) => ignoreDiacritics ? text.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : text;
 
-    let updatedRows = Array.isArray(allRows) ? [...allRows] : [];    
-    
+    let updatedRows = Array.isArray(allRows) ? [...allRows] : [];
+
     if (searchTerm) {
         const term = normalize(searchTerm.toLowerCase());
         updatedRows = updatedRows.filter(row => {
@@ -99,20 +106,15 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     // Filter rows based on selected versionDisplay
     if (versionDisplay) {
-        updatedRows = updatedRows.filter(row => versionDisplay[row.revision] || false);
-    }
-
-    console.log("Filters and Version Display Loaded")
-
-    // Remove duplicates
+       updatedRows = updatedRows.filter(row => versionDisplay[mapVersion(row.revision)] || false);
+    } 
+    
     const uniqueRows = [];
     updatedRows.forEach(row => {
         if (!uniqueRows.some(uniqueRow => uniqueRow.id === row.id)) {
             uniqueRows.push(row);
         }
     });
-
-    console.log("Unique Rows Processed")
     
     updatedRows = uniqueRows;
 
