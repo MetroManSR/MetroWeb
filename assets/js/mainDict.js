@@ -48,7 +48,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         searchIn: { word: true, root: true, definition: true, etymology: false },
         filters: [],
         rowsPerPage: 20,
-        sortOrder: 'titleup'
+        sortOrder: 'titleup', 
+        versionDisplay: {
+        OV22: true, 
+        NV24: true, 
+        NV25: true, 
+        V225: true
+    
+       }
     };
 
     try {
