@@ -59,6 +59,14 @@ document.addEventListener('DOMContentLoaded', async function() {
        }
     };
 
+    const versionChecks = document.querySelectorAll('input[name="version"]');
+
+    versionChecks.forEach(check => {
+      check.checked = !!pendingChanges.versionDisplay[check.value];  
+    });
+
+    
+
     try {
         hideLoadingMessage();
 
