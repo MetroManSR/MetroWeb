@@ -1,7 +1,7 @@
 import { getTranslatedText } from './loadTexts.js';
 import { highlight, getSimilarity } from './utils.js';
 import { initAdvancedSearchPopup } from './popups.js';
-
+import { processAllSettings } from './processRows.js';
 export const defaultPendingChanges = {
     searchTerm: '',
     exactMatch: false,
@@ -267,6 +267,19 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
             await initAdvancedSearchPopup(allRows, rowsPerPage, language);
         });
     }
+
+    const versionChecks = document.querySelectorAll('input[name="version"]');
+    versionChecks.forEach(check => {
+    check.addEventListener('change', function() {
+        // Update pendingChanges.versionDisplay based on the checkbox state
+        universalPendingChanges.versionDisplay[this.value] = this.checked;
+
+        // Call processAllSettings to re-process the rows
+        await processAllSettings(allRows, rowsPerPage, currentPage, sortingManner);
+    });
+});
+
+    
 } 
 
 export function updateUniversalPendingChanges(i) {
