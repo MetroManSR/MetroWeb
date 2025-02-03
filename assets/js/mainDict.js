@@ -73,6 +73,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         const esRootURL = 'https://docs.google.com/spreadsheets/d/13LHqyyBGxXGEd5XCi0HxwpdkWToXi_H0/export?format=xlsx';
         const enRootURL = 'https://docs.google.com/spreadsheets/d/1FR5xg3xvfuOqnvSgm9ZfSA2w5l4Rg7Ho/export?format=xlsx';
 
+        console.log("Main Dict JS, Dicts Loaded")
+        
         const dictionaryFile = language === 'es' ? esDictURL : enDictURL;
         const rootsFile = language === 'es' ? esRootURL : enRootURL;
 
@@ -85,6 +87,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         }
 
+        console.log("Data fetched from dictionary")
+
         const [dictionaryData, rootsData] = await Promise.all([
             fetchWithFallback(dictionaryFile, 'word'), 
             fetchWithFallback(rootsFile, 'root')
@@ -93,6 +97,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         const cleanedDictionaryData = (await cleanData(dictionaryData, 'word')).sort((a, b) => a.title.localeCompare(b.title));
         const cleanedRootsData = (await cleanData(rootsData, 'root')).sort((a, b) => a.title.localeCompare(b.title));
 
+        console.log("Data Cleaned")
+        
         cleanedDictionaryData.forEach((item, index) => { item.id = index + 1; });
         cleanedRootsData.forEach((item, index) => { item.id = index + 1; });
 
@@ -101,6 +107,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         filteredRows = allRows;
         filteredRows = getRelatedWordsByRoot(sortRows(allRows, currentSortOrder)); // Sorting rows initially
 
+        console.log("Data Filtered")
+        
         createPaginationControls(rowsPerPage, currentPage);
 
         const isUrlHandled = await initUrl(allRows, rowsPerPage, 1, 'titleup');
@@ -129,6 +137,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             });
         }
 
+        console.log("Settings Processed")
+
         const orderBySelect = document.getElementById('dict-order-by-select');
         if (orderBySelect) {
             orderBySelect.addEventListener('change', () => {
@@ -136,6 +146,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 updatePendingChangesList(pendingChanges, language);
             });
         }
+
+        console.log("Order Settings loaded up")
 
         document.getElementById('dict-loading-message').style.display = 'none';
     } catch (error) {
