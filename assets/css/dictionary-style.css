@@ -612,3 +612,40 @@ header {
 .dict-suggestion-link:hover {
     text-decoration: underline;
 }
+
+#version-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+#version-buttons label {
+    margin-right: 10px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+#version-buttons input[type="checkbox"] {
+    width: 10px;
+    height: 10px;
+    appearance: none;
+    border: 1px solid gray;
+    border-radius: 3px;
+    background-color: lightgray;
+    position: relative;
+    margin-right: 5px;
+}
+
+#version-buttons input[type="checkbox"]:checked::before {
+    content: '✔';
+    position: absolute;
+    top: -1px;
+    left: 1px;
+    font-size: 10px;
+    color: black;
+}
+
+#version-buttons label:hover input[type="checkbox"] {
+    background-color: darkgray;
+}
