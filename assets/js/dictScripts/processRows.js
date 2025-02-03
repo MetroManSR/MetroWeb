@@ -39,6 +39,9 @@ export function sortRows(rows, sortingManner) {
  * @param {String} sortingManner - The sorting manner.
  */
 export async function processAllSettings(allRows = [], rowsPerPage = 20, currentPage = 1, sortingManner = 'titleup') {
+    
+    console.log("Booting up Settings")
+    
     const params = universalPendingChanges || defaultPendingChanges;
     const language = document.querySelector('meta[name="language"]').content || 'en';
 
@@ -49,8 +52,8 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     const normalize = (text) => ignoreDiacritics ? text.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : text;
 
-    let updatedRows = Array.isArray(allRows) ? [...allRows] : [];
-
+    let updatedRows = Array.isArray(allRows) ? [...allRows] : [];    
+    
     if (searchTerm) {
         const term = normalize(searchTerm.toLowerCase());
         updatedRows = updatedRows.filter(row => {
@@ -99,6 +102,8 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         updatedRows = updatedRows.filter(row => versionDisplay[row.revision] || false);
     }
 
+    console.log("Filters and Version Display Loaded")
+
     // Remove duplicates
     const uniqueRows = [];
     updatedRows.forEach(row => {
@@ -106,6 +111,8 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
             uniqueRows.push(row);
         }
     });
+
+    console.log("Unique Rows Processed")
     
     updatedRows = uniqueRows;
 
