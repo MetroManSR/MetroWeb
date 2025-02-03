@@ -649,3 +649,16 @@ header {
 #version-buttons label:hover input[type="checkbox"] {
     background-color: darkgray;
 }
+
+#alert-container {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f44336;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    display: none;
+    z-index: 1000;
+}
