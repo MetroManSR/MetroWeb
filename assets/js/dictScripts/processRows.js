@@ -107,6 +107,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     // Filter rows based on selected versionDisplay
     if (versionDisplay) {
+        console.log(updatedRows) 
        updatedRows = updatedRows.filter(row => versionDisplay[mapVersion(row.revision)] || false);
     } 
     
