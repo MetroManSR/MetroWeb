@@ -6,6 +6,7 @@ import { universalPendingChanges, defaultPendingChanges } from './initFormEventL
 
 function mapVersion(originalVersion) {
     const versionMap = {
+        '' : 'NR', 
         'Version NR' : 'NR', 
         '22OV': 'OV22',
         '24NV': 'NV24',
