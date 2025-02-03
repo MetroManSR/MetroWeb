@@ -15,10 +15,10 @@ export const defaultPendingChanges = {
     rowsPerPage: 20,
     sortOrder: 'titleup', // Default sort order
     versionDisplay: {
-        22OV: true, 
-        24NV: true, 
-        25NV: true, 
-        25V2: true
+        OV22: true, 
+        NV24: true, 
+        NV25: true, 
+        V225: true
     }    
 
 };
