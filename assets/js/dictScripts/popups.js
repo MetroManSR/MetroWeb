@@ -96,11 +96,20 @@ export async function initStatisticsPopup(allRows) {
         return counts;
     }, {});
 
+    const wordsByInitialLetter = allRows.reduce((counts, row) => {
+        if (row.type === 'word' && row.title) {
+            const initial = row.title.charAt(0).toUpperCase();
+            counts[initial] = (counts[initial] || 0) + 1;
+        }
+        return counts;
+    }, {});
+
     // Translations for Statistics Popup
     const statisticsTitle = await getTranslatedText('statisticsTitle', currentLanguage);
     const totalWordsText = await getTranslatedText('totalWords', currentLanguage);
     const totalRootsText = await getTranslatedText('totalRoots', currentLanguage);
     const partOfSpeechTitle = await getTranslatedText('partOfSpeechTitle', currentLanguage);
+    const wordsByLetterTitle = await getTranslatedText('wordsByLetterTitle', currentLanguage);
     const closeStatsText = await getTranslatedText('close', currentLanguage);
 
     const validPartOfSpeeches = [
@@ -123,6 +132,19 @@ export async function initStatisticsPopup(allRows) {
                 return `<li>${finalPos}: ${count}</li>`;
             })).then(items => items.join(''))}
         </ul>
+        <h4>${wordsByLetterTitle}</h4>
+        <table>
+            <tr>
+                <th>Letter</th>
+                <th>Count</th>
+            </tr>
+            ${Object.entries(wordsByInitialLetter).filter(([letter, count]) => count > 0).map(([letter, count]) => `
+                <tr>
+                    <td>${letter}</td>
+                    <td>${count}</td>
+                </tr>
+            `).join('')}
+        </table>
         <button id="dict-close-statistics-button" class="btn">${closeStatsText}</button>
     `;
     
@@ -144,4 +166,4 @@ export async function initStatisticsPopup(allRows) {
         await infoClose.classList.remove('active');
         await infoClose.classList.add('hidden');
     });
-        }
+}
