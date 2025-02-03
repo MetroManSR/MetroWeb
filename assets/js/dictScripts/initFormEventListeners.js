@@ -14,7 +14,13 @@ export const defaultPendingChanges = {
     filters: [],
     rowsPerPage: 20,
     sortOrder: 'titleup', // Default sort order
-    versionDisplay: 'default'
+    versionDisplay: {
+        22OV: true, 
+        24NV: true, 
+        25NV: true, 
+        25V2: true
+    }    
+
 };
 
 export let universalPendingChanges;
