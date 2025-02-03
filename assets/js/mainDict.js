@@ -50,10 +50,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         rowsPerPage: 20,
         sortOrder: 'titleup', 
         versionDisplay: {
-        OV22: true, 
-        NV24: true, 
-        NV25: true, 
-        V225: true
+            NR: true, 
+            OV22: true, 
+            NV24: true, 
+            NV25: true, 
+            V225: true
     
        }
     };
