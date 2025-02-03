@@ -276,8 +276,7 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
         universalPendingChanges.versionDisplay[this.value] = this.checked;
 
         // Call processAllSettings to re-process the rows
-        await processAllSettings(allRows, rowsPerPage, currentPage, sortingManner);
-    });
+   });
 });
 
     
