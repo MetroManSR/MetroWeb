@@ -271,13 +271,51 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
     }
 
     const versionChecks = document.querySelectorAll('input[name="version"]');
-    versionChecks.forEach(check => {
-    check.addEventListener('change', function() {
-        // Update pendingChanges.versionDisplay based on the checkbox state
-        universalPendingChanges.versionDisplay[this.value] = this.checked;
+const applySettingsButton = document.getElementById('dict-apply-settings-button');
 
-        // Call processAllSettings to re-process the rows
-   });
+// Create the alert container
+const alertContainer = document.createElement('div');
+alertContainer.id = 'alert-container';
+alertContainer.style.position = 'fixed';
+alertContainer.style.top = '10px';
+alertContainer.style.left = '50%';
+alertContainer.style.transform = 'translateX(-50%)';
+alertContainer.style.backgroundColor = '#f44336';
+alertContainer.style.color = 'white';
+alertContainer.style.padding = '10px';
+alertContainer.style.borderRadius = '5px';
+alertContainer.style.display = 'none';
+alertContainer.style.zIndex = '1000';
+document.body.appendChild(alertContainer);
+
+function showAlert(message) {
+    alertContainer.textContent = message;
+    alertContainer.style.display = 'block';
+    
+    setTimeout(() => {
+        alertContainer.style.display = 'none';
+    }, 3000);
+}
+
+versionChecks.forEach(check => {
+    // Set the initial checked state based on pendingChanges
+    check.checked = !!universalPendingChanges.versionDisplay[check.value];
+
+    check.addEventListener('change', function() {
+        // Check if at least one checkbox is selected
+        const anySelected = Array.from(versionChecks).filter(c => c.checked).length > 0;
+
+        if (!anySelected) {
+            showAlert('Please select at least one version.');
+            this.checked = true; // Recheck the checkbox to prevent unchecking
+        } else {
+            // Update pendingChanges.versionDisplay based on the checkbox state
+            universalPendingChanges.versionDisplay[this.value] = this.checked;
+
+            // Call processAllSettings to re-process the rows
+            processAllSettings(allRows, rowsPerPage, currentPage, sortingManner);
+        }
+    });
 });
 
     
