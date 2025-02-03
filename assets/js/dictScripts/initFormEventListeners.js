@@ -15,6 +15,7 @@ export const defaultPendingChanges = {
     rowsPerPage: 20,
     sortOrder: 'titleup', // Default sort order
     versionDisplay: {
+        NR: true,
         OV22: true, 
         NV24: true, 
         NV25: true, 
