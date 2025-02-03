@@ -45,7 +45,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     const applySettingsButton = document.getElementById('dict-apply-settings-button');
     applySettingsButton.disabled = true;
 
-    const { searchTerm, exactMatch, searchIn, filters, ignoreDiacritics, startsWith, endsWith } = params;
+    const { searchTerm, exactMatch, searchIn, filters, ignoreDiacritics, startsWith, endsWith, versionDisplay } = params;
 
     const normalize = (text) => ignoreDiacritics ? text.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : text;
 
@@ -94,6 +94,11 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         updatedRows = updatedRows.filter(row => filters.includes(row.partofspeech?.toLowerCase()));
     }
 
+    // Filter rows based on selected versionDisplay
+    if (versionDisplay) {
+        updatedRows = updatedRows.filter(row => versionDisplay[row.revision] || false);
+    }
+
     // Remove duplicates
     const uniqueRows = [];
     updatedRows.forEach(row => {
@@ -125,8 +130,8 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     applySettingsButton.disabled = false; // Re-enable the button after the process is complete
 
     console.log('Process complete.');
-}
-
+} 
+    
 /**
  * Displays the specified page of results.
  *
