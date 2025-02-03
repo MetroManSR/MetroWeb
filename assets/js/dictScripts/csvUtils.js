@@ -43,7 +43,7 @@ export async function cleanData(data, type, allRows) {
             meta: '', // Initialize meta
             notes: '', // Initialize notes
             morph: [], // Initialize morph as an array
-            revision: "VU",
+            revision: "NR",
         };
 
         if (type === 'word') {
@@ -51,8 +51,10 @@ export async function cleanData(data, type, allRows) {
             cleanedRow.partofspeech = sanitizeHTML(idsNeedingFixing.includes(index) ? fixEncoding(row.col2 ? row.col2.trim() : '') : row.col2 ? row.col2.trim() : ''); // Part of Speech for words
             cleanedRow.meta = sanitizeHTML(idsNeedingFixing.includes(index) ? fixEncoding(row.col3 ? row.col3.trim() : '') : row.col3 ? row.col3.trim() : ''); // Meta for words
             cleanedRow.notes = sanitizeHTML(idsNeedingFixing.includes(index) ? fixEncoding(row.col4 ? row.col4.trim() : '') : row.col4 ? row.col4.trim() : ''); // Notes for words
-            cleanedRow.revision = sanitizeHTML(idsNeedingFixing.includes(index) ? fixEncoding(row.col6 ? row.col6.trim() : '') : row.col6 ? row.col6.trim() : ''); // Notes for words
+            cleanedRow.revision = sanitizeHTML(idsNeedingFixing.includes(index) ? fixEncoding(row.col6 ? row.col6.trim() : '') : row.col6 ? row.col6.trim() : ''); // Revision for words
 
+            console.log(cleanedRow.revision);
+            
             let morphData = row.col5 ? row.col5.trim().split(',').map(item => item.trim()) : [];
 
             // Process morphData asynchronously to create hyperlinks
