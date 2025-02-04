@@ -30,7 +30,7 @@ export async function updatePendingChangesList(language) {
     language = document.querySelector('meta[name="language"]').content || 'en';
     const pendingChanges = universalPendingChanges;
 
-    const changesList =;
+    const changesList = [] ;
 
     if (pendingChanges.searchTerm) {
         changesList.push(`<strong>${await getTranslatedText('searchTerm', language)}</strong>: "${pendingChanges.searchTerm}"`);
