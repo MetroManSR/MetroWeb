@@ -1,3 +1,5 @@
+// error-handler.js
+
 // Array to store error messages
 export const errors = [];
 
@@ -14,7 +16,9 @@ export function updateErrorButton() {
 
     if (errors.length > 0) {
         errorButtonContainer.style.display = 'block';
-        errorDropdown.innerHTML = errors.map(error => `<div>${error}</div>`).join('');
+        errorDropdown.innerHTML = errors.map(error => `
+            <div>${error}</div>
+        `).join('');
     } else {
         errorButtonContainer.style.display = 'none';
     }
@@ -51,6 +55,8 @@ export function awaitError() {
 // Error Button Handler + Dropdown
 const errorButtonHandler = () => {
     const errorBox = document.getElementById('errorBox');
+    const errorButtonContainer = document.getElementById('error-button-container');
+
     const errorMessage = `
         <div>
             <strong>Error:</strong> An unexpected issue has occurred.
@@ -66,11 +72,13 @@ const errorButtonHandler = () => {
     `;
     errorBox.innerHTML = errorMessage;
     errorBox.classList.add('active');
-    
+    errorButtonContainer.classList.add('active'); // Add active class
+
     // Add event listener for the ignore error button
     const ignoreErrorButton = document.getElementById('ignoreErrorButton');
     ignoreErrorButton.addEventListener('click', () => {
         errorBox.classList.remove('active');
+        errorButtonContainer.classList.remove('active'); // Remove active class
     });
 };
 
