@@ -19,8 +19,10 @@ export function updateErrorButton() {
         errorDropdown.innerHTML = errors.map(error => `
             <div>${error}</div>
         `).join('');
+        errorButtonContainer.classList.add('active'); // Add active class when errors are more than 0
     } else {
         errorButtonContainer.style.display = 'none';
+        errorButtonContainer.classList.remove('active'); // Remove active class when no errors
     }
 }
 
@@ -86,3 +88,13 @@ const errorButtonHandler = () => {
 const showError = () => {
     errorButtonHandler();
 };
+
+// Example usage
+document.getElementById('searchButton').addEventListener('click', () => {
+    const searchTerm = document.getElementById('searchInput').value;
+    if (!searchTerm) {
+        showError();
+    } else {
+        // Perform search logic
+    }
+});
