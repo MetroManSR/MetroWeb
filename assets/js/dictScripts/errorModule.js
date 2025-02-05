@@ -88,13 +88,3 @@ const errorButtonHandler = () => {
 const showError = () => {
     errorButtonHandler();
 };
-
-// Example usage
-document.getElementById('searchButton').addEventListener('click', () => {
-    const searchTerm = document.getElementById('searchInput').value;
-    if (!searchTerm) {
-        showError();
-    } else {
-        // Perform search logic
-    }
-});
