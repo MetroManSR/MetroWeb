@@ -1,3 +1,5 @@
+import { copyToClipboard } from './utils.js';
+
 // Array to store error messages
 export const errors = [];
 
@@ -79,4 +81,4 @@ window.onerror = function(message, source, lineno, colno, error) {
 
     // Return true to prevent the default browser error handling
     return true;
-}; 
+};
