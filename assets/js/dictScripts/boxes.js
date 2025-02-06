@@ -37,15 +37,7 @@ function getPartOfSpeechAbbreviation(partOfSpeech, language) {
 
 // List of offensive words (add as many words as needed)
 const offensiveWords = [
-    'offensiveWord1', 'offensiveWord2', 'offensiveWord3', 'offensiveWord4',
-    'offensiveWord5', 'offensiveWord6', 'offensiveWord7', 'offensiveWord8',
-    'offensiveWord9', 'offensiveWord10', 'offensiveWord11', 'offensiveWord12',
-    'offensiveWord13', 'offensiveWord14', 'offensiveWord15', 'offensiveWord16',
-    'offensiveWord17', 'offensiveWord18', 'offensiveWord19', 'offensiveWord20',
-    'offensiveWord21', 'offensiveWord22', 'offensiveWord23', 'offensiveWord24',
-    'offensiveWord25', 'offensiveWord26', 'offensiveWord27', 'offensiveWord28',
-    'offensiveWord29', 'offensiveWord30', 'offensiveWord31', 'offensiveWord32'
-];
+    'She' ];
 
 // Flag to enable/disable censorship
 let censoringEnabled = true;
