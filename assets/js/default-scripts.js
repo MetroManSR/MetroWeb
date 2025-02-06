@@ -4,8 +4,8 @@ import { copyToClipboard } from './dictScripts/util.js';
 // Define the language variable in the JavaScript context
 const lang = document.documentElement.lang; // Ensure that lang is set correctly
 
-// Define knlangRedirect function globally
-window.knlangRedirect = function() {
+// Define knlangRedirect function and export it
+export function knlangRedirect() {
   // Get the current path
   let path = window.location.pathname;
   let newPath = "";
@@ -22,7 +22,7 @@ window.knlangRedirect = function() {
 
   // Redirect to the new URL
   window.location.href = newUrl;
-};
+}
 
 // Function to set default texts
 function setDefaultStrings(language) {
