@@ -67,10 +67,6 @@ export function updateDictionaryBoxes(allRows) {
     });
 }
 
-// Initialize censoring on document load and update dynamically
-   updateDictionaryBoxes(allRows);
-
-
     // Add event listener for the toggle button
     const toggleButton = document.getElementById('dict-toggle-censorship');
     if (toggleButton) {
