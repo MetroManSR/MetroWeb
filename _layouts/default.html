@@ -2,6 +2,7 @@
 layout : base
 ---
 
+
 <!DOCTYPE html>
 <html lang="{{ page.language }}">
 <head>
@@ -9,7 +10,7 @@ layout : base
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script type="module">
     import { initializeErrorButton } from 'https://www.metroman.me/assets/js/dictScripts/errorModule.js';
-    import { copyToClipboard } from 'https://www.metroman.me/assets/js/dictScripts/utils.js';
+    import { copyToClipboard } from 'https://www.metroman.me/assets/js/dictScripts/util.js';
 
     // Define the language variable in the JavaScript context
     const lang = "{{ page.language }}"; // Ensure that lang is set correctly
@@ -89,11 +90,10 @@ layout : base
       </div>
     {% endif %}
     <!-- Error button container -->
-        <div id="error-button-container" style="display:none; position:fixed; bottom:10px; right:10px; z-index:1000;">
-    <button id="error-button" style="background-color:red; color:white; border:none; padding:5px 10px; cursor:pointer;">Errors</button>
-    <div id="error-dropdown" style="display:none; background-color:white; border:1px solid red; max-width:200px; max-height:300px; overflow:auto; padding:10px; box-shadow:0px 4px 8px rgba(0,0,0,0.1);"></div>
-        </div>
-  </div>
+    <div id="error-button-container" style="display:none; position:fixed; bottom:10px; right:10px; z-index:1000;">
+      <button id="error-button" style="background-color:red; color:white; border:none; padding:5px 10px; cursor:pointer;">Errors</button>
+      <div id="error-dropdown" style="display:none; background-color:white; border:1px solid red; max-width:200px; max-height:300px; overflow:auto; padding:10px; box-shadow:0px 4px 8px rgba(0,0,0,0.1);"></div>
+    </div>
   </main>
 </body>
 </html>
