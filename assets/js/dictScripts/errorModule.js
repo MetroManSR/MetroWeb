@@ -1,4 +1,4 @@
-import { copyToClipboard } from './utils.js';
+import { copyToClipboard } from 'https://www.metroman.me/assets/js/dictScripts/util.js';
 
 // Array to store error messages
 export const errors = [];
@@ -70,13 +70,16 @@ export function initializeErrorButton() {
         }
     });
 
+    // Adding console log to ensure event listener is registered
     window.addEventListener('error', (event) => {
+        console.log('Error captured:', event.message);
         captureError(event.message);
     });
 }
 
 // Global error handler to capture errors
 window.onerror = function(message, source, lineno, colno, error) {
+    console.log(`Global error handler: Error: ${message} at ${source}:${lineno}:${colno}`);
     captureError(`Error: ${message} at ${source}:${lineno}:${colno}`);
 
     // Return true to prevent the default browser error handling
