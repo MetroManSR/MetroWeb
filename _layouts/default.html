@@ -1,9 +1,7 @@
 ---
-layout : base
+layout: base
 ---
 
-
-<!DOCTYPE html>
 <html lang="{{ page.language }}">
 <head>
   <meta charset="UTF-8">
@@ -12,29 +10,29 @@ layout : base
     import { initializeErrorButton } from 'https://www.metroman.me/assets/js/dictScripts/errorModule.js';
     import { copyToClipboard } from 'https://www.metroman.me/assets/js/dictScripts/util.js';
 
-    // Define the language variable in the JavaScript context
-    const lang = "{{ page.language }}"; // Ensure that lang is set correctly
+    // Definir la variable de lenguaje en el contexto de JavaScript
+    const lang = "{{ page.language }}"; // Asegurarse de que lang se establece correctamente
 
-    function knlangRedirect() {
-      // Get the current path
+    window.knlangRedirect = function() { // Ensure knlangRedirect is defined globally
+      // Obtener la ruta actual
       let path = window.location.pathname;
       let newPath = "";
 
-      // Add "en/" at the beginning of the path
+      // Agregar "en/" al principio de la ruta
       if (lang === "es") {
         newPath = '/en' + path;
       } else {
         newPath = path.replace("/en", "");
       }
 
-      // Build the new URL
+      // Construir la nueva URL
       let newUrl = window.location.origin + newPath;
 
-      // Redirect to the new URL
+      // Redirigir a la nueva URL
       window.location.href = newUrl;
-    }
+    };
 
-    // Function to set default texts
+    // Función para establecer los textos por defecto
     function setDefaultStrings(language) {
       const defaultStrings = {
         en: {
@@ -48,7 +46,7 @@ layout : base
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      // This should be injected by your static site generator
+      // Esto debería ser inyectado por tu generador de sitios estáticos
       const defaultStrings = setDefaultStrings(lang);
       document.getElementById("backbutton").innerText = defaultStrings.back;
 
@@ -97,5 +95,3 @@ layout : base
   </main>
 </body>
 </html>
-
-      
