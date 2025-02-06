@@ -667,3 +667,17 @@ header {
     display: none;
     z-index: 1000;
 }
+
+/* Censored text with gray rectangle */
+.censored {
+    background-color: gray;
+    color: gray;
+    cursor: pointer;
+    padding: 2px 5px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.censored:hover {
+    background-color: lightgray;
+}
