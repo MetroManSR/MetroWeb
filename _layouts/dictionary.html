@@ -11,6 +11,12 @@ layout: default
     <title>{{ page.title }}</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
     <script src="../../../assets/js/mainDict.js" type="module"></script>
+    <script type="module">
+  import { knlangRedirect } from '../../../assets/js/default-scripts.js';
+
+  // Make knlangRedirect globally accessible
+  window.knlangRedirect = knlangRedirect;
+</script>
   </head>
   <body>
     <header>
