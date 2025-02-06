@@ -1,5 +1,5 @@
 import { initializeErrorButton } from './dictScripts/errorModule.js';
-import { copyToClipboard } from './dictScripts/util.js';
+import { copyToClipboard } from './dictScripts/utils.js';
 
 // Define the language variable in the JavaScript context
 const lang = document.documentElement.lang; // Ensure that lang is set correctly
