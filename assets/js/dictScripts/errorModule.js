@@ -1,4 +1,4 @@
-import { copyToClipboard } from 'https://www.metroman.me/assets/js/dictScripts/utils.js';
+import { copyToClipboard } from './utils.js';
 
 // Array to store error messages
 export const errors = [];
