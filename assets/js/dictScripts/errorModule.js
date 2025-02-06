@@ -14,14 +14,30 @@ export function updateErrorButton() {
 
     if (errors.length > 0) {
         errorButtonContainer.style.display = 'block';
-        errorDropdown.innerHTML = errors.map(error => `
-            <div>${error}</div>
+        errorDropdown.innerHTML = errors.map((error, index) => `
+            <div>
+                ${error}
+                <button onclick="copyError(${index})">Copy</button>
+                <button onclick="ignoreError(${index})">Ignore</button>
+            </div>
         `).join('');
         errorButtonContainer.classList.add('active'); // Add active class when errors are more than 0
     } else {
         errorButtonContainer.style.display = 'none';
         errorButtonContainer.classList.remove('active'); // Remove active class when no errors
     }
+}
+
+// Function to copy error details to the clipboard
+window.copyError = function(index) {
+    copyToClipboard(errors[index]);
+    alert('Error details copied to clipboard.');
+}
+
+// Function to ignore/delete an error and update the display
+window.ignoreError = function(index) {
+    errors.splice(index, 1); // Remove the error from the array
+    updateErrorButton(); // Update the error button and dropdown
 }
 
 // Function to initialize the error button with click event and error listener
@@ -42,28 +58,9 @@ export function initializeErrorButton() {
     });
 }
 
-// Global error handler to display errors on screen
+// Global error handler to capture errors
 window.onerror = function(message, source, lineno, colno, error) {
     captureError(`Error: ${message} at ${source}:${lineno}:${colno}`);
-    const errorBox = document.createElement('div');
-    errorBox.style.position = 'fixed';
-    errorBox.style.top = '10px';
-    errorBox.style.right = '10px';
-    errorBox.style.width = '300px';
-    errorBox.style.padding = '10px';
-    errorBox.style.backgroundColor = 'red';
-    errorBox.style.color = 'white';
-    errorBox.style.zIndex = '1000';
-    errorBox.style.borderRadius = '5px';
-    errorBox.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
-
-    errorBox.innerHTML = `
-        <strong>Error:</strong> ${message}<br>
-        <strong>Source:</strong> ${source}<br>
-        <strong>Line:</strong> ${lineno}, Column: ${colno}
-    `;
-
-    document.body.appendChild(errorBox);
 
     // Return true to prevent the default browser error handling
     return true;
