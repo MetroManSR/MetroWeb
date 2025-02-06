@@ -2,11 +2,14 @@
 layout: base
 ---
 
+<!DOCTYPE html>
 <html lang="{{ page.language }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script>
+  <script type="module">
+    import { initializeErrorButton } from './errormodule.js';
+
     // Definir la variable de lenguaje en el contexto de JavaScript
     const lang = "{{ page.language }}"; // Asegurarse de que lang se establece correctamente
 
@@ -47,6 +50,9 @@ layout: base
       const defaultStrings = setDefaultStrings(lang);
       document.getElementById("backbutton").innerText = defaultStrings.back;
     });
+
+    // Initialize error button
+    initializeErrorButton();
   </script>
 </head>
 <body>
