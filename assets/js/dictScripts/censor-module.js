@@ -1,6 +1,6 @@
 // List of offensive words (add as many words as needed)
 const offensiveWords = [
-    'tree', 'arbeon', 'offensiveWord3', 'offensiveWord4',
+    'tree', 'arbeon', 'she', 'ella',
     'offensiveWord5', 'offensiveWord6', 'offensiveWord7', 'offensiveWord8',
     'offensiveWord9', 'offensiveWord10', 'offensiveWord11', 'offensiveWord12',
     'offensiveWord13', 'offensiveWord14', 'offensiveWord15', 'offensiveWord16',
@@ -14,7 +14,7 @@ const offensiveWords = [
 let censoringEnabled = true;
 
 // Function to reveal censored text
-export function revealText(element) {
+function revealText(element) {
     element.style.backgroundColor = 'transparent';
     element.style.color = 'inherit';
     element.style.cursor = 'default';
@@ -22,7 +22,7 @@ export function revealText(element) {
 }
 
 // Censoring function
-export function censorText(text) {
+function censorText(text) {
     offensiveWords.forEach(word => {
         const regex = new RegExp(`\\b${word}\\b`, 'gi');
         text = text.replace(regex, `<span class="censored" onclick="revealText(this)">${word}</span>`);
@@ -31,7 +31,7 @@ export function censorText(text) {
 }
 
 // Function to update the content of all dictionary boxes
-export function updateDictionaryBoxes(allRows, searchTerm, searchIn) {
+function updateDictionaryBoxes(allRows) {
     const boxes = document.querySelectorAll('.dictionary-box');
     boxes.forEach(async (box) => {
         const rowId = box.id.split('-').pop();
@@ -42,17 +42,24 @@ export function updateDictionaryBoxes(allRows, searchTerm, searchIn) {
             const notesElement = box.querySelector('.dictionary-box-notes');
             const morphElement = box.querySelector('.dictionary-box-morph');
 
-            wordElement.innerHTML = await highlight(censorText(row.title), searchTerm, searchIn, row);
-            metaElement.innerHTML = await highlight(censorText(row.meta), searchTerm, searchIn, row);
-            notesElement.innerHTML = await highlight(censorText(row.notes || ''), searchTerm, searchIn, row);
+            // Update word element
+            const partOfSpeechAbbr = getPartOfSpeechAbbreviation(row.partofspeech || '', 'en');
+            wordElement.innerHTML = await highlight(censorText(row.title + (row.type !== 'root' ? ` (${partOfSpeechAbbr})` : '')));
 
+            // Update meta element
+            metaElement.innerHTML = await highlight(censorText(row.meta));
+
+            // Update notes element
+            notesElement.innerHTML = await highlight(censorText(row.notes || ''));
+
+            // Update morph element
             if (Array.isArray(row.morph) && row.morph.length > 0) {
                 morphElement.innerHTML = `<strong>${await getTranslatedText('morphology', 'en')}:</strong> `;
                 const morphLinks = await Promise.all(row.morph.map(async (morphTitle, index) => {
                     const matchingRoot = allRows.find(r => r.meta.toLowerCase() === morphTitle.toLowerCase() && r.type === 'root');
                     return matchingRoot 
-                        ? await createHyperlink(morphTitle, searchTerm, allRows, searchIn) 
-                        : await highlight(censorText(morphTitle), searchTerm, searchIn, row);
+                        ? await createHyperlink(morphTitle) 
+                        : await highlight(censorText(morphTitle));
                 }));
                 morphElement.innerHTML += morphLinks.join(', ');
             }
@@ -61,9 +68,9 @@ export function updateDictionaryBoxes(allRows, searchTerm, searchIn) {
 }
 
 // Initialize censoring on document load and update dynamically
-export function initializeCensoring(allRows, searchTerm, searchIn) {
+function initializeCensoring(allRows) {
     document.addEventListener('DOMContentLoaded', () => {
-        applyCensoring();
+        updateDictionaryBoxes(allRows);
     });
 
     // Add event listener for the toggle button
@@ -71,7 +78,7 @@ export function initializeCensoring(allRows, searchTerm, searchIn) {
     if (toggleButton) {
         toggleButton.addEventListener('click', () => {
             censoringEnabled = !censoringEnabled;
-            updateDictionaryBoxes(allRows, searchTerm, searchIn);
+            updateDictionaryBoxes(allRows);
         });
     }
-}
+} 
