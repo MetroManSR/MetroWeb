@@ -313,7 +313,6 @@ versionChecks.forEach(check => {
             universalPendingChanges.versionDisplay[this.value] = this.checked;
 
             // Call processAllSettings to re-process the rows
-            processAllSettings(allRows, rowsPerPage, currentPage, sortingManner);
         }
     });
 });
