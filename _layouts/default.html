@@ -9,30 +9,31 @@ layout : base
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script type="module">
     import { initializeErrorButton } from 'https://www.metroman.me/assets/js/dictScripts/errorModule.js';
+    import { copyToClipboard } from 'https://www.metroman.me/assets/js/dictScripts/util.js';
 
-    // Definir la variable de lenguaje en el contexto de JavaScript
-    const lang = "{{ page.language }}"; // Asegurarse de que lang se establece correctamente
+    // Define the language variable in the JavaScript context
+    const lang = "{{ page.language }}"; // Ensure that lang is set correctly
 
     function knlangRedirect() {
-      // Obtener la ruta actual
+      // Get the current path
       let path = window.location.pathname;
       let newPath = "";
 
-      // Agregar "en/" al principio de la ruta
+      // Add "en/" at the beginning of the path
       if (lang === "es") {
         newPath = '/en' + path;
       } else {
         newPath = path.replace("/en", "");
       }
 
-      // Construir la nueva URL
+      // Build the new URL
       let newUrl = window.location.origin + newPath;
 
-      // Redirigir a la nueva URL
+      // Redirect to the new URL
       window.location.href = newUrl;
     }
 
-    // Función para establecer los textos por defecto
+    // Function to set default texts
     function setDefaultStrings(language) {
       const defaultStrings = {
         en: {
@@ -46,13 +47,13 @@ layout : base
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      // Esto debería ser inyectado por tu generador de sitios estáticos
+      // This should be injected by your static site generator
       const defaultStrings = setDefaultStrings(lang);
       document.getElementById("backbutton").innerText = defaultStrings.back;
-    });
 
-    // Initialize error button
-    initializeErrorButton();
+      // Initialize error button
+      initializeErrorButton();
+    });
   </script>
 </head>
 <body>
@@ -87,6 +88,13 @@ layout : base
         {% endfor %}
       </div>
     {% endif %}
+    <!-- Error button container -->
+    <div id="error-button-container" style="display: none;">
+      <button id="error-button">Show Errors</button>
+      <div id="error-dropdown" style="display: none;"></div>
+    </div>
   </main>
 </body>
-</html> 
+</html>
+
+      
