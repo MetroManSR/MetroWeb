@@ -46,7 +46,7 @@ export function initializeErrorButton() {
     const errorDropdown = document.getElementById('error-dropdown');
 
     errorButton.addEventListener('click', () => {
-        if (errorDropdown.style.display === 'none') {
+        if (errorDropdown.style.display === 'none' || errorDropdown.style.display === '') {
             errorDropdown.style.display = 'block';
         } else {
             errorDropdown.style.display = 'none';
