@@ -15,13 +15,28 @@ export function updateErrorButton() {
     if (errors.length > 0) {
         errorButtonContainer.style.display = 'block';
         errorDropdown.innerHTML = errors.map((error, index) => `
-            <div>
+            <div id="error-${index}">
                 ${error}
-                <button onclick="copyError(${index})">Copy</button>
-                <button onclick="ignoreError(${index})">Ignore</button>
+                <button class="copy-btn" data-index="${index}">Copy</button>
+                <button class="ignore-btn" data-index="${index}">Ignore</button>
             </div>
         `).join('');
         errorButtonContainer.classList.add('active'); // Add active class when errors are more than 0
+        
+        // Add event listeners to the buttons after they are rendered
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', event => {
+                const index = event.target.dataset.index;
+                copyError(index);
+            });
+        });
+
+        document.querySelectorAll('.ignore-btn').forEach(btn => {
+            btn.addEventListener('click', event => {
+                const index = event.target.dataset.index;
+                ignoreError(index);
+            });
+        });
     } else {
         errorButtonContainer.style.display = 'none';
         errorButtonContainer.classList.remove('active'); // Remove active class when no errors
@@ -29,13 +44,13 @@ export function updateErrorButton() {
 }
 
 // Function to copy error details to the clipboard
-window.copyError = function(index) {
+function copyError(index) {
     copyToClipboard(errors[index]);
     alert('Error details copied to clipboard.');
 }
 
 // Function to ignore/delete an error and update the display
-window.ignoreError = function(index) {
+function ignoreError(index) {
     errors.splice(index, 1); // Remove the error from the array
     updateErrorButton(); // Update the error button and dropdown
 }
@@ -64,4 +79,4 @@ window.onerror = function(message, source, lineno, colno, error) {
 
     // Return true to prevent the default browser error handling
     return true;
-};
+}; 
