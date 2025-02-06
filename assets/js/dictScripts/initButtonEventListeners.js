@@ -132,14 +132,15 @@ export async function initializeButtonEventListeners(allRows, rowsPerPage, curre
         });
     }
     
-    updateDictionaryBoxes(allRows, searchTerm, searchIn);
-    
+    updateDictionaryBoxes();
+
     // Add event listener for the toggle button
     const toggleButton = document.getElementById('dict-toggle-censorship');
     if (toggleButton) {
-        toggleButton.addEventListener('click', () => {
+        toggleButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent the button click from bubbling up
             censoringEnabled = !censoringEnabled;
-            updateDictionaryBoxes(allRows, searchTerm, searchIn);
+            updateDictionaryBoxes();
         });
     }
  
