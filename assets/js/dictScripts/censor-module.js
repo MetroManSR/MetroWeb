@@ -22,7 +22,7 @@ function revealText(element) {
 }
 
 // Censoring function
-function censorText(text) {
+export function censorText(text) {
     offensiveWords.forEach(word => {
         const regex = new RegExp(`\\b${word}\\b`, 'gi');
         text = text.replace(regex, `<span class="censored" onclick="revealText(this)">${word}</span>`);
@@ -31,7 +31,7 @@ function censorText(text) {
 }
 
 // Function to update the content of all dictionary boxes
-function updateDictionaryBoxes(allRows) {
+export function updateDictionaryBoxes(allRows) {
     const boxes = document.querySelectorAll('.dictionary-box');
     boxes.forEach(async (box) => {
         const rowId = box.id.split('-').pop();
