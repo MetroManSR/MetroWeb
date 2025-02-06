@@ -23,6 +23,7 @@ function revealText(element) {
 
 // Censoring function
 export function censorText(text) {
+    if (!censoringEnabled) return text;
     offensiveWords.forEach(word => {
         const regex = new RegExp(`\\b${word}\\b`, 'gi');
         text = text.replace(regex, `<span class="censored" onclick="revealText(this)">${word}</span>`);
@@ -31,8 +32,20 @@ export function censorText(text) {
 }
 
 // Function to update the content of all dictionary boxes
-export function updateDictionaryBoxes(allRows) {
+export function updateDictionaryBoxes() {
     const boxes = document.querySelectorAll('.dictionary-box');
+    const allRows = Array.from(boxes).map(box => {
+        return {
+            id: box.id.split('-').pop(),
+            title: box.querySelector('.dictionary-box-title').textContent,
+            meta: box.querySelector('.dictionary-box-meta').textContent,
+            notes: box.querySelector('.dictionary-box-notes').textContent,
+            morph: (box.querySelector('.dictionary-box-morph').textContent || '').split(','),
+            partofspeech: box.getAttribute('data-partofspeech'),
+            type: box.getAttribute('data-type')
+        };
+    });
+
     boxes.forEach(async (box) => {
         const rowId = box.id.split('-').pop();
         const row = allRows.find(r => r.id.toString() === rowId);
@@ -67,13 +80,17 @@ export function updateDictionaryBoxes(allRows) {
     });
 }
 
+// Initialize censoring on document load and update dynamically
+document.addEventListener('DOMContentLoaded', () => {
+    updateDictionaryBoxes();
+
     // Add event listener for the toggle button
     const toggleButton = document.getElementById('dict-toggle-censorship');
     if (toggleButton) {
-            toggleButton.addEventListener('click', (event) => {
-
-                event.stopPropagation(); // Prevent the button click from bubbling up
-                censoringEnabled = !censoringEnabled;
-            updateDictionaryBoxes(allRows);
+        toggleButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent the button click from bubbling up
+            censoringEnabled = !censoringEnabled;
+            updateDictionaryBoxes();
         });
     }
+});
