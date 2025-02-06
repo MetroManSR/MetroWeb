@@ -68,16 +68,16 @@ function updateDictionaryBoxes(allRows) {
 }
 
 // Initialize censoring on document load and update dynamically
-function initializeCensoring(allRows) {
-    document.addEventListener('DOMContentLoaded', () => {
-        updateDictionaryBoxes(allRows);
-    });
+   updateDictionaryBoxes(allRows);
+
 
     // Add event listener for the toggle button
     const toggleButton = document.getElementById('dict-toggle-censorship');
     if (toggleButton) {
-        toggleButton.addEventListener('click', () => {
-            censoringEnabled = !censoringEnabled;
+            toggleButton.addEventListener('click', (event) => {
+
+                event.stopPropagation(); // Prevent the button click from bubbling up
+                censoringEnabled = !censoringEnabled;
             updateDictionaryBoxes(allRows);
         });
     }
