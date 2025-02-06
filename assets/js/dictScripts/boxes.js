@@ -85,6 +85,8 @@ export function initializeCensoring() {
     }
 } 
 
+import { censorText } from './censor-module.js';
+
 export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, searchIn) {
     if (!row || !row.title) {
         console.error('Invalid row data:', row);
@@ -104,13 +106,13 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
 
     const wordElement = document.createElement('div');
     wordElement.classList.add('dictionary-box-title');
-    wordElement.innerHTML = await highlight(row.title + (row.type !== 'root' ? ` (${partOfSpeechAbbr})` : ''), searchTerm, searchIn, row);
+    wordElement.innerHTML = await highlight(censorText(row.title + (row.type !== 'root' ? ` (${partOfSpeechAbbr})` : '')), searchTerm, searchIn, row);
 
     const hrElement = document.createElement('hr');
 
     const metaElement = document.createElement('div');
     metaElement.classList.add('dictionary-box-meta');
-    metaElement.innerHTML = await highlight(row.meta, searchTerm, searchIn, row);
+    metaElement.innerHTML = await highlight(censorText(row.meta), searchTerm, searchIn, row);
 
     const contentBox = document.createElement('div');
     contentBox.classList.add('dictionary-box-content');
@@ -123,15 +125,15 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
 
     // Display morphology for words and etymology for roots
     if (row.type === 'root') {
-        metaElement.innerHTML = `<strong>${await getTranslatedText('translation', language)}:</strong> ${await highlight(row.meta, searchTerm, searchIn, row)}`;
-        notesElement.innerHTML = `<strong>${await getTranslatedText('notes', language)}:</strong> ${await highlight(row.notes || '', searchTerm, searchIn, row)}`;
-        morphElement.innerHTML = `<strong>${await getTranslatedText('etymology', language)}:</strong> ${await highlight(row.morph.join(', ') || '', searchTerm, searchIn, row)}`;
+        metaElement.innerHTML = `<strong>${await getTranslatedText('translation', language)}:</strong> ${await highlight(censorText(row.meta), searchTerm, searchIn, row)}`;
+        notesElement.innerHTML = `<strong>${await getTranslatedText('notes', language)}:</strong> ${await highlight(censorText(row.notes || ''), searchTerm, searchIn, row)}`;
+        morphElement.innerHTML = `<strong>${await getTranslatedText('etymology', language)}:</strong> ${await highlight(censorText(row.morph.join(', ') || ''), searchTerm, searchIn, row)}`;
         contentBox.appendChild(metaElement);
         contentBox.appendChild(notesElement);
         contentBox.appendChild(morphElement);
     } else {
-        metaElement.innerHTML = `<strong>${await getTranslatedText('translation', language)}:</strong> ${await highlight(row.meta, searchTerm, searchIn, row)}`;
-        notesElement.innerHTML = `<strong>${await getTranslatedText('notes', language)}:</strong> ${await highlight(row.notes || '', searchTerm, searchIn, row)}`;
+        metaElement.innerHTML = `<strong>${await getTranslatedText('translation', language)}:</strong> ${await highlight(censorText(row.meta), searchTerm, searchIn, row)}`;
+        notesElement.innerHTML = `<strong>${await getTranslatedText('notes', language)}:</strong> ${await highlight(censorText(row.notes || ''), searchTerm, searchIn, row)}`;
         contentBox.appendChild(metaElement);
         contentBox.appendChild(notesElement);
 
@@ -141,7 +143,7 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
                 const matchingRoot = allRows.find(r => r.meta.toLowerCase() === morphTitle.toLowerCase() && r.type === 'root');
                 return matchingRoot 
                     ? await createHyperlink(morphTitle, searchTerm, allRows, searchIn) 
-                    : await highlight(morphTitle, searchTerm, searchIn, row);
+                    : await highlight(censorText(morphTitle), searchTerm, searchIn, row);
             }));
             morphElement.innerHTML += morphLinks.join(', ');
             contentBox.appendChild(morphElement);
@@ -172,16 +174,13 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
     box.appendChild(idElement);
 
     // Add revision display in bottom left
-const revisionElement = document.createElement('div');
-revisionElement.className = 'revision-display';
-revisionElement.textContent = `${row.revision || 'Version  NR'}`;
-revisionElement.style.position = 'absolute';
-revisionElement.style.bottom = '100px';
-revisionElement.style.right = '10px';
-revisionElement.style.fontSize = '12px'; // Make the font smaller
-
-box.appendChild(revisionElement);
-
+    const revisionElement = document.createElement('div');
+    revisionElement.className = 'revision-display';
+    revisionElement.textContent = `${row.revision || 'Version NR'}`;
+    revisionElement.style.position = 'absolute';
+    revisionElement.style.bottom = '100px';
+    revisionElement.style.right = '10px';
+    revisionElement.style.fontSize = '12px'; // Make the font smaller
 
     box.appendChild(revisionElement);
 
