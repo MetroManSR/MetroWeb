@@ -6,54 +6,7 @@ layout: base
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script type="module">
-    import { initializeErrorButton } from 'https://www.metroman.me/assets/js/dictScripts/errorModule.js';
-    import { copyToClipboard } from 'https://www.metroman.me/assets/js/dictScripts/utils.js';
-
-    // Definir la variable de lenguaje en el contexto de JavaScript
-    const lang = "{{ page.language }}"; // Asegurarse de que lang se establece correctamente
-
-    window.knlangRedirect = function() { // Ensure knlangRedirect is defined globally
-      // Obtener la ruta actual
-      let path = window.location.pathname;
-      let newPath = "";
-
-      // Agregar "en/" al principio de la ruta
-      if (lang === "es") {
-        newPath = '/en' + path;
-      } else {
-        newPath = path.replace("/en", "");
-      }
-
-      // Construir la nueva URL
-      let newUrl = window.location.origin + newPath;
-
-      // Redirigir a la nueva URL
-      window.location.href = newUrl;
-    };
-
-    // Función para establecer los textos por defecto
-    function setDefaultStrings(language) {
-      const defaultStrings = {
-        en: {
-          back: "Return",
-        },
-        es: {
-          back: "Volver",
-        }
-      };
-      return defaultStrings[language];
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      // Esto debería ser inyectado por tu generador de sitios estáticos
-      const defaultStrings = setDefaultStrings(lang);
-      document.getElementById("backbutton").innerText = defaultStrings.back;
-
-      // Initialize error button
-      initializeErrorButton();
-    });
-  </script>
+  <script type="module" src="/assets/js/default-scripts.js"></script>
 </head>
 <body>
   <div class="intro-header"></div>
@@ -77,7 +30,7 @@ layout: base
       </span> 
     </button>
     {{ content }}
-    <button class="button-17" role="button" onclick="knlangRedirect()">
+    <button class="button-17" role="button" onclick="window.knlangRedirect()">
       <img src="https://img.icons8.com/?size=35&id=95094&format=png&color=000000"/>
     </button> 
     {% if page.after-content %}
