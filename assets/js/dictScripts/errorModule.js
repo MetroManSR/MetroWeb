@@ -70,7 +70,7 @@ export function initializeErrorButton() {
         }
     });
 
-    // Adding console log to ensure event listener is registered
+    // Ensure that the event listener is registered
     window.addEventListener('error', (event) => {
         console.log('Error captured:', event.message);
         captureError(event.message);
@@ -84,4 +84,4 @@ window.onerror = function(message, source, lineno, colno, error) {
 
     // Return true to prevent the default browser error handling
     return true;
-};
+}; 
