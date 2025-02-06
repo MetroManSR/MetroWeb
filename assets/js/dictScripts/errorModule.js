@@ -1,5 +1,3 @@
-// error-handler.js
-
 // Array to store error messages
 export const errors = [];
 
@@ -44,47 +42,29 @@ export function initializeErrorButton() {
     });
 }
 
-// Function to wait for an error event and capture the message
-export function awaitError() {
-    return new Promise((resolve) => {
-        window.addEventListener('error', (event) => {
-            captureError(event.message);
-            resolve(event.message);
-        });
-    });
-}
+// Global error handler to display errors on screen
+window.onerror = function(message, source, lineno, colno, error) {
+    captureError(`Error: ${message} at ${source}:${lineno}:${colno}`);
+    const errorBox = document.createElement('div');
+    errorBox.style.position = 'fixed';
+    errorBox.style.top = '10px';
+    errorBox.style.right = '10px';
+    errorBox.style.width = '300px';
+    errorBox.style.padding = '10px';
+    errorBox.style.backgroundColor = 'red';
+    errorBox.style.color = 'white';
+    errorBox.style.zIndex = '1000';
+    errorBox.style.borderRadius = '5px';
+    errorBox.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
 
-// Error Button Handler + Dropdown
-const errorButtonHandler = () => {
-    const errorBox = document.getElementById('errorBox');
-    const errorButtonContainer = document.getElementById('error-button-container');
-
-    const errorMessage = `
-        <div>
-            <strong>Error:</strong> An unexpected issue has occurred.
-        </div>
-        <div>
-            We're sorry for the inconvenience. Please try the following:
-            <ul>
-                <li>Refresh the page and try again.</li>
-                <li>If the issue persists, contact support.</li>
-            </ul>
-            <button class="btn" id="ignoreErrorButton">Ignore Error</button>
-        </div>
+    errorBox.innerHTML = `
+        <strong>Error:</strong> ${message}<br>
+        <strong>Source:</strong> ${source}<br>
+        <strong>Line:</strong> ${lineno}, Column: ${colno}
     `;
-    errorBox.innerHTML = errorMessage;
-    errorBox.classList.add('active');
-    errorButtonContainer.classList.add('active'); // Add active class
 
-    // Add event listener for the ignore error button
-    const ignoreErrorButton = document.getElementById('ignoreErrorButton');
-    ignoreErrorButton.addEventListener('click', () => {
-        errorBox.classList.remove('active');
-        errorButtonContainer.classList.remove('active'); // Remove active class
-    });
-};
+    document.body.appendChild(errorBox);
 
-// Function to show error when a general error occurs
-const showError = () => {
-    errorButtonHandler();
+    // Return true to prevent the default browser error handling
+    return true;
 };
