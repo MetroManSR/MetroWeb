@@ -6,6 +6,7 @@ import { boxClickListener } from "./boxEvents.js";
 import { filteredRows } from "../mainDict.js";
 import { getTranslatedText } from './loadTexts.js';
 import { initUrl } from './urlParameters.js';
+import { updateDictionaryBoxes } from './censor-module.js'; 
 
 export async function initializeButtonEventListeners(allRows, rowsPerPage, currentSortOrder) {
 
@@ -130,6 +131,18 @@ export async function initializeButtonEventListeners(allRows, rowsPerPage, curre
             history.pushState({}, document.title, window.location.pathname);
         });
     }
+    
+    updateDictionaryBoxes(allRows, searchTerm, searchIn);
+    
+    // Add event listener for the toggle button
+    const toggleButton = document.getElementById('dict-toggle-censorship');
+    if (toggleButton) {
+        toggleButton.addEventListener('click', () => {
+            censoringEnabled = !censoringEnabled;
+            updateDictionaryBoxes(allRows, searchTerm, searchIn);
+        });
+    }
+ }
 
     const searchInput = document.getElementById('dict-search-input');
     const predictionBox = document.getElementById('dict-search-predictions');
