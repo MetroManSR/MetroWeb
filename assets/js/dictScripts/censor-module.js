@@ -81,4 +81,3 @@ function updateDictionaryBoxes(allRows) {
             updateDictionaryBoxes(allRows);
         });
     }
-} 
