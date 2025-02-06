@@ -35,6 +35,64 @@ function getPartOfSpeechAbbreviation(partOfSpeech, language) {
     return posAbbreviations[language][partOfSpeech.toLowerCase()] || partOfSpeech;
 }
 
+// List of offensive words (add as many words as needed)
+const offensiveWords = [
+    'offensiveWord1', 'offensiveWord2', 'offensiveWord3', 'offensiveWord4',
+    'offensiveWord5', 'offensiveWord6', 'offensiveWord7', 'offensiveWord8',
+    'offensiveWord9', 'offensiveWord10', 'offensiveWord11', 'offensiveWord12',
+    'offensiveWord13', 'offensiveWord14', 'offensiveWord15', 'offensiveWord16',
+    'offensiveWord17', 'offensiveWord18', 'offensiveWord19', 'offensiveWord20',
+    'offensiveWord21', 'offensiveWord22', 'offensiveWord23', 'offensiveWord24',
+    'offensiveWord25', 'offensiveWord26', 'offensiveWord27', 'offensiveWord28',
+    'offensiveWord29', 'offensiveWord30', 'offensiveWord31', 'offensiveWord32'
+];
+
+// Flag to enable/disable censorship
+let censoringEnabled = true;
+
+// Function to reveal censored text
+export function revealText(element) {
+    element.style.backgroundColor = 'transparent';
+    element.style.color = 'inherit';
+    element.style.cursor = 'default';
+    element.onclick = null; // Remove the click event listener
+}
+
+// Censoring function
+export function censorText(text) {
+    offensiveWords.forEach(word => {
+        const regex = new RegExp(`\\b${word}\\b`, 'gi');
+        text = text.replace(regex, `<span class="censored" onclick="revealText(this)">${word}</span>`);
+    });
+    return text;
+}
+
+// Apply censoring to your text content
+function applyCensoring() {
+    const textContent = document.body.innerHTML;
+    if (censoringEnabled) {
+        document.body.innerHTML = censorText(textContent);
+    } else {
+        document.body.innerHTML = textContent.replace(/<span class="censored" onclick="revealText\(this\)">(.*?)<\/span>/gi, '$1');
+    }
+}
+
+// Initialize censoring on document load
+export function initializeCensoring() {
+    document.addEventListener('DOMContentLoaded', () => {
+        applyCensoring();
+    });
+
+    // Add event listener for the toggle button
+    const toggleButton = document.getElementById('dict-toggle-censorship');
+    if (toggleButton) {
+        toggleButton.addEventListener('click', () => {
+            censoringEnabled = !censoringEnabled;
+            applyCensoring();
+        });
+    }
+} 
+
 export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, searchIn) {
     if (!row || !row.title) {
         console.error('Invalid row data:', row);
