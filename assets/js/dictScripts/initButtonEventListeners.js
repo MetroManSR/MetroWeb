@@ -142,7 +142,7 @@ export async function initializeButtonEventListeners(allRows, rowsPerPage, curre
             updateDictionaryBoxes(allRows, searchTerm, searchIn);
         });
     }
- }
+ 
 
     const searchInput = document.getElementById('dict-search-input');
     const predictionBox = document.getElementById('dict-search-predictions');
