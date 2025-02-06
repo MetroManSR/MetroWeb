@@ -37,8 +37,6 @@ function getPartOfSpeechAbbreviation(partOfSpeech, language) {
     return posAbbreviations[language][partOfSpeech.toLowerCase()] || partOfSpeech;
 }
 
-import { censorText } from './censor-module.js';
-
 export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, searchIn) {
     if (!row || !row.title) {
         console.error('Invalid row data:', row);
