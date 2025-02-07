@@ -59,7 +59,7 @@ function getAllRows() {
                 title: box.querySelector('.dictionary-box-title')?.innerHTML || '',
                 meta: box.querySelector('.dictionary-box-meta')?.innerHTML || '',
                 notes: box.querySelector('.dictionary-box-notes')?.innerHTML || '',
-                morph: box.querySelector('.dictionary-box-morph')?.textContent.split(',').map(m => m.trim()) || [],
+                morph: box.querySelector('.dictionary-box-morph')?.innerHTML || '',
                 partofspeech: box.getAttribute('data-partofspeech') || '',
                 type: box.getAttribute('data-type') || ''
             };
@@ -82,26 +82,14 @@ export async function updateDictionaryBoxes() {
                 const wordElement = box.querySelector('.dictionary-box-title');
                 const metaElement = box.querySelector('.dictionary-box-meta');
                 const notesElement = box.querySelector('.dictionary-box-notes');
-                const morphElement = box.querySelector('.dictionary-box-morph');
-
+                
                 if (wordElement) wordElement.innerHTML = await highlight(censorText(row.title));
                 if (metaElement) metaElement.innerHTML = await highlight(censorText(row.meta));
                 if (notesElement) notesElement.innerHTML = await highlight(censorText(row.notes || ''));
 
-                // Update morph element
-                if (morphElement) {
-                    morphElement.innerHTML = ''; // Clear existing content to prevent piling up
-                    if (Array.isArray(row.morph) && row.morph.length > 0) {
-                        morphElement.innerHTML = `<strong>${await getTranslatedText('morphology', 'en')}:</strong> `;
-                        const morphLinks = await Promise.all(row.morph.map(async (morphTitle) => {
-                            const matchingRoot = allRows.find(r => r.meta.toLowerCase() === morphTitle.toLowerCase() && r.type === 'root');
-                            return matchingRoot 
-                                ? await createHyperlink(morphTitle) 
-                                : await highlight(censorText(morphTitle));
-                        }));
-                        morphElement.innerHTML += morphLinks.join(', ');
-                    }
-                }
+                // Ensure the morph element remains as it was before
+                const morphElement = box.querySelector('.dictionary-box-morph');
+                if (morphElement) morphElement.innerHTML = row.morph;
             }
         });
     } catch (error) {
@@ -125,3 +113,4 @@ export function initCensoring() {
         captureError(`Error in initCensoring: ${error.message}`);
     }
 }
+
