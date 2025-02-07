@@ -1,5 +1,6 @@
 import { highlight } from './utils.js';
 import { captureError } from './errorModule.js';
+import { getTranslatedText } from './loadTexts.js';
 
 // List of offensive words (add as many words as needed)
 const offensiveWords = [
@@ -124,3 +125,7 @@ export function initCensoring() {
         captureError(`Error in initCensoring: ${error.message}`);
     }
 }
+
+// Initialize censoring and update dynamically
+updateDictionaryBoxes();
+initCensoring();
