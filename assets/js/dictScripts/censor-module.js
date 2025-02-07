@@ -1,4 +1,4 @@
-import { highlight } from './utils.js';
+import { highlight, createHyperlink } from './utils.js';
 import { captureError } from './errorModule.js';
 import { getTranslatedText } from './loadTexts.js';
 
@@ -19,13 +19,17 @@ let censoringEnabled = true;
 
 // Function to reveal censored text
 function revealText(element) {
-    element.classList.remove('censored');
+    element.style.backgroundColor = 'transparent';
+    element.style.color = 'inherit';
+    element.style.cursor = 'default';
     element.onclick = () => recensorText(element); // Add click event to re-censor
 }
 
 // Function to recensor text
 function recensorText(element) {
-    element.classList.add('censored');
+    element.style.backgroundColor = 'black';
+    element.style.color = 'black';
+    element.style.cursor = 'pointer';
     element.onclick = () => revealText(element); // Add click event to reveal text again
 }
 
@@ -53,7 +57,7 @@ function getAllRows() {
                 title: box.querySelector('.dictionary-box-title')?.innerHTML || '',
                 meta: box.querySelector('.dictionary-box-meta')?.innerHTML || '',
                 notes: box.querySelector('.dictionary-box-notes')?.innerHTML || '',
-                morph: (box.querySelector('.dictionary-box-morph')?.innerHTML || '').split(','),
+                morph: box.querySelector('.dictionary-box-morph')?.textContent.split(',') || [],
                 partofspeech: box.getAttribute('data-partofspeech') || '',
                 type: box.getAttribute('data-type') || ''
             };
@@ -121,5 +125,3 @@ export function initCensoring() {
 }
 
 // Initialize censoring and update dynamically
-updateDictionaryBoxes();
-initCensoring();
