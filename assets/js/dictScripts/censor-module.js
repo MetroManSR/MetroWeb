@@ -61,8 +61,6 @@ export function updateDictionaryBoxes() {
             const notesElement = box.querySelector('.dictionary-box-notes');
             const morphElement = box.querySelector('.dictionary-box-morph');
 
-            // Update word element
-            const partOfSpeechAbbr = getPartOfSpeechAbbreviation(row.partofspeech || '', 'en');
             wordElement.innerHTML = await highlight(censorText(row.title + (row.type !== 'root' ? ` (${partOfSpeechAbbr})` : '')));
 
             // Update meta element
