@@ -3,6 +3,7 @@ import { renderBox, updateFloatingText } from './boxes.js';
 import { highlight } from './utils.js';
 import { filteredRows, updateFilteredRows } from "../mainDict.js";
 import { universalPendingChanges, defaultPendingChanges } from './initFormEventListeners.js';
+import { captureError } from './errorModule.js';
 
 function mapVersion(originalVersion) {
     const versionMap = {
@@ -137,12 +138,12 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         updatePagination(currentPage, rowsPerPage);
         await updateFloatingText(searchTerm, filters, searchIn, language, [exactMatch, ignoreDiacritics, startsWith, endsWith] );
     } else {
-        console.error("Error: 'dict-dictionary' element not found in the DOM.");
+        await captureError("Error: 'dict-dictionary' element not found in the DOM.");
     }
 
     applySettingsButton.disabled = false; // Re-enable the button after the process is complete
 
-    console.log('Process complete.');
+    //console.log('Process complete.');
 } 
     
 /**
