@@ -1,3 +1,6 @@
+import { highlight } from './utils.js';
+import { captureError } from './errorModule.js';
+
 // List of offensive words (add as many words as needed)
 const offensiveWords = [
     'tree', 'arbeon', 'she', 'ella',
