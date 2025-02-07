@@ -87,15 +87,18 @@ export function updateDictionaryBoxes() {
                 if (notesElement) notesElement.innerHTML = await highlight(censorText(row.notes || ''));
 
                 // Update morph element
-                if (morphElement && Array.isArray(row.morph) && row.morph.length > 0) {
-                    morphElement.innerHTML = `<strong>${await getTranslatedText('morphology', 'en')}:</strong> `;
-                    const morphLinks = await Promise.all(row.morph.map(async (morphTitle, index) => {
-                        const matchingRoot = allRows.find(r => r.meta.toLowerCase() === morphTitle.toLowerCase() && r.type === 'root');
-                        return matchingRoot 
-                            ? await createHyperlink(morphTitle) 
-                            : await highlight(censorText(morphTitle));
-                    }));
-                    morphElement.innerHTML += morphLinks.join(', ');
+                if (morphElement) {
+                    morphElement.innerHTML = ''; // Clear existing content to prevent piling up
+                    if (Array.isArray(row.morph) && row.morph.length > 0) {
+                        morphElement.innerHTML = `<strong>${await getTranslatedText('morphology', 'en')}:</strong> `;
+                        const morphLinks = await Promise.all(row.morph.map(async (morphTitle, index) => {
+                            const matchingRoot = allRows.find(r => r.meta.toLowerCase() === morphTitle.toLowerCase() && r.type === 'root');
+                            return matchingRoot 
+                                ? await createHyperlink(morphTitle) 
+                                : await highlight(censorText(morphTitle));
+                        }));
+                        morphElement.innerHTML += morphLinks.join(', ');
+                    }
                 }
             }
         });
@@ -120,7 +123,3 @@ export function initCensoring() {
         captureError(`Error in initCensoring: ${error.message}`);
     }
 }
-
-// Initialize censoring and update dynamically
-updateDictionaryBoxes();
-initCensoring();
