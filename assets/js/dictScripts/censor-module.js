@@ -59,15 +59,15 @@ export async function updateDictionaryBoxes() {
             const notesElement = box.querySelector('.dictionary-box-notes');
 
             if (wordElement) {
-                const originalWordText = wordElement.innerHTML;
+                const originalWordText = wordElement.textContent || '';
                 wordElement.innerHTML = await highlight(censorText(originalWordText));
             }
             if (metaElement) {
-                const originalMetaText = metaElement.innerHTML;
+                const originalMetaText = metaElement.textContent || '';
                 metaElement.innerHTML = await highlight(censorText(originalMetaText));
             }
             if (notesElement) {
-                const originalNotesText = notesElement.innerHTML;
+                const originalNotesText = notesElement.textContent || '';
                 notesElement.innerHTML = await highlight(censorText(originalNotesText));
             }
         });
@@ -84,12 +84,11 @@ export function initCensoring() {
         if (toggleButton) {
             toggleButton.addEventListener('click', (event) => {
                 event.stopPropagation(); // Prevent the button click from bubbling up
-                censoringEnabled = !censoringEnabled;
-                updateDictionaryBoxes();
+                censoringEnabled = !censoringEnabled; // This will invert the censoringEnabled flag
+                updateDictionaryBoxes(); // Update the boxes after toggling the flag
             });
         }
     } catch (error) {
         captureError(`Error in initCensoring: ${error.message}`);
     }
 }
-
