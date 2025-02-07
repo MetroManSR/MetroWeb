@@ -4,7 +4,7 @@ import { copyToClipboard } from './utils.js';
 export const errors = [];
 
 // Function to capture and store error messages
-export function captureError(message) {
+export async function captureError(message) {
     errors.push(message);
     updateErrorButton();
 }
