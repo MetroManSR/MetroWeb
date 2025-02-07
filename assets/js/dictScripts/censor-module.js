@@ -124,4 +124,3 @@ export function initCensoring() {
     }
 }
 
-// Initialize censoring and update dynamically
