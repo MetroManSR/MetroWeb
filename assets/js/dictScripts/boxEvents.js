@@ -1,6 +1,7 @@
 import { copyToClipboard, createHyperlink } from './utils.js';
 import { getTranslatedText } from './loadTexts.js';
 import { universalPendingChanges} from './initFormEventListeners.js';
+import { captureError } from './errorModule.js';
 
 let previouslySelectedBox = null;
 let lastClickTime = 0;
@@ -132,7 +133,7 @@ export async function boxClickListener(allRows, language, pendingChanges) {
         if (row.type === 'root') {
             derivativeWordsLabel = await getTranslatedText('derivativeWords', language);
             if (row.related && row.related.length > 0) {
-                console.log('Derivatives:', row.related); // Debugging
+                //console.log('Derivatives:', row.related); // Debugging
 
                 // Ensure the displayed word is not shown as a related word
                 const relatedWordsHtml = await Promise.all(row.related
