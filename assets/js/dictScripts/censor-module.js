@@ -49,47 +49,26 @@ export function censorText(text) {
     return text;
 }
 
-// Function to gather all rows dynamically
-function getAllRows() {
-    try {
-        const boxes = document.querySelectorAll('.dictionary-box');
-        const allRows = Array.from(boxes).map(box => {
-            return {
-                id: box.id.split('-').pop(),
-                title: box.querySelector('.dictionary-box-title')?.innerHTML || '',
-                meta: box.querySelector('.dictionary-box-meta')?.innerHTML || '',
-                notes: box.querySelector('.dictionary-box-notes')?.innerHTML || '',
-                morph: box.querySelector('.dictionary-box-morph')?.innerHTML || '',
-                partofspeech: box.getAttribute('data-partofspeech') || '',
-                type: box.getAttribute('data-type') || ''
-            };
-        });
-        return allRows;
-    } catch (error) {
-        captureError(`Error in getAllRows: ${error.message}`);
-    }
-}
-
 // Function to update the content of all dictionary boxes
 export async function updateDictionaryBoxes() {
     try {
-        const allRows = getAllRows();
         const boxes = document.querySelectorAll('.dictionary-box');
         boxes.forEach(async (box) => {
-            const rowId = box.id.split('-').pop();
-            const row = allRows.find(r => r.id.toString() === rowId);
-            if (row) {
-                const wordElement = box.querySelector('.dictionary-box-title');
-                const metaElement = box.querySelector('.dictionary-box-meta');
-                const notesElement = box.querySelector('.dictionary-box-notes');
+            const wordElement = box.querySelector('.dictionary-box-title');
+            const metaElement = box.querySelector('.dictionary-box-meta');
+            const notesElement = box.querySelector('.dictionary-box-notes');
 
-                if (wordElement) wordElement.innerHTML = await highlight(censorText(row.title));
-                if (metaElement) metaElement.innerHTML = await highlight(censorText(row.meta));
-                if (notesElement) notesElement.innerHTML = await highlight(censorText(row.notes || ''));
-
-                // Ensure the morph element remains as it was before
-                const morphElement = box.querySelector('.dictionary-box-morph');
-                if (morphElement) morphElement.innerHTML = row.morph;
+            if (wordElement) {
+                const originalText = wordElement.textContent || '';
+                wordElement.innerHTML = await highlight(censorText(originalText));
+            }
+            if (metaElement) {
+                const originalText = metaElement.textContent || '';
+                metaElement.innerHTML = await highlight(censorText(originalText));
+            }
+            if (notesElement) {
+                const originalText = notesElement.textContent || '';
+                notesElement.innerHTML = await highlight(censorText(originalText));
             }
         });
     } catch (error) {
@@ -113,5 +92,3 @@ export function initCensoring() {
         captureError(`Error in initCensoring: ${error.message}`);
     }
 }
-
-// Initialize censoring and update dynamically
