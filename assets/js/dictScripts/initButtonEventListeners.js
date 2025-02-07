@@ -200,6 +200,7 @@ export async function initializeButtonEventListeners(allRows, rowsPerPage, curre
 
             closeInfoButton.textContent = instructions.close;
         } else {
+            
             console.error('Language not supported in the instructions file');
         }
     }
@@ -224,6 +225,7 @@ export async function initializeButtonEventListeners(allRows, rowsPerPage, curre
             closeInfoButton.classList.remove('active');
         });
     } else {
+        
         console.error('Info popup elements not found');
     }
 
