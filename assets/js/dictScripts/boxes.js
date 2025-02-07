@@ -6,6 +6,7 @@ import { loadInfoBox } from './boxEvents.js';
 import { filteredRows } from '../mainDict.js';
 import { universalPendingChanges } from './initFormEventListeners.js';
 import { censorText } from './censor-module.js';
+import { captureError } from './errorModule.js';
 
 let previouslySelectedBox = null;
 
@@ -39,7 +40,7 @@ function getPartOfSpeechAbbreviation(partOfSpeech, language) {
 
 export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, searchIn) {
     if (!row || !row.title) {
-        console.error('Invalid row data:', row);
+        //console.warnung('Invalid row data:', row);
         return null;
     }
 
@@ -272,13 +273,13 @@ export async function updateFloatingText(searchTerm, filters, advancedSearchPara
             const translatedFilters = await Promise.all(filters.map(filter => getTranslatedText(filter, language)));
             floatingTextContent += `, ${withFiltersText}: ${translatedFilters.join(', ')}`;
         }
-
-        console.log(advancedSearchParams);
+        
+        //console.log(advancedSearchParams);
         
         // Add advanced search information if advanced search is applied
         if (advancedSearchParams) {
 
-            console.log("Getting Advanced Search Parameters");
+            //console.log("Getting Advanced Search Parameters");
             const withAdvancedSearchText = await getTranslatedText('withAdvancedSearch', language);
             const translatedAdvancedParams = [];
 
@@ -320,10 +321,14 @@ export async function updateFloatingText(searchTerm, filters, advancedSearchPara
         if (floatingText) {
             floatingText.textContent = floatingTextContent;
         } else {
-            console.error('Floating text element not found');
+          
+            await captureError('Floating text element not found') 
+
         }
     } catch (error) {
-        console.error('Error updating floating text:', error);
+
+        await captureError('Error updating floating text:', error);
+    
     }
 }
 
