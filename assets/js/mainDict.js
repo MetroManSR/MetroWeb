@@ -9,8 +9,8 @@ import { cleanData } from './dictScripts/csvUtils.js';
 import { getRelatedWordsByRoot, displayError } from './dictScripts/utils.js';
 import { renderBox } from './dictScripts/boxes.js';
 import { initUrl } from './dictScripts/urlParameters.js';
-import { initializeErrorButton } from './dictScripts/errorModule.js';
-    
+import { captureError } from './dictScripts/errorModule.js';
+
 export let filteredRows;
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -35,8 +35,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     showLoadingMessage();
-
-    initializeErrorButton();
 
     let allRows = []; // Ensure allRows is defined outside the try-catch block
     let rowsPerPage = 20; // Default rows per page
@@ -82,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const esRootURL = 'https://docs.google.com/spreadsheets/d/13LHqyyBGxXGEd5XCi0HxwpdkWToXi_H0/export?format=xlsx';
         const enRootURL = 'https://docs.google.com/spreadsheets/d/1FR5xg3xvfuOqnvSgm9ZfSA2w5l4Rg7Ho/export?format=xlsx';
 
-        console.log("Main Dict JS, Dicts Loaded")
+        //console.log("Main Dict JS, Dicts Loaded")
         
         const dictionaryFile = language === 'es' ? esDictURL : enDictURL;
         const rootsFile = language === 'es' ? esRootURL : enRootURL;
@@ -91,7 +89,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             try {
                 return await fetchData(url, type);
             } catch (error) {
-                console.error(`Error fetching data from ${url}:`, error);
+
+                await captureError(`Error fetching data from ${url}:`, error);
                 return [];
             }
         }
@@ -106,7 +105,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const cleanedDictionaryData = (await cleanData(dictionaryData, 'word')).sort((a, b) => a.title.localeCompare(b.title));
         const cleanedRootsData = (await cleanData(rootsData, 'root')).sort((a, b) => a.title.localeCompare(b.title));
 
-        console.log("Data Cleaned")
+        //console.log("Data Cleaned")
         
         cleanedDictionaryData.forEach((item, index) => { item.id = index + 1; });
         cleanedRootsData.forEach((item, index) => { item.id = index + 1; });
@@ -116,7 +115,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         filteredRows = allRows;
         filteredRows = getRelatedWordsByRoot(sortRows(allRows, currentSortOrder)); // Sorting rows initially
 
-        console.log("Data Filtered")
+        //console.log("Data Filtered")
         
         createPaginationControls(rowsPerPage, currentPage);
 
@@ -160,11 +159,11 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         document.getElementById('dict-loading-message').style.display = 'none';
     } catch (error) {
-        console.error('Error loading data:', error);
+
+        await captureError('Error loading data:', error);
         
         const errorString = language === "en" ? 'Failed to load dictionary data. Please try again later.' : 'Ha fallado la carga del diccionario, por favor intente de nuevo más tarde';
         
-        displayError(errorString);
         document.getElementById('dict-loading-message').style.display = 'none';
     }
 
