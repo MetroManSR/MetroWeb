@@ -19,6 +19,7 @@ let censoringEnabled = true;
 
 // Function to reveal censored text
 function revealText(element) {
+    element.classList.remove('censored');
     element.style.backgroundColor = 'transparent';
     element.style.color = 'inherit';
     element.style.cursor = 'default';
@@ -27,6 +28,7 @@ function revealText(element) {
 
 // Function to recensor text
 function recensorText(element) {
+    element.classList.add('censored');
     element.style.backgroundColor = 'black';
     element.style.color = 'black';
     element.style.cursor = 'pointer';
@@ -57,7 +59,7 @@ function getAllRows() {
                 title: box.querySelector('.dictionary-box-title')?.innerHTML || '',
                 meta: box.querySelector('.dictionary-box-meta')?.innerHTML || '',
                 notes: box.querySelector('.dictionary-box-notes')?.innerHTML || '',
-                morph: box.querySelector('.dictionary-box-morph')?.textContent.split(',') || [],
+                morph: box.querySelector('.dictionary-box-morph')?.textContent.split(',').map(m => m.trim()) || [],
                 partofspeech: box.getAttribute('data-partofspeech') || '',
                 type: box.getAttribute('data-type') || ''
             };
@@ -69,7 +71,7 @@ function getAllRows() {
 }
 
 // Function to update the content of all dictionary boxes
-export function updateDictionaryBoxes() {
+export async function updateDictionaryBoxes() {
     try {
         const allRows = getAllRows();
         const boxes = document.querySelectorAll('.dictionary-box');
@@ -91,7 +93,7 @@ export function updateDictionaryBoxes() {
                     morphElement.innerHTML = ''; // Clear existing content to prevent piling up
                     if (Array.isArray(row.morph) && row.morph.length > 0) {
                         morphElement.innerHTML = `<strong>${await getTranslatedText('morphology', 'en')}:</strong> `;
-                        const morphLinks = await Promise.all(row.morph.map(async (morphTitle, index) => {
+                        const morphLinks = await Promise.all(row.morph.map(async (morphTitle) => {
                             const matchingRoot = allRows.find(r => r.meta.toLowerCase() === morphTitle.toLowerCase() && r.type === 'root');
                             return matchingRoot 
                                 ? await createHyperlink(morphTitle) 
@@ -123,4 +125,3 @@ export function initCensoring() {
         captureError(`Error in initCensoring: ${error.message}`);
     }
 }
-
