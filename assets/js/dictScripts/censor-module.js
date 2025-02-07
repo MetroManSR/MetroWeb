@@ -85,3 +85,18 @@ export function updateDictionaryBoxes() {
         }
     });
 }
+
+//Event Listener for toggle Censoring
+export function initCensoring() {
+
+       // Add event listener for the toggle button
+    const toggleButton = document.getElementById('dict-toggle-censorship');
+    if (toggleButton) {
+        toggleButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent the button click from bubbling up
+            censoringEnabled = !censoringEnabled;
+            updateDictionaryBoxes();
+        });
+    }
+    
+}
