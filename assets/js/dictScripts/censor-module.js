@@ -36,11 +36,8 @@ function recensorText(element) {
 export function censorText(text) {
     if (!censoringEnabled) {
         // Remove any special formatting if censoring is disabled
-        offensiveWords.forEach(word => {
-            const regex = new RegExp(`<span class="censored"[^>]*>${word}</span>`, 'gi');
-            text = text.replace(regex, word);
-        });
-        return text;
+        const regex = /<span class="censored"[^>]*>(.*?)<\/span>/gi;
+        return text.replace(regex, '$1');
     }
     offensiveWords.forEach(word => {
         const regex = new RegExp(`\\b${word}\\b`, 'gi');
