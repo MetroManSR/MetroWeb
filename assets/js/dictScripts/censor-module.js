@@ -66,7 +66,6 @@ export async function updateDictionaryBoxes() {
 export function initCensoring() {
     try {
         // Add event listener for the toggle button
-        document.addEventListener("DOMContentLoaded", function() {
             const toggleButton = document.getElementById('dict-toggle-censorship');
             if (toggleButton) {
                 toggleButton.addEventListener('click', (event) => {
@@ -74,8 +73,7 @@ export function initCensoring() {
                     censoringEnabled = !censoringEnabled; // This will invert the censoringEnabled flag
                     updateDictionaryBoxes(); // Update the boxes after toggling the flag
                 });
-            }
-        });
+            };
     } catch (error) {
         captureError(`Error in initCensoring: ${error.message}`);
     }
