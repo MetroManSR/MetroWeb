@@ -54,10 +54,10 @@ function getAllRows() {
         const allRows = Array.from(boxes).map(box => {
             return {
                 id: box.id.split('-').pop(),
-                title: box.querySelector('.dictionary-box-title')?.textContent || '',
-                meta: box.querySelector('.dictionary-box-meta')?.textContent || '',
-                notes: box.querySelector('.dictionary-box-notes')?.textContent || '',
-                morph: (box.querySelector('.dictionary-box-morph')?.textContent || '').split(','),
+                title: box.querySelector('.dictionary-box-title')?.innerHTML || '',
+                meta: box.querySelector('.dictionary-box-meta')?.innerHTML || '',
+                notes: box.querySelector('.dictionary-box-notes')?.innerHTML || '',
+                morph: (box.querySelector('.dictionary-box-morph')?.innerHTML || '').split(','),
                 partofspeech: box.getAttribute('data-partofspeech') || '',
                 type: box.getAttribute('data-type') || ''
             };
@@ -82,17 +82,12 @@ export function updateDictionaryBoxes() {
                 const notesElement = box.querySelector('.dictionary-box-notes');
                 const morphElement = box.querySelector('.dictionary-box-morph');
 
-                // Update word element
-                wordElement.innerHTML = await highlight(censorText(row.title));
-
-                // Update meta element
-                metaElement.innerHTML = await highlight(censorText(row.meta));
-
-                // Update notes element
-                notesElement.innerHTML = await highlight(censorText(row.notes || ''));
+                if (wordElement) wordElement.innerHTML = await highlight(censorText(row.title));
+                if (metaElement) metaElement.innerHTML = await highlight(censorText(row.meta));
+                if (notesElement) notesElement.innerHTML = await highlight(censorText(row.notes || ''));
 
                 // Update morph element
-                if (Array.isArray(row.morph) && row.morph.length > 0) {
+                if (morphElement && Array.isArray(row.morph) && row.morph.length > 0) {
                     morphElement.innerHTML = `<strong>${await getTranslatedText('morphology', 'en')}:</strong> `;
                     const morphLinks = await Promise.all(row.morph.map(async (morphTitle, index) => {
                         const matchingRoot = allRows.find(r => r.meta.toLowerCase() === morphTitle.toLowerCase() && r.type === 'root');
