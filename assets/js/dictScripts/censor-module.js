@@ -82,7 +82,7 @@ export async function updateDictionaryBoxes() {
                 const wordElement = box.querySelector('.dictionary-box-title');
                 const metaElement = box.querySelector('.dictionary-box-meta');
                 const notesElement = box.querySelector('.dictionary-box-notes');
-                
+
                 if (wordElement) wordElement.innerHTML = await highlight(censorText(row.title));
                 if (metaElement) metaElement.innerHTML = await highlight(censorText(row.meta));
                 if (notesElement) notesElement.innerHTML = await highlight(censorText(row.notes || ''));
@@ -114,3 +114,4 @@ export function initCensoring() {
     }
 }
 
+// Initialize censoring and update dynamically
