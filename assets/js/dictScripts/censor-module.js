@@ -37,12 +37,12 @@ function getAllRows() {
     const allRows = Array.from(boxes).map(box => {
         return {
             id: box.id.split('-').pop(),
-            title: box.querySelector('.dictionary-box-title').textContent,
-            meta: box.querySelector('.dictionary-box-meta').textContent,
-            notes: box.querySelector('.dictionary-box-notes').textContent,
-            morph: (box.querySelector('.dictionary-box-morph').textContent || '').split(','),
-            partofspeech: box.getAttribute('data-partofspeech'),
-            type: box.getAttribute('data-type')
+            title: box.querySelector('.dictionary-box-title')?.textContent || '',
+            meta: box.querySelector('.dictionary-box-meta')?.textContent || '',
+            notes: box.querySelector('.dictionary-box-notes')?.textContent || '',
+            morph: (box.querySelector('.dictionary-box-morph')?.textContent || '').split(','),
+            partofspeech: box.getAttribute('data-partofspeech') || '',
+            type: box.getAttribute('data-type') || ''
         };
     });
     return allRows;
