@@ -6,7 +6,7 @@ import { boxClickListener } from "./boxEvents.js";
 import { filteredRows } from "../mainDict.js";
 import { getTranslatedText } from './loadTexts.js';
 import { initUrl } from './urlParameters.js';
-import { updateDictionaryBoxes } from './censor-module.js'; 
+import { updateDictionaryBoxes, initCensoring} from './censor-module.js'; 
 
 export async function initializeButtonEventListeners(allRows, rowsPerPage, currentSortOrder) {
 
@@ -134,17 +134,8 @@ export async function initializeButtonEventListeners(allRows, rowsPerPage, curre
     
     updateDictionaryBoxes();
 
-    // Add event listener for the toggle button
-    const toggleButton = document.getElementById('dict-toggle-censorship');
-    if (toggleButton) {
-        toggleButton.addEventListener('click', (event) => {
-            event.stopPropagation(); // Prevent the button click from bubbling up
-            censoringEnabled = !censoringEnabled;
-            updateDictionaryBoxes();
-        });
-    }
+    await initCensoring();
  
-
     const searchInput = document.getElementById('dict-search-input');
     const predictionBox = document.getElementById('dict-search-predictions');
 
@@ -212,7 +203,7 @@ export async function initializeButtonEventListeners(allRows, rowsPerPage, curre
             console.error('Language not supported in the instructions file');
         }
     }
-
+    
     if (infoButton && infoPopup && infoPopupOverlay && closeInfoButton && instructionsTitle && instructionsContent && legendTitle && legendContent) {
         infoButton.addEventListener('click', async () => {
             await setInfoContent(document.documentElement.lang || 'en', instructionsFilePath); // Use the document language or default to 'en'
