@@ -17,34 +17,16 @@ const offensiveWords = [
 // Flag to enable/disable censorship
 let censoringEnabled = true;
 
-// Function to reveal censored text
-function revealText(element) {
-    element.classList.remove('censored');
-    element.style.backgroundColor = 'transparent';
-    element.style.color = 'inherit';
-    element.style.cursor = 'default';
-    element.onclick = () => recensorText(element); // Add click event to re-censor
-}
-
-// Function to recensor text
-function recensorText(element) {
-    element.classList.add('censored');
-    element.style.backgroundColor = 'black';
-    element.style.color = 'black';
-    element.style.cursor = 'pointer';
-    element.onclick = () => revealText(element); // Add click event to reveal text again
-}
-
 // Censoring function
 export function censorText(text) {
     if (!censoringEnabled) {
-        // Remove any special formatting if censoring is disabled
+        // Remove the censor elements and leave plain text
         const regex = /<span class="censored"[^>]*>(.*?)<\/span>/gi;
         return text.replace(regex, '$1');
     }
     offensiveWords.forEach(word => {
         const regex = new RegExp(`\\b${word}\\b`, 'gi');
-        text = text.replace(regex, `<span class="censored" onclick="revealText(this)">${word}</span>`);
+        text = text.replace(regex, `<span class="censored">${word}</span>`);
     });
     return text;
 }
@@ -60,15 +42,15 @@ export async function updateDictionaryBoxes() {
 
             if (wordElement) {
                 const originalWordText = wordElement.innerHTML;
-                wordElement.innerHTML = censoringEnabled ? await highlight(censorText(originalWordText)) : originalWordText.replace(/<span class="censored"[^>]*>(.*?)<\/span>/gi, '$1');
+                wordElement.innerHTML = await highlight(censorText(originalWordText));
             }
             if (metaElement) {
                 const originalMetaText = metaElement.innerHTML;
-                metaElement.innerHTML = censoringEnabled ? await highlight(censorText(originalMetaText)) : originalMetaText.replace(/<span class="censored"[^>]*>(.*?)<\/span>/gi, '$1');
+                metaElement.innerHTML = await highlight(censorText(originalMetaText));
             }
             if (notesElement) {
                 const originalNotesText = notesElement.innerHTML;
-                notesElement.innerHTML = censoringEnabled ? await highlight(censorText(originalNotesText)) : originalNotesText.replace(/<span class="censored"[^>]*>(.*?)<\/span>/gi, '$1');
+                notesElement.innerHTML = await highlight(censorText(originalNotesText));
             }
 
             // Ensure the morph element remains as it was before
