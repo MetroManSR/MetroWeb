@@ -19,17 +19,13 @@ let censoringEnabled = true;
 
 // Function to reveal censored text
 function revealText(element) {
-    element.style.backgroundColor = 'transparent';
-    element.style.color = 'inherit';
-    element.style.cursor = 'default';
+    element.classList.remove('censored');
     element.onclick = () => recensorText(element); // Add click event to re-censor
 }
 
 // Function to recensor text
 function recensorText(element) {
-    element.style.backgroundColor = 'black';
-    element.style.color = 'black';
-    element.style.cursor = 'pointer';
+    element.classList.add('censored');
     element.onclick = () => revealText(element); // Add click event to reveal text again
 }
 
@@ -123,3 +119,7 @@ export function initCensoring() {
         captureError(`Error in initCensoring: ${error.message}`);
     }
 }
+
+// Initialize censoring and update dynamically
+updateDictionaryBoxes();
+initCensoring();
