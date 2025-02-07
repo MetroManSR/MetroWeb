@@ -31,8 +31,8 @@ export function censorText(text) {
     return text;
 }
 
-// Function to update the content of all dictionary boxes
-export function updateDictionaryBoxes() {
+// Function to gather all rows dynamically
+function getAllRows() {
     const boxes = document.querySelectorAll('.dictionary-box');
     const allRows = Array.from(boxes).map(box => {
         return {
@@ -45,7 +45,13 @@ export function updateDictionaryBoxes() {
             type: box.getAttribute('data-type')
         };
     });
+    return allRows;
+}
 
+// Function to update the content of all dictionary boxes
+export function updateDictionaryBoxes() {
+    const allRows = getAllRows();
+    const boxes = document.querySelectorAll('.dictionary-box');
     boxes.forEach(async (box) => {
         const rowId = box.id.split('-').pop();
         const row = allRows.find(r => r.id.toString() === rowId);
