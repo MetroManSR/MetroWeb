@@ -59,17 +59,21 @@ export async function updateDictionaryBoxes() {
             const notesElement = box.querySelector('.dictionary-box-notes');
 
             if (wordElement) {
-                const originalWordText = wordElement.textContent || '';
-                wordElement.innerHTML = await highlight(censorText(originalWordText));
+                const originalWordText = wordElement.innerHTML;
+                wordElement.innerHTML = censoringEnabled ? await highlight(censorText(originalWordText)) : originalWordText.replace(/<span class="censored"[^>]*>(.*?)<\/span>/gi, '$1');
             }
             if (metaElement) {
-                const originalMetaText = metaElement.textContent || '';
-                metaElement.innerHTML = await highlight(censorText(originalMetaText));
+                const originalMetaText = metaElement.innerHTML;
+                metaElement.innerHTML = censoringEnabled ? await highlight(censorText(originalMetaText)) : originalMetaText.replace(/<span class="censored"[^>]*>(.*?)<\/span>/gi, '$1');
             }
             if (notesElement) {
-                const originalNotesText = notesElement.textContent || '';
-                notesElement.innerHTML = await highlight(censorText(originalNotesText));
+                const originalNotesText = notesElement.innerHTML;
+                notesElement.innerHTML = censoringEnabled ? await highlight(censorText(originalNotesText)) : originalNotesText.replace(/<span class="censored"[^>]*>(.*?)<\/span>/gi, '$1');
             }
+
+            // Ensure the morph element remains as it was before
+            const morphElement = box.querySelector('.dictionary-box-morph');
+            if (morphElement) morphElement.innerHTML = box.querySelector('.dictionary-box-morph')?.innerHTML || '';
         });
     } catch (error) {
         captureError(`Error in updateDictionaryBoxes: ${error.message}`);
