@@ -62,18 +62,20 @@ export async function updateDictionaryBoxes() {
     }
 }
 
-// Event Listener for toggle Censoring
+// Event Listener for toggle Censorship
 export function initCensoring() {
     try {
         // Add event listener for the toggle button
-        const toggleButton = document.getElementById('dict-toggle-censorship');
-        if (toggleButton) {
-            toggleButton.addEventListener('click', (event) => {
-                event.stopPropagation(); // Prevent the button click from bubbling up
-                censoringEnabled = !censoringEnabled; // This will invert the censoringEnabled flag
-                updateDictionaryBoxes(); // Update the boxes after toggling the flag
-            });
-        }
+        document.addEventListener("DOMContentLoaded", function() {
+            const toggleButton = document.getElementById('dict-toggle-censorship');
+            if (toggleButton) {
+                toggleButton.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent the button click from bubbling up
+                    censoringEnabled = !censoringEnabled; // This will invert the censoringEnabled flag
+                    updateDictionaryBoxes(); // Update the boxes after toggling the flag
+                });
+            }
+        });
     } catch (error) {
         captureError(`Error in initCensoring: ${error.message}`);
     }
