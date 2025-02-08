@@ -132,7 +132,7 @@ export async function initializeButtonEventListeners(allRows, rowsPerPage, curre
         });
     }
     
-    updateDictionaryBoxes();
+    await updateDictionaryBoxes();
 
     await initCensoring();
  
