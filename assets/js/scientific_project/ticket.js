@@ -93,6 +93,8 @@ function randomizeSellerState(seller) {
     const states = ['Available', 'Quoting', 'Snacking'];
     const randomState = states[Math.floor(Math.random() * states.length)];
     seller.state = randomState;
+    seller.stateTime = '00:00:00';  // Reset the state timer
+    seller.stateStartTime = new Date();  // Save the state start time
     document.getElementById(`module-${seller.moduleNumber}`).style.color = getStateColor(randomState);
 
     if (randomState === 'Quoting' || randomState === 'Snacking') {
@@ -179,4 +181,4 @@ export function showPopup() {
 export function closePopup() {
     document.getElementById('ticket-popup').style.display = 'none';
     document.getElementById('seller-buttons').style.display = 'none';
-}
+} 
