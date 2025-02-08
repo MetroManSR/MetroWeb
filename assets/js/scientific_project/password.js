@@ -1,6 +1,6 @@
 import { randomDisconnectSellers, displaySellers, sellers } from './seller.js';
 import { startTimers } from './timer.js';
-import { randomizeSellerStates } from './seller.js';
+import { randomizeSellerStates } from './sellers.js';
 
 const correctPassword = 'A1b2C3d4E5F6G7H8I9J0K1L2M3N4O5P6Q7';
 
