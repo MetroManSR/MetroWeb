@@ -87,6 +87,14 @@ function randomizeSellerState(seller) {
     const randomState = states[Math.floor(Math.random() * states.length)];
     seller.state = randomState;
     document.getElementById(`module-${seller.moduleNumber}`).style.color = getStateColor(randomState);
+
+    if (randomState === 'Quoting' || randomState === 'Snacking') {
+        // Wait 30 to 35 seconds before transitioning to another random state
+        setTimeout(() => {
+            randomizeSellerState(seller);
+        }, Math.floor(Math.random() * 5000) + 30000); // Random delay between 30 and 35 seconds
+    }
+
     displaySellers(sellers);
     displayTickets();
 }
