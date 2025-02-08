@@ -1,5 +1,4 @@
 import { displaySellers, sellers } from './sellers.js';
-import { displayTickets } from './timer.js';
 
 let callingInterval;
 let publicTicketNumber = 1;
@@ -90,6 +89,25 @@ function takeTicket(moduleNumber, ticketNumber) {
     }
 }
 
+export function displayTickets() {
+    const ticketList = document.getElementById('ticket-list');
+    ticketList.innerHTML = ''; // Clear existing tickets
+    const callingSellers = sellers.filter(seller => seller.state === 'Calling');
+
+    if (callingSellers.length === 0) return;
+
+    let index = 0;
+    setInterval(() => {
+        if (index >= callingSellers.length) index = 0;
+        const currentSeller = callingSellers[index];
+        ticketList.innerHTML = `<div class="ticket-item">
+                                    <span>Módulo: ${currentSeller.moduleNumber}</span>
+                                    <span>${currentSeller.takenTickets.join(", ")}</span>
+                                </div>`;
+        index++;
+    }, 5000);
+}
+
 export function showPopup() {
     document.getElementById('ticket-popup').style.display = 'block';
 }
@@ -97,4 +115,4 @@ export function showPopup() {
 export function closePopup() {
     document.getElementById('ticket-popup').style.display = 'none';
     document.getElementById('seller-buttons').style.display = 'none';
-}
+} 
