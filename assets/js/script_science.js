@@ -26,7 +26,7 @@ const sellers = [
         dni: "12345678",
         fullName: "John Doe",
         state: "Available",
-        takenTicket: null,
+        takenTickets: [],
         stateTime: "00:00:00",
         disconnected: false
     },
@@ -35,7 +35,7 @@ const sellers = [
         dni: "87654321",
         fullName: "Jane Smith",
         state: "Quoting",
-        takenTicket: null,
+        takenTickets: [],
         stateTime: "00:00:00",
         disconnected: false
     },
@@ -44,7 +44,7 @@ const sellers = [
         dni: "34567890",
         fullName: "Alice Johnson",
         state: "Attending",
-        takenTicket: null,
+        takenTickets: [],
         stateTime: "00:00:00",
         disconnected: false
     },
@@ -53,7 +53,7 @@ const sellers = [
         dni: "98765432",
         fullName: "Bob Brown",
         state: "Snacking",
-        takenTicket: null,
+        takenTickets: [],
         stateTime: "00:00:00",
         disconnected: false
     },
@@ -62,7 +62,7 @@ const sellers = [
         dni: "12349087",
         fullName: "Charlie White",
         state: "In Vacations",
-        takenTicket: null,
+        takenTickets: [],
         stateTime: "00:00:00",
         disconnected: false
     },
@@ -71,7 +71,7 @@ const sellers = [
         dni: "87651234",
         fullName: "Daisy Black",
         state: "Available",
-        takenTicket: null,
+        takenTickets: [],
         stateTime: "00:00:00",
         disconnected: false
     },
@@ -80,7 +80,7 @@ const sellers = [
         dni: "56789012",
         fullName: "Eve Green",
         state: "Quoting",
-        takenTicket: null,
+        takenTickets: [],
         stateTime: "00:00:00",
         disconnected: false
     },
@@ -89,7 +89,7 @@ const sellers = [
         dni: "34561278",
         fullName: "Frank Blue",
         state: "Attending",
-        takenTicket: null,
+        takenTickets: [],
         stateTime: "00:00:00",
         disconnected: false
     },
@@ -98,7 +98,7 @@ const sellers = [
         dni: "65437821",
         fullName: "Grace Red",
         state: "Available",
-        takenTicket: null,
+        takenTickets: [],
         stateTime: "00:00:00",
         disconnected: false
     },
@@ -107,11 +107,13 @@ const sellers = [
         dni: "09876543",
         fullName: "Hank Yellow",
         state: "Snacking",
-        takenTicket: null,
+        takenTickets: [],
         stateTime: "00:00:00",
         disconnected: false
     }
 ];
+
+let callingInterval;
 
 // Function to randomly disconnect 10% of the sellers
 function randomDisconnectSellers() {
@@ -133,11 +135,11 @@ function displaySellers(sellers) {
         sellerDiv.classList.add('seller');
         if (seller) {
             sellerDiv.innerHTML = `
-                <h2>Module: ${seller.moduleNumber}</h2>
+                <h2 id="module-${seller.moduleNumber}">Module: ${seller.moduleNumber}</h2>
                 <p>DNI: ${seller.dni}</p>
                 <p>Name: ${seller.fullName}</p>
                 <p>State: ${seller.disconnected ? "Disconnected" : seller.state}</p>
-                <p>Ticket: ${seller.takenTicket ? seller.takenTicket : "Unoccupied"}</p>
+                <p>Tickets: ${seller.takenTickets.length > 0 ? seller.takenTickets.join(", ") : "None"}</p>
                 <p>State Time: <span id="state-time-${seller.moduleNumber}">${seller.stateTime}</span></p>
             `;
         } else {
@@ -146,7 +148,7 @@ function displaySellers(sellers) {
                 <p>DNI: Unoccupied</p>
                 <p>Name: Unoccupied</p>
                 <p>State: Unoccupied</p>
-                <p>Ticket: Unoccupied</p>
+                <p>Tickets: Unoccupied</p>
                 <p>State Time: Unoccupied</p>
             `;
         }
@@ -179,14 +181,48 @@ function simulateTicket(random = true) {
         }
     }
 
-    selectedSeller.state = 'Attending';
-    selectedSeller.takenTicket = ticketNumber;
+    selectedSeller.takenTickets.push(ticketNumber);
+    selectedSeller.state = 'Calling';
     selectedSeller.stateTime = '00:00:00';
     selectedSeller.stateStartTime = new Date();  // Save the state start time
 
+    document.getElementById(`module-${selectedSeller.moduleNumber}`).style.color = '#ff0000'; // Change color to red for calling
+
+    clearInterval(callingInterval);
+    callingInterval = setInterval(() => {
+        const moduleElement = document.getElementById(`module-${selectedSeller.moduleNumber}`);
+        if (moduleElement.style.color === 'rgb(255, 0, 0)') {
+            moduleElement.style.color = '#ffcccc'; // Lighter red
+        } else {
+            moduleElement.style.color = '#ff0000'; // Red
+        }
+    }, 500);
+
     alert(`Ticket ${ticketNumber} assigned to ${selectedSeller.fullName}.`);
 
+    setTimeout(() => {
+        takeTicket(selectedSeller.moduleNumber, ticketNumber);
+    }, Math.floor(Math.random() * 3000) + 2000); // Random delay between 2 and 5 seconds
+
     displaySellers(sellers);
+}
+
+// Function for sellers to take a ticket
+function takeTicket(moduleNumber, ticketNumber) {
+    const seller = sellers.find(s => s.moduleNumber === moduleNumber);
+    if (seller) {
+        seller.takenTickets = seller.takenTickets.filter(ticket => ticket !== ticketNumber);
+        if (seller.takenTickets.length === 0) {
+            seller.state = 'Attending';
+            clearInterval(callingInterval);
+            document.getElementById(`module-${seller.moduleNumber}`).style.color = '#000000'; // Back to default color
+        }
+        seller.stateStartTime = new Date();  // Reset the state start time
+
+        displaySellers(sellers);
+    } else {
+        alert('Invalid module number.');
+    }
 }
 
 // Function to start timers for all sellers
