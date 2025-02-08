@@ -167,7 +167,7 @@ site-js:
  - "/assets/js/search.js"
  - "/assets/js/exercise.js"
  - "/assets/js/default-scripts.js"
- - "assets/js/script_science.js" 
+ - "assets/js/science_project_main.js" 
  
 
 #################################
