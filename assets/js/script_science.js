@@ -1,6 +1,10 @@
 // Define the password
 const correctPassword = 'A1b2C3d4E5F6G7H8I9J0K1L2M3N4O5P6Q7';
 
+// Define the initial ticket numbers
+let publicTicketNumber = 1;
+let specificTicketNumber = 1;
+
 // Function to check the entered password
 function checkPassword() {
     const passwordInput = document.getElementById('password-input').value;
@@ -160,46 +164,15 @@ function displaySellers(sellers) {
 
 // Function to simulate ticket assignment
 function simulateTicket(random = true) {
-    const ticketNumber = prompt('Ingrese el número de ticket:');
-    if (!ticketNumber) return; // Exit if no ticket number is provided
-
+    let ticketNumber;
     if (random) {
+        ticketNumber = `A${publicTicketNumber++}`;
         assignRandomSeller(ticketNumber);
     } else {
+        ticketNumber = `V${specificTicketNumber++}`;
         showSellerButtons(ticketNumber);
     }
-}
-
-// Function to assign a random seller
-function assignRandomSeller(ticketNumber) {
-    const availableSellers = sellers.filter(seller => seller.state === 'Available' && !seller.disconnected);
-
-    if (availableSellers.length === 0) {
-        alert('No hay vendedores disponibles en este momento.');
-        return;
-    }
-
-    const randomIndex = Math.floor(Math.random() * availableSellers.length);
-    const selectedSeller = availableSellers[randomIndex];
-    assignTicketToSeller(selectedSeller, ticketNumber);
-}
-
-// Function to show seller buttons for manual selection
-function showSellerButtons(ticketNumber) {
-    const sellerButtons = document.getElementById('seller-buttons');
-    sellerButtons.innerHTML = ''; // Clear existing buttons
-    const availableSellers = sellers.filter(seller => seller.state === 'Available' && !seller.disconnected);
-
-    availableSellers.forEach(seller => {
-        const button = document.createElement('button');
-        button.textContent = `Módulo: ${seller.moduleNumber} - ${seller.fullName}`;
-        button.onclick = () => assignTicketToSeller(seller, ticketNumber);
-        sellerButtons.appendChild(button);
-    });
-
-    sellerButtons.style.display = 'block';
-        }
-
+                }
 // Function to assign a ticket to a seller
 function assignTicketToSeller(seller, ticketNumber) {
     seller.takenTickets.push(ticketNumber);
@@ -287,7 +260,10 @@ function displayTickets() {
     ticketDisplayInterval = setInterval(() => {
         if (index >= callingSellers.length) index = 0;
         const currentSeller = callingSellers[index];
-        ticketList.innerHTML = `<div>Ticket ${currentSeller.takenTickets.join(", ")} en Módulo ${currentSeller.moduleNumber}</div>`;
+        ticketList.innerHTML = `<div class="ticket-item">
+                                    <span>Módulo: ${currentSeller.moduleNumber}</span>
+                                    <span>${currentSeller.takenTickets.join(", ")}</span>
+                                </div>`;
         index++;
     }, 5000);
 }
