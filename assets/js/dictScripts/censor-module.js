@@ -97,7 +97,7 @@ export async function updateDictionaryBoxes() {
 }
 
 // Event Listener for toggle Censorship
-export function initCensoring() {
+export async function initCensoring() {
     try {
         // Add event listener for the toggle button
         document.addEventListener("DOMContentLoaded", async function() {
@@ -118,7 +118,4 @@ export function initCensoring() {
     } catch (error) {
         await captureError(`Error in initCensoring: ${error.message}`);
     }
-}
-
-// Initialize censoring
-initCensoring();
+} 
