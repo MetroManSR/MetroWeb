@@ -4,20 +4,33 @@ let publicTicketNumber = 1;
 let specificTicketNumber = 1;
 const ticketQueue = [];
 const logEntries = [];
+let publicButtonCooldown = false;
 
 function formatTicketNumber(number) {
     return number.toString().padStart(3, '0');
 }
 
 export function simulateTicket(random = true) {
-    let ticketNumber;
-    if (random) {
-        ticketNumber = `A${formatTicketNumber(publicTicketNumber++)}`;
-        assignPublicTicket(ticketNumber);
-    } else {
-        ticketNumber = `V${formatTicketNumber(specificTicketNumber++)}`;
-        showSellerButtons(ticketNumber);
+    if (random && publicButtonCooldown) {
+        return; // Prevent clicking the "Público general" button more than once every 1 second
     }
+    if (random) {
+        publicButtonCooldown = true;
+        setTimeout(() => {
+            publicButtonCooldown = false;
+        }, 1000); // Cooldown of 1 second
+    }
+
+    setTimeout(() => {
+        let ticketNumber;
+        if (random) {
+            ticketNumber = `A${formatTicketNumber(publicTicketNumber++)}`;
+            assignPublicTicket(ticketNumber);
+        } else {
+            ticketNumber = `V${formatTicketNumber(specificTicketNumber++)}`;
+            showSellerButtons(ticketNumber);
+        }
+    }, 500); // Wait 0.5 seconds to process
 }
 
 function assignPublicTicket(ticketNumber) {
@@ -87,7 +100,7 @@ function assignTicketToSeller(seller, ticketNumber) {
             // Handle ticket queue
             if (ticketQueue.length > 0) {
                 const nextTicket = ticketQueue.shift();
-                assignPublicTicket(nextTicket);
+                setTimeout(() => assignPublicTicket(nextTicket), 3000); // Display each ticket call for at least 3 seconds
             }
         }, Math.floor(Math.random() * 2000) + 1000); // Random delay between 1 and 3 seconds
 
@@ -211,7 +224,7 @@ export function displayTickets() {
                                     <span>${currentSeller.takenTickets.join(", ")}</span>
                                 </div>`;
         callingIndex++;
-    }, 3000); // Wait 3 seconds for each calling ticket
+    }, 3000); // Display each ticket call for at least 3 seconds
 }
 
 export function showPopup() {
@@ -221,4 +234,4 @@ export function showPopup() {
 export function closePopup() {
     document.getElementById('ticket-popup').style.display = 'none';
     document.getElementById('seller-buttons').style.display = 'none';
-        }
+}
