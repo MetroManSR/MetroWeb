@@ -14,6 +14,7 @@ function checkPassword() {
         randomDisconnectSellers();
         displaySellers(sellers);
         startTimers();
+        randomizeSellerStates();
     } else {
         errorMessage.style.display = 'block';
     }
@@ -114,6 +115,7 @@ const sellers = [
 ];
 
 let callingInterval;
+let ticketDisplayInterval;
 
 // Function to randomly disconnect 10% of the sellers
 function randomDisconnectSellers() {
@@ -196,7 +198,7 @@ function showSellerButtons(ticketNumber) {
     });
 
     sellerButtons.style.display = 'block';
-}
+        }
 
 // Function to assign a ticket to a seller
 function assignTicketToSeller(seller, ticketNumber) {
@@ -224,6 +226,7 @@ function assignTicketToSeller(seller, ticketNumber) {
     }, Math.floor(Math.random() * 3000) + 2000); // Random delay between 2 and 5 seconds
 
     displaySellers(sellers);
+    displayTickets();
 }
 
 // Function for sellers to take a ticket
@@ -233,12 +236,13 @@ function takeTicket(moduleNumber, ticketNumber) {
         seller.takenTickets = seller.takenTickets.filter(ticket => ticket !== ticketNumber);
         if (seller.takenTickets.length === 0) {
             seller.state = 'Attending';
+            document.getElementById(`module-${seller.moduleNumber}`).style.color = '#f1c40f'; // Yellow for attending
             clearInterval(callingInterval);
-            document.getElementById(`module-${seller.moduleNumber}`).style.color = '#000000'; // Back to default color
         }
         seller.stateStartTime = new Date();  // Reset the state start time
 
         displaySellers(sellers);
+        displayTickets();
     } else {
         alert('Número de módulo inválido.');
     }
@@ -269,4 +273,52 @@ function startTimers() {
             }
         });
     }, 1000);
-} 
+}
+
+// Function to display the tickets being called
+function displayTickets() {
+    const ticketList = document.getElementById('ticket-list');
+    ticketList.innerHTML = ''; // Clear existing tickets
+    const callingSellers = sellers.filter(seller => seller.state === 'Calling');
+
+    if (callingSellers.length === 0) return;
+
+    let index = 0;
+    ticketDisplayInterval = setInterval(() => {
+        if (index >= callingSellers.length) index = 0;
+        const currentSeller = callingSellers[index];
+        ticketList.innerHTML = `<div>Ticket ${currentSeller.takenTickets.join(", ")} en Módulo ${currentSeller.moduleNumber}</div>`;
+        index++;
+    }, 5000);
+}
+
+// Function to randomize seller states
+function randomizeSellerStates() {
+    setInterval(() => {
+        sellers.forEach(seller => {
+            if (seller.state !== 'Attending' && seller.state !== 'Calling' && !seller.disconnected) {
+                const states = ['Available', 'Quoting', 'Snacking'];
+                const randomState = states[Math.floor(Math.random() * states.length)];
+                seller.state = randomState;
+                document.getElementById(`module-${seller.moduleNumber}`).style.color = getStateColor(randomState);
+            }
+        });
+        displaySellers(sellers);
+    }, Math.floor(Math.random() * 5000) + 10000); // Randomize between 10 and 15 seconds
+}
+
+// Function to get the color based on the state
+function getStateColor(state) {
+    switch (state) {
+        case 'Available':
+            return '#007bff'; // Blue
+        case 'Quoting':
+            return '#ff0000'; // Red
+        case 'Snacking':
+            return '#ff0000'; // Red
+        case 'In Vacations':
+            return '#d4ac0d'; // Yellow
+        default:
+            return '#000000'; // Default black
+    }
+}
