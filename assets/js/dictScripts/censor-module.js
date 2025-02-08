@@ -68,7 +68,7 @@ export async function initCensoring() {
         // Add event listener for the toggle button
             const toggleButton = document.getElementById('dict-toggle-censorship');
             if (toggleButton) {
-                toggleButton.addEventListener('click', (event) => {
+                toggleButton.addEventListener('click', async (event) => {
                     event.stopPropagation(); // Prevent the button click from bubbling up
                     censoringEnabled = !censoringEnabled; // This will invert the censoringEnabled flag
                     await updateDictionaryBoxes(); // Update the boxes after toggling the flag
