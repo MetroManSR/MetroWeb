@@ -73,9 +73,4 @@ function getStateColor(state) {
             return '#ff0000'; // Red
         case 'Snacking':
             return '#ff0000'; // Red
-        case 'In Vacations':
-            return '#d4ac0d'; // Yellow
-        default:
-            return '#000000'; // Default black
-    }
-}
+        case 'In Vac[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/la9una/web/tree/ba1073ae044ebb7b538a3b13f0f9598f7c410bb6/docs%2Fbootstrap%2Falignci.md?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "1")
