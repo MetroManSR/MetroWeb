@@ -8,14 +8,14 @@ export function simulateTicket(random = true) {
     let ticketNumber;
     if (random) {
         ticketNumber = `A${publicTicketNumber++}`;
-        assignTicket(ticketNumber);
+        assignPublicTicket(ticketNumber);
     } else {
         ticketNumber = `V${specificTicketNumber++}`;
         showSellerButtons(ticketNumber);
     }
 }
 
-function assignTicket(ticketNumber) {
+function assignPublicTicket(ticketNumber) {
     const availableSellers = sellers.filter(seller => seller.state === 'Available' && !seller.disconnected);
 
     if (availableSellers.length === 0) {
@@ -32,12 +32,17 @@ function assignTicket(ticketNumber) {
 export function showSellerButtons(ticketNumber) {
     const sellerButtons = document.getElementById('seller-buttons');
     sellerButtons.innerHTML = ''; // Clear existing buttons
-    const availableSellers = sellers.filter(seller => seller.state === 'Available' && !seller.disconnected);
+    const eligibleSellers = sellers.filter(seller => seller.state !== 'In Vacations' && !seller.disconnected);
 
-    availableSellers.forEach(seller => {
+    eligibleSellers.forEach(seller => {
         const button = document.createElement('button');
         button.textContent = `Módulo: ${seller.moduleNumber} - ${seller.fullName}`;
-        button.onclick = () => assignTicketToSeller(seller, ticketNumber);
+        button.onclick = () => {
+            if (seller.state === 'Quoting' && !confirm(`El vendedor ${seller.fullName} está cotizando. ¿Desea asignar el ticket de todas maneras?`)) {
+                return;
+            }
+            assignTicketToSeller(seller, ticketNumber);
+        };
         sellerButtons.appendChild(button);
     });
 
@@ -45,41 +50,43 @@ export function showSellerButtons(ticketNumber) {
 }
 
 function assignTicketToSeller(seller, ticketNumber) {
-    seller.takenTickets.push(ticketNumber);
-    seller.state = 'Calling';
-    seller.stateTime = '00:00:00';
-    seller.stateStartTime = new Date();  // Save the state start time
+    if (seller.takenTickets.length === 0) {
+        seller.takenTickets.push(ticketNumber);
+        seller.state = 'Calling';
+        seller.stateTime = '00:00:00';
+        seller.stateStartTime = new Date();  // Save the state start time
 
-    const moduleElement = document.getElementById(`module-${seller.moduleNumber}`);
-    moduleElement.style.color = '#ff0000'; // Change color to red for calling
-    moduleElement.style.fontWeight = 'bold';
-    moduleElement.innerHTML = `Módulo: ${seller.moduleNumber}, ${ticketNumber}`;
+        const moduleElement = document.getElementById(`module-${seller.moduleNumber}`);
+        moduleElement.style.color = '#ff0000'; // Change color to red for calling
+        moduleElement.style.fontWeight = 'bold';
+        moduleElement.innerHTML = `Módulo: ${seller.moduleNumber}, ${ticketNumber}`;
 
-    const flashInterval = setInterval(() => {
-        moduleElement.style.color = moduleElement.style.color === 'rgb(255, 0, 0)' ? '#ffcccc' : '#ff0000'; // Toggle between red and lighter red
-    }, 500);
+        const flashInterval = setInterval(() => {
+            moduleElement.style.color = moduleElement.style.color === 'rgb(255, 0, 0)' ? '#ffcccc' : '#ff0000'; // Toggle between red and lighter red
+        }, 500);
 
-    closePopup();
+        closePopup();
 
-    // Wait 1 to 3 seconds before transitioning to Attending state
-    setTimeout(() => {
-        seller.state = 'Attending';
-        moduleElement.style.color = '#f1c40f'; // Yellow for attending
-        clearInterval(flashInterval);
-
+        // Wait 1 to 3 seconds before transitioning to Attending state
         setTimeout(() => {
-            randomizeSellerState(seller);
-        }, Math.floor(Math.random() * 5000) + 30000); // Random delay between 30 and 35 seconds
+            seller.state = 'Attending';
+            moduleElement.style.color = '#f1c40f'; // Yellow for attending
+            clearInterval(flashInterval);
 
-        // Handle ticket queue
-        if (ticketQueue.length > 0) {
-            const nextTicket = ticketQueue.shift();
-            assignTicket(nextTicket);
-        }
-    }, Math.floor(Math.random() * 2000) + 1000); // Random delay between 1 and 3 seconds
+            setTimeout(() => {
+                randomizeSellerState(seller);
+            }, Math.floor(Math.random() * 5000) + 30000); // Random delay between 30 and 35 seconds
 
-    displaySellers(sellers);
-    displayTickets();
+            // Handle ticket queue
+            if (ticketQueue.length > 0) {
+                const nextTicket = ticketQueue.shift();
+                assignPublicTicket(nextTicket);
+            }
+        }, Math.floor(Math.random() * 2000) + 1000); // Random delay between 1 and 3 seconds
+
+        displaySellers(sellers);
+        displayTickets();
+    }
 }
 
 function randomizeSellerState(seller) {
@@ -140,20 +147,29 @@ function removeTicket(ticketNumber) {
 export function displayTickets() {
     const ticketList = document.getElementById('ticket-list');
     ticketList.innerHTML = ''; // Clear existing tickets
-    const callingSellers = sellers.filter(seller => seller.state === 'Calling');
-
-    if (callingSellers.length === 0) return;
 
     let index = 0;
+    if (ticketQueue.length > 0) {
+        const ticketNumber = ticketQueue[index];
+        ticketList.innerHTML = `<div class="ticket-item">
+                                    <span>${ticketNumber}</span>
+                                </div>`;
+        index++;
+    }
+
+    const callingSellers = sellers.filter(seller => seller.state === 'Calling');
+    if (callingSellers.length === 0) return;
+
+    let callingIndex = 0;
     setInterval(() => {
-        if (index >= callingSellers.length) index = 0;
-        const currentSeller = callingSellers[index];
+        if (callingIndex >= callingSellers.length) callingIndex = 0;
+        const currentSeller = callingSellers[callingIndex];
         ticketList.innerHTML = `<div class="ticket-item">
                                     <span>Módulo: ${currentSeller.moduleNumber}</span>
                                     <span>${currentSeller.takenTickets.join(", ")}</span>
                                 </div>`;
-        index++;
-    }, 5000);
+        callingIndex++;
+    }, 3000); // Wait 3 seconds for each calling ticket
 }
 
 export function showPopup() {
