@@ -49,7 +49,7 @@ export function censorText(text) {
 
 // Function to uncensor text
 export function uncensorText(text) {
-    // Remove the censor elements and leave plain text
+    // Remove the censor elements and leave plain text, preserving the case
     const regex = /<span class="censored"[^>]*>(.*?)<\/span>/gi;
     return text.replace(regex, '$1');
 }
@@ -77,7 +77,7 @@ export async function updateDictionaryBoxes() {
             }
         });
     } catch (error) {
-        captureError(`Error in updateDictionaryBoxes: ${error.message}`);
+       await captureError(`Error in updateDictionaryBoxes: ${error.message}`);
     }
 }
 
@@ -96,10 +96,6 @@ export function initCensoring() {
             }
         });
     } catch (error) {
-        captureError(`Error in initCensoring: ${error.message}`);
+        await captureError(`Error in initCensoring: ${error.message}`);
     }
 }
-
-// Initialize censoring and update dynamically
-updateDictionaryBoxes();
-initCensoring();
