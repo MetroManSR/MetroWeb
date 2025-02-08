@@ -1,6 +1,7 @@
 import { createPaginationControls, updatePagination } from './pagination.js';
 import { renderBox, createDictionaryBox, createNoMatchBox } from './boxes.js';
-import { updateQueryString, updateUniversalPendingChanges, updatePendingChangesListBasedOnLanguage } from './urlParameters.js';
+import { updateQueryString, updatePendingChangesListBasedOnLanguage } from './urlParameters.js';
+import { universalPendingChanges, updateUniversalPendingChanges, updatePendingChangesList, defaultPendingChanges } from './initFormEventListeners.js';
 import { getSimilarity } from './utils.js';
 
 export let pendingChanges = {
