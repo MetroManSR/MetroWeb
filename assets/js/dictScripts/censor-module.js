@@ -34,8 +34,11 @@ export function censorText(text) {
 // Function to update the content of all dictionary boxes
 export async function updateDictionaryBoxes() {
     try {
+
+        console.log('trying to get all boxes'); 
         const boxes = document.querySelectorAll('.dictionary-box');
         boxes.forEach(async (box) => {
+            console.log(box);
             const wordElement = box.querySelector('.dictionary-box-title');
             const metaElement = box.querySelector('.dictionary-box-meta');
             const notesElement = box.querySelector('.dictionary-box-notes');
@@ -58,7 +61,7 @@ export async function updateDictionaryBoxes() {
             if (morphElement) morphElement.innerHTML = box.querySelector('.dictionary-box-morph')?.innerHTML || '';
         });
     } catch (error) {
-        captureError(`Error in updateDictionaryBoxes: ${error.message}`);
+        await captureError(`Error in updateDictionaryBoxes: ${error.message}`);
     }
 }
 
@@ -76,6 +79,6 @@ export async function initCensoring() {
                 });
             };
     } catch (error) {
-        captureError(`Error in initCensoring: ${error.message}`);
+       await captureError(`Error in initCensoring: ${error.message}`);
     }
 }
