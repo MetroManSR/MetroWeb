@@ -5,6 +5,8 @@ import { filteredRows, updateFilteredRows } from "../mainDict.js";
 import { universalPendingChanges, defaultPendingChanges } from './initFormEventListeners.js';
 import { captureError } from './errorModule.js';
 
+export let UCurrentPage = 1;
+
 function mapVersion(originalVersion) {
     const versionMap = {
         '' : 'NR', 
@@ -109,7 +111,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     // Filter rows based on selected versionDisplay
     if (versionDisplay) {
-        console.log(updatedRows) 
+    //console.log(updatedRows) 
        updatedRows = updatedRows.filter(row => versionDisplay[mapVersion(row.revision)] || false);
     } 
     
@@ -130,7 +132,8 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     const totalRows = updatedRows.length;
     const totalPages = Math.ceil(totalRows / rowsPerPage);
     currentPage = Math.min(currentPage, totalPages);
-
+    UCurrentPage = currentPage;
+    
     const renderContainer = document.getElementById('dict-dictionary');
     if (renderContainer) {
         renderContainer.innerHTML = '';
