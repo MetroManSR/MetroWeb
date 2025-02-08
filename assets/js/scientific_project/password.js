@@ -1,23 +1,19 @@
-import { randomDisconnectSellers, displaySellers, sellers } from './seller.js';
-import { startTimers } from './timer.js';
-import { randomizeSellerStates } from './seller.js';
+// Import all other scripts
+import { checkPassword } from './scientific_project/password.js';
+import { displaySellers, randomizeSellerStates, sellers } from './scientific_project/seller.js';
+import { simulateTicket, showPopup, closePopup, showSellerButtons } from './scientific_project/ticket.js';
+import { startTimers } from './scientific_project/timer.js';
 
-const correctPassword = 'A1b2C3d4E5F6G7H8I9J0K1L2M3N4O5P6Q7';
+document.addEventListener('DOMContentLoaded', () => {
+    // Set up event listeners and initialize the application
+    document.getElementById('password-submit').addEventListener('click', checkPassword);
+    document.getElementById('close-popup').addEventListener('click', closePopup);
+    document.getElementById('show-popup').addEventListener('click', showPopup);
+    document.getElementById('assign-random').addEventListener('click', () => simulateTicket(true));
+    document.getElementById('choose-seller').addEventListener('click', () => simulateTicket(false));
 
-export function checkPassword() {
-    const passwordInput = document.getElementById('password-input').value;
-    const errorMessage = document.getElementById('error-message');
-    const passwordContainer = document.getElementById('password-container');
-    const sellerContainer = document.getElementById('seller-container');
-
-    if (passwordInput === correctPassword) {
-        passwordContainer.style.display = 'none';
-        sellerContainer.style.display = 'block';
-        randomDisconnectSellers();
-        displaySellers(sellers);
-        startTimers();
-        randomizeSellerStates();
-    } else {
-        errorMessage.style.display = 'block';
-    }
-}
+    // Initialize seller display and timers
+    displaySellers(sellers);
+    startTimers();
+    randomizeSellerStates();
+});
