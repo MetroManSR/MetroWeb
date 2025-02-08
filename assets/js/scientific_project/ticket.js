@@ -1,4 +1,4 @@
-import { displaySellers, sellers } from './seller.js';
+import { displaySellers, sellers } from './sellers.js';
 import { displayTickets } from './timer.js';
 
 let callingInterval;
