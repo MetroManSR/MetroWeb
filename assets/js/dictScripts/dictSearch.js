@@ -68,7 +68,7 @@ export async function initSearchInput(allRows, currentPage) {
         pendingChanges.searchTerm = searchTerm;
         updateUniversalPendingChanges(pendingChanges);
         updateQueryString();
-        updatePendingChangesListBasedOnLanguage();
+        await updatePendingChangesListBasedOnLanguage();
     }
 
     // Add event listener to update on input
@@ -90,18 +90,20 @@ export async function initSearchInput(allRows, currentPage) {
                 return;
             }
 
+            const searchTermsArray = searchTerm.includes(',') ? searchTerm.split(',').map(term => term.trim()) : [searchTerm];
+
             predictionBox.classList.remove("hidden");
             predictionBox.classList.add("active");
 
             const searchIn = pendingChanges.searchIn;
             const predictions = allRows
-                .filter(row => {
-                    const titleMatch = searchIn.word && row.type === 'word' && row.title.toLowerCase().includes(searchTerm);
-                    const rootMatch = searchIn.root && row.type === 'root' && row.title.toLowerCase().includes(searchTerm);
-                    const definitionMatch = searchIn.definition && row.meta && row.meta.toLowerCase().includes(searchTerm);
-                    const etymologyMatch = searchIn.etymology && row.morph.some(morphItem => morphItem.toLowerCase().includes(searchTerm));
+                .filter(row => searchTermsArray.some(term => {
+                    const titleMatch = searchIn.word && row.type === 'word' && row.title.toLowerCase().includes(term);
+                    const rootMatch = searchIn.root && row.type === 'root' && row.title.toLowerCase().includes(term);
+                    const definitionMatch = searchIn.definition && row.meta && row.meta.toLowerCase().includes(term);
+                    const etymologyMatch = searchIn.etymology && row.morph.some(morphItem => morphItem.toLowerCase().includes(term));
                     return titleMatch || rootMatch || definitionMatch || etymologyMatch;
-                })
+                }))
                 .slice(0, 10) // Limit to the first 10 matches
                 .map(row => ({ title: row.title, meta: row.meta || '' }));
 
@@ -200,6 +202,19 @@ export async function initSearchInput(allRows, currentPage) {
             searchInput.dispatchEvent(new Event('input'));
         }
     });
-   
-}
-                                                }
+
+    if (rowsPerPageSelect) {
+        rowsPerPageSelect.addEventListener('change', async () => {
+            try {
+                const rowsPerPageValue = parseInt(rowsPerPageSelect.value, 10);
+                pendingChanges.rowsPerPage = rowsPerPageValue;
+                universalPendingChanges = pendingChanges;
+                await updatePendingChangesListBasedOnLanguage();
+                currentPage = 1;
+            } catch (error) {
+                console.error('Error during change event handling:', error);
+            }
+        });
+   }
+} 
+                        
