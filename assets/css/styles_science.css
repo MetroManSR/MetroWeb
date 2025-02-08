@@ -1,0 +1,58 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #e1e8f0; /* Light blue background */
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #007bff; /* Primary blue color */
+}
+
+.seller {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+
+.seller:last-child {
+    border-bottom: none;
+}
+
+.seller h2 {
+    margin: 0 0 10px;
+    font-size: 1.2em;
+}
+
+.seller p {
+    margin: 5px 0;
+}
+
+#seller-list {
+    padding: 10px 0;
+}
+
+button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #f1c40f; /* Secondary opaque yellow */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #d4ac0d; /* Slightly darker yellow */
+}
