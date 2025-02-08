@@ -200,20 +200,6 @@ export async function initSearchInput(allRows, currentPage) {
             searchInput.dispatchEvent(new Event('input'));
         }
     });
-
-    if (rowsPerPageSelect) {
-        rowsPerPageSelect.addEventListener('change', async () => {
-            try {
-                const rowsPerPageValue = parseInt(rowsPerPageSelect.value, 10);
-                pendingChanges.rowsPerPage = rowsPerPageValue;
-                universalPendingChanges = pendingChanges;
-                await updatePendingChangesListBasedOnLanguage();
-                currentPage = 1;
-            } catch (error) {
-                await captureError(`Error during change event handling: ${error.message}`);
-            }
-        });
-    }
    
-} 
+}
                                                 }
