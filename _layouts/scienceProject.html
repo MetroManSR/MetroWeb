@@ -6,10 +6,9 @@ layout: base
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">       
-     <script src="../../../assets/js/script_science.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proyecto Científico - Información de Vendedores</title>
-    <link rel="stylesheet" href="../../../assets/css/styles_science.css">
+    <link rel="stylesheet" href="assets/css/styles_science.css">
 </head>
 <body>
     <div class="container" id="password-container">
@@ -20,9 +19,20 @@ layout: base
     </div>
     <div class="container" id="seller-container" style="display: none;">
         <h1>Información de Vendedores</h1>
-        <button onclick="simulateTicket(true)">Asignar Ticket Aleatoriamente</button>
-        <button onclick="simulateTicket(false)">Elegir un Vendedor</button>
+        <button onclick="showPopup()">Asignar Ticket</button>
         <div id="seller-list"></div>
     </div>
+
+    <div id="ticket-popup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closePopup()">&times;</span>
+            <h2>Asignar Ticket</h2>
+            <button onclick="simulateTicket(true)">Aleatorio</button>
+            <button onclick="showSellerButtons()">Elegir Vendedor</button>
+            <div id="seller-buttons" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="assets/js/script_science.js"></script>
 </body>
 </html>
