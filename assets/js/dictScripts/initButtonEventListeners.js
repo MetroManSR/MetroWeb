@@ -55,6 +55,7 @@ export async function initializeButtonEventListeners(allRows, rowsPerPage, curre
                 await captureError(`Error during change event handling: ${error.message}`);
             }
         });
+   }
     
     
     await boxClickListener(allRows, language, pendingChanges);
