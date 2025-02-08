@@ -1,5 +1,4 @@
 import { sellers } from './sellers.js';
-import { displayTickets } from './ticket.js';
 
 export function startTimers() {
     setInterval(() => {
@@ -14,23 +13,4 @@ export function startTimers() {
             }
         });
     }, 1000);
-}
-
-export function displayTickets() {
-    const ticketList = document.getElementById('ticket-list');
-    ticketList.innerHTML = ''; // Clear existing tickets
-    const callingSellers = sellers.filter(seller => seller.state === 'Calling');
-
-    if (callingSellers.length === 0) return;
-
-    let index = 0;
-    setInterval(() => {
-        if (index >= callingSellers.length) index = 0;
-        const currentSeller = callingSellers[index];
-        ticketList.innerHTML = `<div class="ticket-item">
-                                    <span>Módulo: ${currentSeller.moduleNumber}</span>
-                                    <span>${currentSeller.takenTickets.join(", ")}</span>
-                                </div>`;
-        index++;
-    }, 5000);
 }
