@@ -1,4 +1,4 @@
-import { sellers } from './seller.js';
+import { sellers } from './sellers.js';
 import { displayTickets } from './ticket.js';
 
 export function startTimers() {
