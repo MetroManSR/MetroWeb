@@ -1,5 +1,5 @@
 ---
-layout: base
+layout: scienceProject
 ---
 
 # Proyecto Científico - Sistema de Simulación de Tickets
