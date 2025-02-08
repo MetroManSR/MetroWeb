@@ -21,6 +21,7 @@ function assignTicket(ticketNumber) {
     if (availableSellers.length === 0) {
         // Add to queue if no sellers are available
         ticketQueue.push(ticketNumber);
+        displayUnattendedTickets();
     } else {
         const randomIndex = Math.floor(Math.random() * availableSellers.length);
         const selectedSeller = availableSellers[randomIndex];
@@ -60,38 +61,72 @@ function assignTicketToSeller(seller, ticketNumber) {
 
     closePopup();
 
+    // Wait 1 to 3 seconds before transitioning to Attending state
     setTimeout(() => {
-        takeTicket(seller.moduleNumber, ticketNumber, flashInterval);
-    }, Math.floor(Math.random() * 5000) + 30000); // Random delay between 30 and 35 seconds
+        seller.state = 'Attending';
+        moduleElement.style.color = '#f1c40f'; // Yellow for attending
+        clearInterval(flashInterval);
+
+        setTimeout(() => {
+            randomizeSellerState(seller);
+        }, Math.floor(Math.random() * 5000) + 30000); // Random delay between 30 and 35 seconds
+
+        // Handle ticket queue
+        if (ticketQueue.length > 0) {
+            const nextTicket = ticketQueue.shift();
+            assignTicket(nextTicket);
+        }
+    }, Math.floor(Math.random() * 2000) + 1000); // Random delay between 1 and 3 seconds
 
     displaySellers(sellers);
     displayTickets();
 }
 
-function takeTicket(moduleNumber, ticketNumber, flashInterval) {
-    const seller = sellers.find(s => s.moduleNumber === moduleNumber);
-    if (seller) {
-        seller.takenTickets = seller.takenTickets.filter(ticket => ticket !== ticketNumber);
-        clearInterval(flashInterval);
+function randomizeSellerState(seller) {
+    const states = ['Available', 'Quoting', 'Snacking'];
+    const randomState = states[Math.floor(Math.random() * states.length)];
+    seller.state = randomState;
+    document.getElementById(`module-${seller.moduleNumber}`).style.color = getStateColor(randomState);
+    displaySellers(sellers);
+    displayTickets();
+}
 
-        if (seller.takenTickets.length === 0) {
-            document.getElementById(`module-${seller.moduleNumber}`).style.color = '#f1c40f'; // Yellow for attending
-            document.getElementById(`module-${seller.moduleNumber}`).style.fontWeight = 'normal';
-            document.getElementById(`module-${seller.moduleNumber}`).innerHTML = `Módulo: ${seller.moduleNumber}`;
-
-            // Handle ticket queue
-            if (ticketQueue.length > 0) {
-                const nextTicket = ticketQueue.shift();
-                assignTicket(nextTicket);
-            } else {
-                seller.state = 'Available';
-            }
-        }
-        seller.stateStartTime = new Date();  // Reset the state start time
-
-        displaySellers(sellers);
-        displayTickets();
+function getStateColor(state) {
+    switch (state) {
+        case 'Available':
+            return '#007bff'; // Blue
+        case 'Quoting':
+            return '#ff0000'; // Red
+        case 'Snacking':
+            return '#ff0000'; // Red
+        case 'In Vacations':
+            return '#d4ac0d'; // Yellow
+        default:
+            return '#000000'; // Default black
     }
+}
+
+function displayUnattendedTickets() {
+    const unattendedList = document.getElementById('unattended-tickets');
+    unattendedList.innerHTML = ''; // Clear existing unattended tickets
+
+    ticketQueue.forEach(ticketNumber => {
+        const ticketItem = document.createElement('div');
+        ticketItem.classList.add('ticket-item');
+        ticketItem.innerHTML = `
+            <span>${ticketNumber}</span>
+            <button onclick="removeTicket('${ticketNumber}')">Anular</button>
+        `;
+        unattendedList.appendChild(ticketItem);
+    });
+}
+
+function removeTicket(ticketNumber) {
+    const index = ticketQueue.indexOf(ticketNumber);
+    if (index > -1) {
+        ticketQueue.splice(index, 1);
+    }
+    displayUnattendedTickets();
 }
 
 export function displayTickets() {
