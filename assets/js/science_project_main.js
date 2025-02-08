@@ -6,11 +6,11 @@ import { startTimers } from './scientific_project/timer.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Set up event listeners and initialize the application
-    document.getElementById('password-submit').onclick = checkPassword;
-    document.getElementById('close-popup').onclick = closePopup;
-    document.getElementById('show-popup').onclick = showPopup;
-    document.getElementById('assign-random').onclick = () => simulateTicket(true);
-    document.getElementById('choose-seller').onclick = () => simulateTicket(false);
+    document.getElementById('password-submit').addEventListener('click', checkPassword);
+    document.getElementById('close-popup').addEventListener('click', closePopup);
+    document.getElementById('show-popup').addEventListener('click', showPopup);
+    document.getElementById('assign-random').addEventListener('click', () => simulateTicket(true));
+    document.getElementById('choose-seller').addEventListener('click', () => simulateTicket(false));
 
     // Initialize seller display and timers
     displaySellers(sellers);
