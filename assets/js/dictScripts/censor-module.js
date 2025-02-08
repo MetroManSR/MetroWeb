@@ -68,6 +68,7 @@ export async function initCensoring() {
         // Add event listener for the toggle button
             const toggleButton = document.getElementById('dict-toggle-censorship');
             if (toggleButton) {
+                console.log('Censor Button Working') 
                 toggleButton.addEventListener('click', async (event) => {
                     event.stopPropagation(); // Prevent the button click from bubbling up
                     censoringEnabled = !censoringEnabled; // This will invert the censoringEnabled flag
