@@ -135,21 +135,21 @@ function displaySellers(sellers) {
         sellerDiv.classList.add('seller');
         if (seller) {
             sellerDiv.innerHTML = `
-                <h2 id="module-${seller.moduleNumber}">Module: ${seller.moduleNumber}</h2>
+                <h2 id="module-${seller.moduleNumber}">Módulo: ${seller.moduleNumber}</h2>
                 <p>DNI: ${seller.dni}</p>
-                <p>Name: ${seller.fullName}</p>
-                <p>State: ${seller.disconnected ? "Disconnected" : seller.state}</p>
-                <p>Tickets: ${seller.takenTickets.length > 0 ? seller.takenTickets.join(", ") : "None"}</p>
-                <p>State Time: <span id="state-time-${seller.moduleNumber}">${seller.stateTime}</span></p>
+                <p>Nombre: ${seller.fullName}</p>
+                <p>Estado: ${seller.disconnected ? "Desconectado" : seller.state}</p>
+                <p>Tickets: ${seller.takenTickets.length > 0 ? seller.takenTickets.join(", ") : "Ninguno"}</p>
+                <p>Tiempo en Estado: <span id="state-time-${seller.moduleNumber}">${seller.stateTime}</span></p>
             `;
         } else {
             sellerDiv.innerHTML = `
-                <h2>Module: ${i.toString().padStart(3, '0')}</h2>
-                <p>DNI: Unoccupied</p>
-                <p>Name: Unoccupied</p>
-                <p>State: Unoccupied</p>
-                <p>Tickets: Unoccupied</p>
-                <p>State Time: Unoccupied</p>
+                <h2>Módulo: ${i.toString().padStart(3, '0')}</h2>
+                <p>DNI: No Ocupado</p>
+                <p>Nombre: No Ocupado</p>
+                <p>Estado: No Ocupado</p>
+                <p>Tickets: No Ocupado</p>
+                <p>Tiempo en Estado: No Ocupado</p>
             `;
         }
         sellerList.appendChild(sellerDiv);
@@ -158,39 +158,58 @@ function displaySellers(sellers) {
 
 // Function to simulate ticket assignment
 function simulateTicket(random = true) {
-    let selectedSeller;
+    const ticketNumber = prompt('Ingrese el número de ticket:');
+    if (!ticketNumber) return; // Exit if no ticket number is provided
+
+    if (random) {
+        assignRandomSeller(ticketNumber);
+    } else {
+        showSellerButtons(ticketNumber);
+    }
+}
+
+// Function to assign a random seller
+function assignRandomSeller(ticketNumber) {
     const availableSellers = sellers.filter(seller => seller.state === 'Available' && !seller.disconnected);
 
     if (availableSellers.length === 0) {
-        alert('No available sellers at the moment.');
+        alert('No hay vendedores disponibles en este momento.');
         return;
     }
 
-    const ticketNumber = prompt('Enter the ticket number:');
+    const randomIndex = Math.floor(Math.random() * availableSellers.length);
+    const selectedSeller = availableSellers[randomIndex];
+    assignTicketToSeller(selectedSeller, ticketNumber);
+}
 
-    if (random) {
-        const randomIndex = Math.floor(Math.random() * availableSellers.length);
-        selectedSeller = availableSellers[randomIndex];
-    } else {
-        const sellerOptions = availableSellers.map(seller => `${seller.moduleNumber}: ${seller.fullName}`).join('\n');
-        const chosenModule = prompt(`Available Sellers:\n${sellerOptions}\nEnter the module number of the chosen seller:`);
-        selectedSeller = availableSellers.find(seller => seller.moduleNumber === chosenModule);
-        if (!selectedSeller) {
-            alert('Invalid module number.');
-            return;
-        }
-    }
+// Function to show seller buttons for manual selection
+function showSellerButtons(ticketNumber) {
+    const sellerButtons = document.getElementById('seller-buttons');
+    sellerButtons.innerHTML = ''; // Clear existing buttons
+    const availableSellers = sellers.filter(seller => seller.state === 'Available' && !seller.disconnected);
 
-    selectedSeller.takenTickets.push(ticketNumber);
-    selectedSeller.state = 'Calling';
-    selectedSeller.stateTime = '00:00:00';
-    selectedSeller.stateStartTime = new Date();  // Save the state start time
+    availableSellers.forEach(seller => {
+        const button = document.createElement('button');
+        button.textContent = `Módulo: ${seller.moduleNumber} - ${seller.fullName}`;
+        button.onclick = () => assignTicketToSeller(seller, ticketNumber);
+        sellerButtons.appendChild(button);
+    });
 
-    document.getElementById(`module-${selectedSeller.moduleNumber}`).style.color = '#ff0000'; // Change color to red for calling
+    sellerButtons.style.display = 'block';
+}
+
+// Function to assign a ticket to a seller
+function assignTicketToSeller(seller, ticketNumber) {
+    seller.takenTickets.push(ticketNumber);
+    seller.state = 'Calling';
+    seller.stateTime = '00:00:00';
+    seller.stateStartTime = new Date();  // Save the state start time
+
+    document.getElementById(`module-${seller.moduleNumber}`).style.color = '#ff0000'; // Change color to red for calling
 
     clearInterval(callingInterval);
     callingInterval = setInterval(() => {
-        const moduleElement = document.getElementById(`module-${selectedSeller.moduleNumber}`);
+        const moduleElement = document.getElementById(`module-${seller.moduleNumber}`);
         if (moduleElement.style.color === 'rgb(255, 0, 0)') {
             moduleElement.style.color = '#ffcccc'; // Lighter red
         } else {
@@ -198,10 +217,10 @@ function simulateTicket(random = true) {
         }
     }, 500);
 
-    alert(`Ticket ${ticketNumber} assigned to ${selectedSeller.fullName}.`);
+    alert(`Ticket ${ticketNumber} asignado a ${seller.fullName}.`);
 
     setTimeout(() => {
-        takeTicket(selectedSeller.moduleNumber, ticketNumber);
+        takeTicket(seller.moduleNumber, ticketNumber);
     }, Math.floor(Math.random() * 3000) + 2000); // Random delay between 2 and 5 seconds
 
     displaySellers(sellers);
@@ -221,8 +240,19 @@ function takeTicket(moduleNumber, ticketNumber) {
 
         displaySellers(sellers);
     } else {
-        alert('Invalid module number.');
+        alert('Número de módulo inválido.');
     }
+}
+
+// Function to show the popup
+function showPopup() {
+    document.getElementById('ticket-popup').style.display = 'block';
+}
+
+// Function to close the popup
+function closePopup() {
+    document.getElementById('ticket-popup').style.display = 'none';
+    document.getElementById('seller-buttons').style.display = 'none';
 }
 
 // Function to start timers for all sellers
