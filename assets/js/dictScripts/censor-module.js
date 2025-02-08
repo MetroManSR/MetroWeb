@@ -92,7 +92,7 @@ export async function updateDictionaryBoxes() {
 }
 
 // Event Listener for toggle Censorship
-export function initCensoring() {
+export async function initCensoring() {
     try {
         // Add event listener for the toggle button
         document.addEventListener("DOMContentLoaded", async function() {
