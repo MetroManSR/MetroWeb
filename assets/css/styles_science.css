@@ -38,7 +38,7 @@ h1, h2 {
     margin: 5px 0;
 }
 
-#seller-list {
+#seller-list, #ticket-list {
     padding: 10px 0;
 }
 
