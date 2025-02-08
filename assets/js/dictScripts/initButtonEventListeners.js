@@ -8,6 +8,7 @@ import { getTranslatedText } from './loadTexts.js';
 import { initUrl } from './urlParameters.js';
 import { updateDictionaryBoxes, initCensoring} from './censor-module.js'; 
 import { updateQueryString } from './urlParameters.js';
+import { initSearchInput } from './dictSearch.js';
 
 export async function initializeButtonEventListeners(allRows, rowsPerPage, currentSortOrder) {
 
@@ -37,6 +38,9 @@ export async function initializeButtonEventListeners(allRows, rowsPerPage, curre
             await updatePendingChangesList(language);
         });
     }
+
+
+    await initSearchInput(allRows, currentPage);
 
     await boxClickListener(allRows, language, pendingChanges);
 
