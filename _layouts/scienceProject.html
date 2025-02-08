@@ -8,13 +8,13 @@ layout: base
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proyecto Científico - Información de Vendedores</title>
-    <link rel="stylesheet" href="../../../assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
     <div class="container" id="password-container">
         <h1>Ingrese la Contraseña</h1>
         <input type="password" id="password-input" placeholder="Contraseña">
-        <button onclick="checkPassword()">Enviar</button>
+        <button id="password-submit">Enviar</button>
         <p id="error-message" style="color: red; display: none;">Contraseña incorrecta, por favor intente nuevamente.</p>
     </div>
     <div class="container" id="seller-container" style="display: none;">
@@ -23,20 +23,20 @@ layout: base
             <h2>Tickets en Llamada</h2>
             <div id="ticket-list"></div>
         </div>
-        <button onclick="showPopup()">Asignar Ticket</button>
+        <button id="show-popup">Asignar Ticket</button>
         <div id="seller-list"></div>
     </div>
 
     <div id="ticket-popup" class="popup">
         <div class="popup-content">
-            <span class="close" onclick="closePopup()">&times;</span>
+            <span id="close-popup" class="close">&times;</span>
             <h2>Asignar Ticket</h2>
-            <button onclick="simulateTicket(true)">Aleatorio</button>
-            <button onclick="showSellerButtons()">Elegir Vendedor</button>
+            <button id="assign-random">Aleatorio</button>
+            <button id="choose-seller">Elegir Vendedor</button>
             <div id="seller-buttons" style="display: none;"></div>
         </div>
     </div>
 
-    <script src="../../../assets/js/scientific_project_main.js"></script>
+    <script src="assets/js/scientific_project_main.js"></script>
 </body>
-</html> 
+</html>
