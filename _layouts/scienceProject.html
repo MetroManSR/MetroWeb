@@ -1,0 +1,28 @@
+---
+layout: base
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto Científico - Información de Vendedores</title>
+    <link rel="stylesheet" href="assets/css/styles_science.css">
+</head>
+<body>
+    <div class="container" id="password-container">
+        <h1>Ingrese la Contraseña</h1>
+        <input type="password" id="password-input" placeholder="Contraseña">
+        <button onclick="checkPassword()">Enviar</button>
+        <p id="error-message" style="color: red; display: none;">Contraseña incorrecta, por favor intente nuevamente.</p>
+    </div>
+    <div class="container" id="seller-container" style="display: none;">
+        <h1>Información de Vendedores</h1>
+        <button onclick="simulateTicket(true)">Asignar Ticket Aleatoriamente</button>
+        <button onclick="simulateTicket(false)">Elegir un Vendedor</button>
+        <div id="seller-list"></div>
+    </div>
+    <script src="assets/js/script_science.js"></script>
+</body>
+</html> 
