@@ -1,5 +1,4 @@
 export const sellers = [
-    // Define dummy data for sellers
     { moduleNumber: "001", dni: "12345678", fullName: "John Doe", state: "Available", takenTickets: [], stateTime: "00:00:00", disconnected: false },
     { moduleNumber: "002", dni: "87654321", fullName: "Jane Smith", state: "Quoting", takenTickets: [], stateTime: "00:00:00", disconnected: false },
     { moduleNumber: "003", dni: "34567890", fullName: "Alice Johnson", state: "Attending", takenTickets: [], stateTime: "00:00:00", disconnected: false },
@@ -73,4 +72,9 @@ function getStateColor(state) {
             return '#ff0000'; // Red
         case 'Snacking':
             return '#ff0000'; // Red
-        case 'In Vac[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/la9una/web/tree/ba1073ae044ebb7b538a3b13f0f9598f7c410bb6/docs%2Fbootstrap%2Falignci.md?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "1")
+        case 'In Vacations':
+            return '#d4ac0d'; // Yellow
+        default:
+            return '#000000'; // Default black
+    }
+}
