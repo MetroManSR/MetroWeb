@@ -53,7 +53,7 @@ export async function cleanData(data, type, allRows) {
             cleanedRow.notes = sanitizeHTML(idsNeedingFixing.includes(index) ? fixEncoding(row.col4 ? row.col4.trim() : '') : row.col4 ? row.col4.trim() : ''); // Notes for words
             cleanedRow.revision = sanitizeHTML(idsNeedingFixing.includes(index) ? fixEncoding(row.col6 ? row.col6.trim() : '') : row.col6 ? row.col6.trim() : ''); // Revision for words
 
-            console.log(cleanedRow.revision);
+            //console.log(cleanedRow.revision);
             
             let morphData = row.col5 ? row.col5.trim().split(',').map(item => item.trim()) : [];
 
