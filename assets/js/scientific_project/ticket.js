@@ -1,4 +1,4 @@
-import { displaySellers, sellers } from './sellers.js';
+import { displaySellers, sellers, updateSellerStateTime } from './sellers.js';
 
 let publicTicketNumber = 1;
 let specificTicketNumber = 1;
@@ -57,12 +57,12 @@ function assignTicketToSeller(seller, ticketNumber) {
         seller.stateStartTime = new Date();  // Save the state start time
 
         const moduleElement = document.getElementById(`module-${seller.moduleNumber}`);
-        moduleElement.style.color = '#ff0000'; // Change color to red for calling
+        moduleElement.style.color = '#ffffff'; // Change color to white for calling
         moduleElement.style.fontWeight = 'bold';
         moduleElement.innerHTML = `Módulo: ${seller.moduleNumber}, ${ticketNumber}`;
 
         const flashInterval = setInterval(() => {
-            moduleElement.style.color = moduleElement.style.color === 'rgb(255, 0, 0)' ? '#ffcccc' : '#ff0000'; // Toggle between red and lighter red
+            moduleElement.style.color = moduleElement.style.color === 'rgb(255, 255, 255)' ? '#0000ff' : '#ffffff'; // Toggle between white and dark blue
         }, 500);
 
         closePopup();
@@ -181,4 +181,4 @@ export function showPopup() {
 export function closePopup() {
     document.getElementById('ticket-popup').style.display = 'none';
     document.getElementById('seller-buttons').style.display = 'none';
-} 
+}
