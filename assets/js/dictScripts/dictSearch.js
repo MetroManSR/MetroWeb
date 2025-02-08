@@ -60,7 +60,7 @@ export function rootSpecific(term, allRows) {
 }
 
 // Function to initialize the search input
-export function initSearchInput(allRows, currentPage) {
+export async function initSearchInput(allRows, currentPage) {
     // Check if there is already text in the search bar and update pendingChanges list and query
     if (searchInput.value.trim() !== '') {
         const searchTerm = searchInput.value.trim();
