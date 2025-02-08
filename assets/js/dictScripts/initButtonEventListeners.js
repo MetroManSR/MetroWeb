@@ -7,6 +7,7 @@ import { filteredRows } from "../mainDict.js";
 import { getTranslatedText } from './loadTexts.js';
 import { initUrl } from './urlParameters.js';
 import { updateDictionaryBoxes, initCensoring} from './censor-module.js'; 
+import { updateQueryString } from './urlParameters.js';
 
 export async function initializeButtonEventListeners(allRows, rowsPerPage, currentSortOrder) {
 
@@ -55,70 +56,80 @@ export async function initializeButtonEventListeners(allRows, rowsPerPage, curre
         });
     }
 
-    const applySettingsButton = document.getElementById('dict-apply-settings-button');
-    if (applySettingsButton) {
-        applySettingsButton.addEventListener('click', async () => {
-                const url = new URL(window.location);
-                url.search = ''; // Remove all query parameters
-                window.history.pushState({}, '', url.toString());
-                await processAllSettings(allRows, universalPendingChanges.rowsPerPage, currentPage, universalPendingChanges.sortOrder);
-        });
-    }
+    
+const applySettingsButton = document.getElementById('dict-apply-settings-button');
+if (applySettingsButton) {
+    applySettingsButton.addEventListener('click', async (event) => {
+        event.preventDefault(); // Prevent form submission or default action
+
+        // Perform your settings update logic here
+
+        // Update the query string based on current settings
+        updateQueryString();
+
+        // Process all settings
+        await processAllSettings(allRows, universalPendingChanges.rowsPerPage, currentPage, universalPendingChanges.sortOrder);
+    });
+}
 
     const clearSettingsButton = document.getElementById('dict-clear-settings-button');
-    if (clearSettingsButton) {
-        clearSettingsButton.addEventListener('click', async () => {
-            pendingChanges = {
-                searchTerm: '',
-                exactMatch: false,
-                searchIn: {
-                    word: true,
-                    root: true,
-                    definition: true,
-                    etymology: false
-                },
-                filters: [],
-                rowsPerPage: 20,
-                sortOrder: 'titleup', 
-                versionDisplay: {
-                    NR: true, 
-                    OV22: true, 
-                    NV24: true, 
-                    NV25: true, 
-                    V225: true
-    
-                }
-            };
-            // Reset form fields in the advanced search popup
-            document.getElementById('dict-search-input').value = '';
-            document.getElementById('dict-search-in-word').checked = true;
-            document.getElementById('dict-search-in-root').checked = true;
-            document.getElementById('dict-search-in-definition').checked = true;
-            document.getElementById('dict-search-in-etymology').checked = false;
-            document.getElementById('dict-exact-match').checked = false;
-            // Reset selected filters
-            const wordFilterSelect = document.getElementById('dct-wrd-flt');
-            Array.from(wordFilterSelect.options).forEach(option => {
-                option.selected = false;
-            });
+if (clearSettingsButton) {
+    clearSettingsButton.addEventListener('click', async () => {
+        pendingChanges = {
+            searchTerm: '',
+            exactMatch: false,
+            searchIn: {
+                word: true,
+                root: true,
+                definition: true,
+                etymology: false
+            },
+            filters: [],
+            rowsPerPage: 20,
+            sortOrder: 'titleup',
+            versionDisplay: {
+                NR: true, 
+                OV22: true, 
+                NV24: true, 
+                NV25: true, 
+                V225: true
+            }
+        };
 
-            //reset Version Checks
-            const versionChecks = document.querySelectorAll('input[name="version"]');
+        // Reset form fields in the advanced search popup
+        document.getElementById('dict-search-input').value = '';
+        document.getElementById('dict-search-in-word').checked = true;
+        document.getElementById('dict-search-in-root').checked = true;
+        document.getElementById('dict-search-in-definition').checked = true;
+        document.getElementById('dict-search-in-etymology').checked = false;
+        document.getElementById('dict-exact-match').checked = false;
 
-            versionChecks.forEach(check => {
-                check.checked = !!pendingChanges.versionDisplay[check.value];  
-            });
-
-            // Reset sort order
-            document.getElementById('dct-ord-slt').selectedIndex = 0; // Set default sort order
-            
-            updateUniversalPendingChanges(pendingChanges);
-            await updatePendingChangesList(language);
-            await processAllSettings(allRows, pendingChanges.rowsPerPage, currentPage, pendingChanges.sortOrder);
-            // Remove URL parameters without reloading the page
-            history.pushState({}, document.title, window.location.pathname);
+        // Reset selected filters
+        const wordFilterSelect = document.getElementById('dct-wrd-flt');
+        Array.from(wordFilterSelect.options).forEach(option => {
+            option.selected = false;
         });
-    }
+
+        // Reset Version Checks
+        const versionChecks = document.querySelectorAll('input[name="version"]');
+        versionChecks.forEach(check => {
+            check.checked = !!pendingChanges.versionDisplay[check.value];  
+        });
+
+        // Reset sort order
+        document.getElementById('dct-ord-slt').selectedIndex = 0; // Set default sort order
+
+        // Update universal pending changes and pending changes list
+        updateUniversalPendingChanges(pendingChanges);
+        await updatePendingChangesListBasedOnLanguage();
+
+        // Update the query string based on current settings
+        updateQueryString();
+
+        // Process all settings
+        await processAllSettings(allRows, pendingChanges.rowsPerPage, currentPage, pendingChanges.sortOrder);
+    });
+} 
 
     const clearSearchButton = document.getElementById('dict-clear-search-button');
     if (clearSearchButton) {
