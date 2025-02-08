@@ -11,13 +11,18 @@ async function loadOffensiveWords() {
     try {
         const esWordsResponse = await fetch('https://raw.githubusercontent.com/Hesham-Elbadawi/list-of-banned-words/master/es');
         const esWordsText = await esWordsResponse.text();
+        console.log('ES Words Text:', esWordsText);
         const esWords = esWordsText.split('\n').map(word => word.trim()).filter(word => word.length > 0);
+        console.log('ES Words:', esWords);
 
         const enWordsResponse = await fetch('https://raw.githubusercontent.com/Hesham-Elbadawi/list-of-banned-words/master/en');
         const enWordsText = await enWordsResponse.text();
+        console.log('EN Words Text:', enWordsText);
         const enWords = enWordsText.split('\n').map(word => word.trim()).filter(word => word.length > 0);
+        console.log('EN Words:', enWords);
 
         offensiveWords = [...esWords, ...enWords];
+        console.log('Offensive Words:', offensiveWords);
     } catch (error) {
         await captureError(`Error loading offensive words: ${error.message}`);
     }
@@ -92,24 +97,28 @@ export async function updateDictionaryBoxes() {
 }
 
 // Event Listener for toggle Censorship
-export async function initCensoring() {
+export function initCensoring() {
     try {
         // Add event listener for the toggle button
         document.addEventListener("DOMContentLoaded", async function() {
             const toggleButton = document.getElementById('dict-toggle-censorship');
             if (toggleButton) {
-                toggleButton.addEventListener('click', (event) => {
+                toggleButton.addEventListener('click', async (event) => {
                     event.stopPropagation(); // Prevent the button click from bubbling up
                     censoringEnabled = !censoringEnabled; // This will invert the censoringEnabled flag
-                    updateDictionaryBoxes(); // Update the boxes after toggling the flag
+                    await updateDictionaryBoxes(); // Await the update of boxes after toggling the flag
                 });
             }
 
             // Load offensive words and update dictionary boxes
             await loadOffensiveWords();
+            console.log('Offensive Words Loaded:', offensiveWords);
             await updateDictionaryBoxes();
         });
     } catch (error) {
         await captureError(`Error in initCensoring: ${error.message}`);
     }
 }
+
+// Initialize censoring
+initCensoring();
