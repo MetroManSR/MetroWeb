@@ -78,3 +78,13 @@ function getStateColor(state) {
             return '#000000'; // Default black
     }
 }
+
+export function updateSellerStateTime(seller) {
+    const now = new Date();
+    const timeDiff = Math.floor((now - seller.stateStartTime) / 1000);
+    const hours = String(Math.floor(timeDiff / 3600)).padStart(2, '0');
+    const minutes = String(Math.floor((timeDiff % 3600) / 60)).padStart(2, '0');
+    const seconds = String(timeDiff % 60).padStart(2, '0');
+    seller.stateTime = `${hours}:${minutes}:${seconds}`;
+    document.getElementById(`state-time-${seller.moduleNumber}`).textContent = seller.stateTime;
+}
