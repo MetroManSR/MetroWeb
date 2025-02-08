@@ -42,6 +42,21 @@ export async function initializeButtonEventListeners(allRows, rowsPerPage, curre
 
     await initSearchInput(allRows, currentPage);
 
+    const rowsPerPageSelect = document.getElementById('dct-rws-in');
+   if (rowsPerPageSelect) {
+        rowsPerPageSelect.addEventListener('change', async () => {
+            try {
+                const rowsPerPageValue = parseInt(rowsPerPageSelect.value, 10);
+                pendingChanges.rowsPerPage = rowsPerPageValue;
+                universalPendingChanges = pendingChanges;
+                await updatePendingChangesListBasedOnLanguage();
+                currentPage = 1;
+            } catch (error) {
+                await captureError(`Error during change event handling: ${error.message}`);
+            }
+        });
+    
+    
     await boxClickListener(allRows, language, pendingChanges);
 
     const filterSelect = document.getElementById('dct-wrd-flt');
