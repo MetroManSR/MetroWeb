@@ -3,29 +3,30 @@ import { displaySellers, sellers } from './sellers.js';
 let callingInterval;
 let publicTicketNumber = 1;
 let specificTicketNumber = 1;
+const ticketQueue = [];
 
 export function simulateTicket(random = true) {
     let ticketNumber;
     if (random) {
         ticketNumber = `A${publicTicketNumber++}`;
-        assignRandomSeller(ticketNumber);
+        assignTicket(ticketNumber);
     } else {
         ticketNumber = `V${specificTicketNumber++}`;
         showSellerButtons(ticketNumber);
     }
 }
 
-function assignRandomSeller(ticketNumber) {
+function assignTicket(ticketNumber) {
     const availableSellers = sellers.filter(seller => seller.state === 'Available' && !seller.disconnected);
 
     if (availableSellers.length === 0) {
-        alert('No hay vendedores disponibles en este momento.');
-        return;
+        // Add to queue if no sellers are available
+        ticketQueue.push(ticketNumber);
+    } else {
+        const randomIndex = Math.floor(Math.random() * availableSellers.length);
+        const selectedSeller = availableSellers[randomIndex];
+        assignTicketToSeller(selectedSeller, ticketNumber);
     }
-
-    const randomIndex = Math.floor(Math.random() * availableSellers.length);
-    const selectedSeller = availableSellers[randomIndex];
-    assignTicketToSeller(selectedSeller, ticketNumber);
 }
 
 export function showSellerButtons(ticketNumber) {
@@ -49,11 +50,13 @@ function assignTicketToSeller(seller, ticketNumber) {
     seller.stateTime = '00:00:00';
     seller.stateStartTime = new Date();  // Save the state start time
 
-    document.getElementById(`module-${seller.moduleNumber}`).style.color = '#ff0000'; // Change color to red for calling
+    const moduleElement = document.getElementById(`module-${seller.moduleNumber}`);
+    moduleElement.style.color = '#ff0000'; // Change color to red for calling
+    moduleElement.style.fontWeight = 'bold';
+    moduleElement.innerHTML = `Módulo: ${seller.moduleNumber}, ${ticketNumber}`;
 
     clearInterval(callingInterval);
     callingInterval = setInterval(() => {
-        const moduleElement = document.getElementById(`module-${seller.moduleNumber}`);
         if (moduleElement.style.color === 'rgb(255, 0, 0)') {
             moduleElement.style.color = '#ffcccc'; // Lighter red
         } else {
@@ -61,11 +64,11 @@ function assignTicketToSeller(seller, ticketNumber) {
         }
     }, 500);
 
-    alert(`Ticket ${ticketNumber} asignado a ${seller.fullName}.`);
+    closePopup();
 
     setTimeout(() => {
         takeTicket(seller.moduleNumber, ticketNumber);
-    }, Math.floor(Math.random() * 3000) + 2000); // Random delay between 2 and 5 seconds
+    }, Math.floor(Math.random() * 5000) + 30000); // Random delay between 30 and 35 seconds
 
     displaySellers(sellers);
     displayTickets();
@@ -78,14 +81,23 @@ function takeTicket(moduleNumber, ticketNumber) {
         if (seller.takenTickets.length === 0) {
             seller.state = 'Attending';
             document.getElementById(`module-${seller.moduleNumber}`).style.color = '#f1c40f'; // Yellow for attending
+            document.getElementById(`module-${seller.moduleNumber}`).style.fontWeight = 'normal';
+            document.getElementById(`module-${seller.moduleNumber}`).innerHTML = `Módulo: ${seller.moduleNumber}`;
+
+            // Handle ticket queue
+            if (ticketQueue.length > 0) {
+                const nextTicket = ticketQueue.shift();
+                assignTicket(nextTicket);
+            } else {
+                seller.state = 'Available';
+            }
+
             clearInterval(callingInterval);
         }
         seller.stateStartTime = new Date();  // Reset the state start time
 
         displaySellers(sellers);
         displayTickets();
-    } else {
-        alert('Número de módulo inválido.');
     }
 }
 
@@ -115,4 +127,4 @@ export function showPopup() {
 export function closePopup() {
     document.getElementById('ticket-popup').style.display = 'none';
     document.getElementById('seller-buttons').style.display = 'none';
-} 
+}
