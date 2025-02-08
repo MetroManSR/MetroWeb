@@ -2,20 +2,26 @@ import { highlight, createHyperlink } from './utils.js';
 import { captureError } from './errorModule.js';
 import { getTranslatedText } from './loadTexts.js';
 
-// List of offensive words (add as many words as needed)
-const offensiveWords = [
-    'tree', 'arbeon', 'she', 'ella',
-    'offensiveWord5', 'offensiveWord6', 'offensiveWord7', 'offensiveWord8',
-    'offensiveWord9', 'offensiveWord10', 'offensiveWord11', 'offensiveWord12',
-    'offensiveWord13', 'offensiveWord14', 'offensiveWord15', 'offensiveWord16',
-    'offensiveWord17', 'offensiveWord18', 'offensiveWord19', 'offensiveWord20',
-    'offensiveWord21', 'offensiveWord22', 'offensiveWord23', 'offensiveWord24',
-    'offensiveWord25', 'offensiveWord26', 'offensiveWord27', 'offensiveWord28',
-    'offensiveWord29', 'offensiveWord30', 'offensiveWord31', 'offensiveWord32'
-];
-
 // Flag to enable/disable censorship
 let censoringEnabled = true;
+let offensiveWords = [];
+
+// Function to load offensive words from GitHub
+async function loadOffensiveWords() {
+    try {
+        const esWordsResponse = await fetch('https://raw.githubusercontent.com/Hesham-Elbadawi/list-of-banned-words/master/es');
+        const esWordsText = await esWordsResponse.text();
+        const esWords = esWordsText.split('\n').map(word => word.trim()).filter(word => word.length > 0);
+
+        const enWordsResponse = await fetch('https://raw.githubusercontent.com/Hesham-Elbadawi/list-of-banned-words/master/en');
+        const enWordsText = await enWordsResponse.text();
+        const enWords = enWordsText.split('\n').map(word => word.trim()).filter(word => word.length > 0);
+
+        offensiveWords = [...esWords, ...enWords];
+    } catch (error) {
+        await captureError(`Error loading offensive words: ${error.message}`);
+    }
+}
 
 // Function to reveal censored text
 function revealText(element) {
@@ -75,9 +81,13 @@ export async function updateDictionaryBoxes() {
                 const originalNotesText = censoringEnabled ? censorText(notesElement.innerHTML) : uncensorText(notesElement.innerHTML);
                 notesElement.innerHTML = await highlight(originalNotesText);
             }
+
+            // Ensure the morph element remains as it was before
+            const morphElement = box.querySelector('.dictionary-box-morph');
+            if (morphElement) morphElement.innerHTML = box.querySelector('.dictionary-box-morph')?.innerHTML || '';
         });
     } catch (error) {
-       await captureError(`Error in updateDictionaryBoxes: ${error.message}`);
+        await captureError(`Error in updateDictionaryBoxes: ${error.message}`);
     }
 }
 
@@ -85,7 +95,7 @@ export async function updateDictionaryBoxes() {
 export function initCensoring() {
     try {
         // Add event listener for the toggle button
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", async function() {
             const toggleButton = document.getElementById('dict-toggle-censorship');
             if (toggleButton) {
                 toggleButton.addEventListener('click', (event) => {
@@ -94,6 +104,10 @@ export function initCensoring() {
                     updateDictionaryBoxes(); // Update the boxes after toggling the flag
                 });
             }
+
+            // Load offensive words and update dictionary boxes
+            await loadOffensiveWords();
+            await updateDictionaryBoxes();
         });
     } catch (error) {
         await captureError(`Error in initCensoring: ${error.message}`);
