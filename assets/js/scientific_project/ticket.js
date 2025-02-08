@@ -1,6 +1,5 @@
 import { displaySellers, sellers } from './sellers.js';
 
-let callingInterval;
 let publicTicketNumber = 1;
 let specificTicketNumber = 1;
 const ticketQueue = [];
@@ -55,31 +54,27 @@ function assignTicketToSeller(seller, ticketNumber) {
     moduleElement.style.fontWeight = 'bold';
     moduleElement.innerHTML = `Módulo: ${seller.moduleNumber}, ${ticketNumber}`;
 
-    clearInterval(callingInterval);
-    callingInterval = setInterval(() => {
-        if (moduleElement.style.color === 'rgb(255, 0, 0)') {
-            moduleElement.style.color = '#ffcccc'; // Lighter red
-        } else {
-            moduleElement.style.color = '#ff0000'; // Red
-        }
+    const flashInterval = setInterval(() => {
+        moduleElement.style.color = moduleElement.style.color === 'rgb(255, 0, 0)' ? '#ffcccc' : '#ff0000'; // Toggle between red and lighter red
     }, 500);
 
     closePopup();
 
     setTimeout(() => {
-        takeTicket(seller.moduleNumber, ticketNumber);
+        takeTicket(seller.moduleNumber, ticketNumber, flashInterval);
     }, Math.floor(Math.random() * 5000) + 30000); // Random delay between 30 and 35 seconds
 
     displaySellers(sellers);
     displayTickets();
 }
 
-function takeTicket(moduleNumber, ticketNumber) {
+function takeTicket(moduleNumber, ticketNumber, flashInterval) {
     const seller = sellers.find(s => s.moduleNumber === moduleNumber);
     if (seller) {
         seller.takenTickets = seller.takenTickets.filter(ticket => ticket !== ticketNumber);
+        clearInterval(flashInterval);
+
         if (seller.takenTickets.length === 0) {
-            seller.state = 'Attending';
             document.getElementById(`module-${seller.moduleNumber}`).style.color = '#f1c40f'; // Yellow for attending
             document.getElementById(`module-${seller.moduleNumber}`).style.fontWeight = 'normal';
             document.getElementById(`module-${seller.moduleNumber}`).innerHTML = `Módulo: ${seller.moduleNumber}`;
@@ -91,8 +86,6 @@ function takeTicket(moduleNumber, ticketNumber) {
             } else {
                 seller.state = 'Available';
             }
-
-            clearInterval(callingInterval);
         }
         seller.stateStartTime = new Date();  // Reset the state start time
 
