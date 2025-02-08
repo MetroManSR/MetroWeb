@@ -3,14 +3,19 @@ import { displaySellers, sellers, updateSellerStateTime } from './sellers.js';
 let publicTicketNumber = 1;
 let specificTicketNumber = 1;
 const ticketQueue = [];
+const logEntries = [];
+
+function formatTicketNumber(number) {
+    return number.toString().padStart(3, '0');
+}
 
 export function simulateTicket(random = true) {
     let ticketNumber;
     if (random) {
-        ticketNumber = `A${publicTicketNumber++}`;
+        ticketNumber = `A${formatTicketNumber(publicTicketNumber++)}`;
         assignPublicTicket(ticketNumber);
     } else {
-        ticketNumber = `V${specificTicketNumber++}`;
+        ticketNumber = `V${formatTicketNumber(specificTicketNumber++)}`;
         showSellerButtons(ticketNumber);
     }
 }
@@ -73,6 +78,8 @@ function assignTicketToSeller(seller, ticketNumber) {
             moduleElement.style.color = '#f1c40f'; // Yellow for attending
             clearInterval(flashInterval);
 
+            addLogEntry(seller, 'Attending');
+
             setTimeout(() => {
                 randomizeSellerState(seller);
             }, Math.floor(Math.random() * 5000) + 30000); // Random delay between 30 and 35 seconds
@@ -97,6 +104,8 @@ function randomizeSellerState(seller) {
     seller.stateStartTime = new Date();  // Save the state start time
     document.getElementById(`module-${seller.moduleNumber}`).style.color = getStateColor(randomState);
 
+    addLogEntry(seller, randomState);
+
     if (randomState === 'Quoting' || randomState === 'Snacking') {
         // Wait 30 to 35 seconds before transitioning to another random state
         setTimeout(() => {
@@ -106,6 +115,37 @@ function randomizeSellerState(seller) {
 
     displaySellers(sellers);
     displayTickets();
+}
+
+function addLogEntry(seller, state) {
+    const logEntry = { seller: seller.fullName, module: seller.moduleNumber, state, timestamp: new Date() };
+    logEntries.push(logEntry);
+    updateLogDisplay();
+    setTimeout(() => {
+        removeLogEntry(logEntry);
+    }, 3000); // Remove log entry after 3 seconds
+}
+
+function removeLogEntry(logEntry) {
+    const index = logEntries.indexOf(logEntry);
+    if (index > -1) {
+        logEntries.splice(index, 1);
+        updateLogDisplay();
+    }
+}
+
+function updateLogDisplay() {
+    const logList = document.getElementById('log-list');
+    logList.innerHTML = ''; // Clear existing logs
+
+    logEntries.forEach(logEntry => {
+        const logItem = document.createElement('div');
+        logItem.classList.add('log-item');
+        logItem.innerHTML = `
+            <span>${logEntry.seller} (Módulo: ${logEntry.module}) - Estado: ${logEntry.state}</span>
+        `;
+        logList.appendChild(logItem);
+    });
 }
 
 function getStateColor(state) {
@@ -181,4 +221,4 @@ export function showPopup() {
 export function closePopup() {
     document.getElementById('ticket-popup').style.display = 'none';
     document.getElementById('seller-buttons').style.display = 'none';
-}
+        }
