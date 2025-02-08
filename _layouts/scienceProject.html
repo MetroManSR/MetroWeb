@@ -8,7 +8,7 @@ layout: base
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proyecto Científico - Información de Vendedores</title>
-    <link rel="stylesheet" href="../../../assets/css/styles_science.css">
+    <link rel="stylesheet" href="assets/css/styles_science.css">
 </head>
 <body>
     <div class="container" id="password-container">
@@ -19,6 +19,10 @@ layout: base
     </div>
     <div class="container" id="seller-container" style="display: none;">
         <h1>Información de Vendedores</h1>
+        <div id="current-tickets">
+            <h2>Tickets en Llamada</h2>
+            <div id="ticket-list"></div>
+        </div>
         <button onclick="showPopup()">Asignar Ticket</button>
         <div id="seller-list"></div>
     </div>
@@ -33,6 +37,6 @@ layout: base
         </div>
     </div>
 
-    <script src="../../../assets/js/script_science.js"></script>
+    <script src="assets/js/script_science.js"></script>
 </body>
 </html>
