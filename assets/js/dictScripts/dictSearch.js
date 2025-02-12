@@ -68,7 +68,7 @@ export async function initSearchInput(allRows, currentPage) {
         pendingChanges.searchTerm = searchTerm;
         updateUniversalPendingChanges(pendingChanges);
         updateQueryString();
-        await updatePendingChangesListBasedOnLanguage();
+        
     }
 
     // Add event listener to update on input
@@ -82,11 +82,11 @@ export async function initSearchInput(allRows, currentPage) {
             if (searchTerm.length === 0) {
                 predictionBox.innerHTML = '';
                 pendingChanges.searchTerm = ''; // Clear searchTerm in pending changes
-                universalPendingChanges = pendingChanges;
+                updatePendingChanges(pendingChanges);
                 currentPage = 1;
                 predictionBox.classList.remove("active");
                 predictionBox.classList.add("hidden");
-                await updatePendingChangesListBasedOnLanguage();
+            
                 return;
             }
 
@@ -150,9 +150,8 @@ export async function initSearchInput(allRows, currentPage) {
                             searchInput.value = suggestions[index].displayText;
                             predictionBox.innerHTML = '';
                             pendingChanges.searchTerm = suggestions[index].displayText; // Update searchTerm in pending changes
-                            universalPendingChanges = pendingChanges;
+                            updatePendingChanges(pendingChanges);
                             currentPage = 1;
-                            updatePendingChangesListBasedOnLanguage(); // No need to await here
                             updateQueryString();
                         });
                     });
@@ -161,9 +160,8 @@ export async function initSearchInput(allRows, currentPage) {
                 }
 
                 pendingChanges.searchTerm = searchTerm; // Update searchTerm in pending changes
-                universalPendingChanges = pendingChanges;
+                updatePendingChanges(pendingChanges);
                 currentPage = 1;
-                await updatePendingChangesListBasedOnLanguage();
                 updateQueryString();
                 return;
             } else {
@@ -178,9 +176,8 @@ export async function initSearchInput(allRows, currentPage) {
                         searchInput.value = predictions[index].displayText;
                         predictionBox.innerHTML = '';
                         pendingChanges.searchTerm = predictions[index].displayText; // Update searchTerm in pending changes
-                        universalPendingChanges = pendingChanges;
+                        updatePendingChanges(pendingChanges);
                         currentPage = 1;
-                        await updatePendingChangesListBasedOnLanguage();
                         updateQueryString();
                     });
                 });
@@ -189,9 +186,8 @@ export async function initSearchInput(allRows, currentPage) {
                 if (predictions.some(p => p.title.toLowerCase() === searchTerm)) {
                     predictionBox.innerHTML = '';
                     pendingChanges.searchTerm = searchTerm; // Update searchTerm in pending changes
-                    universalPendingChanges = pendingChanges;
+                    updatePendingChanges(pendingChanges);
                     currentPage = 1;
-                    await updatePendingChangesListBasedOnLanguage();
                     updateQueryString();
                     return;
                 }
@@ -216,9 +212,9 @@ export async function initSearchInput(allRows, currentPage) {
             try {
                 const rowsPerPageValue = parseInt(rowsPerPageSelect.value, 10);
                 pendingChanges.rowsPerPage = rowsPerPageValue;
-                universalPendingChanges = pendingChanges;
-                await updatePendingChangesListBasedOnLanguage();
+                updatePendingChanges(pendingChanges);
                 currentPage = 1;
+                
             } catch (error) {
                 console.error('Error during change event handling:', error);
             }
