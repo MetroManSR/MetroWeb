@@ -15,6 +15,7 @@ async function loadOffensiveWords() {
         }
         const esWordsText = await esWordsResponse.text();
         const esWords = esWordsText.split('\n').map(word => word.trim()).filter(word => word.length > 0);
+        console.log('ES Words:', esWords); // Debugging
 
         const enWordsResponse = await fetch('https://raw.githubusercontent.com/Hesham-Elbadawi/list-of-banned-words/master/en');
         if (!enWordsResponse.ok) {
@@ -22,9 +23,10 @@ async function loadOffensiveWords() {
         }
         const enWordsText = await enWordsResponse.text();
         const enWords = enWordsText.split('\n').map(word => word.trim()).filter(word => word.length > 0);
+        console.log('EN Words:', enWords); // Debugging
 
         offensiveWords = [...esWords, ...enWords];
-        console.log('Offensive Words:', offensiveWords);
+        console.log('Offensive Words:', offensiveWords); // Debugging
     } catch (error) {
         await captureError(`Error loading offensive words: ${error}`);
     }
@@ -57,6 +59,7 @@ export function censorText(text) {
         const regex = new RegExp(`\\b${word}\\b`, 'gi');
         text = text.replace(regex, `<span class="censored" onclick="revealText(this)">${word}</span>`);
     });
+    console.log('Censored Text:', text); // Debugging
     return text;
 }
 
@@ -64,7 +67,9 @@ export function censorText(text) {
 export function uncensorText(text) {
     // Remove the censor elements and leave plain text, preserving the case
     const regex = /<span class="censored"[^>]*>(.*?)<\/span>/gi;
-    return text.replace(regex, '$1');
+    const uncensoredText = text.replace(regex, '$1');
+    console.log('Uncensored Text:', uncensoredText); // Debugging
+    return uncensoredText;
 }
 
 // Function to update the content of all dictionary boxes
