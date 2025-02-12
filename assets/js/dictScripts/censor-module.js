@@ -10,21 +10,23 @@ let offensiveWords = [];
 async function loadOffensiveWords() {
     try {
         const esWordsResponse = await fetch('https://raw.githubusercontent.com/Hesham-Elbadawi/list-of-banned-words/master/es');
+        if (!esWordsResponse.ok) {
+            throw new Error(`Failed to fetch Spanish offensive words: ${esWordsResponse.statusText}`);
+        }
         const esWordsText = await esWordsResponse.text();
-        console.log('ES Words Text:', esWordsText);
         const esWords = esWordsText.split('\n').map(word => word.trim()).filter(word => word.length > 0);
-        console.log('ES Words:', esWords);
 
         const enWordsResponse = await fetch('https://raw.githubusercontent.com/Hesham-Elbadawi/list-of-banned-words/master/en');
+        if (!enWordsResponse.ok) {
+            throw new Error(`Failed to fetch English offensive words: ${enWordsResponse.statusText}`);
+        }
         const enWordsText = await enWordsResponse.text();
-        console.log('EN Words Text:', enWordsText);
         const enWords = enWordsText.split('\n').map(word => word.trim()).filter(word => word.length > 0);
-        console.log('EN Words:', enWords);
 
         offensiveWords = [...esWords, ...enWords];
         console.log('Offensive Words:', offensiveWords);
     } catch (error) {
-        await captureError(`Error loading offensive words: ${error.message}`);
+        await captureError(`Error loading offensive words: ${error}`);
     }
 }
 
@@ -92,7 +94,7 @@ export async function updateDictionaryBoxes() {
             if (morphElement) morphElement.innerHTML = box.querySelector('.dictionary-box-morph')?.innerHTML || '';
         });
     } catch (error) {
-        await captureError(`Error in updateDictionaryBoxes: ${error.message}`);
+        await captureError(`Error in updateDictionaryBoxes: ${error}`);
     }
 }
 
@@ -116,6 +118,6 @@ export async function initCensoring() {
             await updateDictionaryBoxes();
         });
     } catch (error) {
-        await captureError(`Error in initCensoring: ${error.message}`);
+        await captureError(`Error in initCensoring: ${error}`);
     }
-} 
+}
