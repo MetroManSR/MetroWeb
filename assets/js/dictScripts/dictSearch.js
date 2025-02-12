@@ -68,7 +68,6 @@ export async function initSearchInput(allRows, currentPage) {
         pendingChanges.searchTerm = searchTerm;
         updateUniversalPendingChanges(pendingChanges);
         updateQueryString();
-        await updatePendingChangesListBasedOnLanguage();
     }
 
     // Add event listener to update on input
@@ -86,7 +85,7 @@ export async function initSearchInput(allRows, currentPage) {
                 currentPage = 1;
                 predictionBox.classList.remove("active");
                 predictionBox.classList.add("hidden");
-                await updatePendingChangesListBasedOnLanguage();
+                
                 return;
             }
 
@@ -152,7 +151,7 @@ export async function initSearchInput(allRows, currentPage) {
                             pendingChanges.searchTerm = suggestions[index].displayText; // Update searchTerm in pending changes
                             updateUniversalPendingChanges(pendingChanges);
                             currentPage = 1;
-                            await updatePendingChangesListBasedOnLanguage(); // No need to await here
+                        
                             updateQueryString();
                         });
                     });
@@ -163,7 +162,6 @@ export async function initSearchInput(allRows, currentPage) {
                 pendingChanges.searchTerm = searchTerm; // Update searchTerm in pending changes
                 updateUniversalPendingChanges(pendingChanges);
                 currentPage = 1;
-                await updatePendingChangesListBasedOnLanguage();
                 updateQueryString();
                 return;
             } else {
@@ -180,7 +178,7 @@ export async function initSearchInput(allRows, currentPage) {
                         pendingChanges.searchTerm = predictions[index].displayText; // Update searchTerm in pending changes
                         updateUniversalPendingChanges(pendingChanges);
                         currentPage = 1;
-                        await updatePendingChangesListBasedOnLanguage();
+                    
                         updateQueryString();
                     });
                 });
@@ -191,7 +189,7 @@ export async function initSearchInput(allRows, currentPage) {
                     pendingChanges.searchTerm = searchTerm; // Update searchTerm in pending changes
                     updateUniversalPendingChanges(pendingChanges);
                     currentPage = 1;
-                    await updatePendingChangesListBasedOnLanguage();
+                     
                     updateQueryString();
                     return;
                 }
@@ -218,7 +216,7 @@ export async function initSearchInput(allRows, currentPage) {
                 pendingChanges.rowsPerPage = rowsPerPageValue;
                 updateUniversalPendingChanges(pendingChanges);
                 currentPage = 1;
-                await updatePendingChangesListBasedOnLanguage();
+                
             } catch (error) {
                 console.error('Error during change event handling:', error);
             }
