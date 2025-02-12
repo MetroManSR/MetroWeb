@@ -68,6 +68,7 @@ export async function initSearchInput(allRows, currentPage) {
         pendingChanges.searchTerm = searchTerm;
         updateUniversalPendingChanges(pendingChanges);
         updateQueryString();
+        await updatePendingChangesListBasedOnLanguage();
     }
 
     // Add event listener to update on input
@@ -104,7 +105,13 @@ export async function initSearchInput(allRows, currentPage) {
                     return titleMatch || rootMatch || definitionMatch || etymologyMatch;
                 }))
                 .slice(0, 10) // Limit to the first 10 matches
-                .map(row => ({ title: row.title, meta: row.meta || '' }));
+                .map(row => {
+                    const titleSimilarity = getSimilarity(row.title, searchTerm);
+                    const metaSimilarity = getSimilarity(row.meta, searchTerm);
+                    const displayText = metaSimilarity > titleSimilarity ? row.meta : row.title;
+                    const totalSimilarity = Math.max(titleSimilarity, metaSimilarity);
+                    return { title: row.title, meta: row.meta || '', displayText, totalSimilarity };
+                });
 
             console.log('Predictions:', predictions); // Debug log
 
@@ -160,15 +167,17 @@ export async function initSearchInput(allRows, currentPage) {
                 updateQueryString();
                 return;
             } else {
-                predictionBox.innerHTML = predictions.map(({ title, meta }) =>
-                    `<div>${title} (${meta})</div>`
-                ).join('');
+                predictionBox.innerHTML = predictions.map(({ displayText, totalSimilarity }) => {
+                    const percentage = (totalSimilarity * 100).toFixed(2);
+                    const color = `rgb(${255 - totalSimilarity * 255}, ${totalSimilarity * 255}, 0)`; // Shades of green and red
+                    return `<div style="background-color: ${color}; cursor: pointer;">${displayText} (${percentage}%)</div>`;
+                }).join('');
 
                 Array.from(predictionBox.children).forEach((prediction, index) => {
                     prediction.addEventListener('click', async () => {
-                        searchInput.value = predictions[index].title;
+                        searchInput.value = predictions[index].displayText;
                         predictionBox.innerHTML = '';
-                        pendingChanges.searchTerm = predictions[index].title; // Update searchTerm in pending changes
+                        pendingChanges.searchTerm = predictions[index].displayText; // Update searchTerm in pending changes
                         universalPendingChanges = pendingChanges;
                         currentPage = 1;
                         await updatePendingChangesListBasedOnLanguage();
@@ -214,6 +223,5 @@ export async function initSearchInput(allRows, currentPage) {
                 console.error('Error during change event handling:', error);
             }
         });
-   }
-} 
-                        
+    }
+}
