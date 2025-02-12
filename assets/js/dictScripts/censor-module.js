@@ -125,22 +125,19 @@ export async function updateDictionaryBoxes() {
 // Event Listener for toggle Censorship
 export async function initCensoring() {
     try {
-        // Add event listener for the toggle button
-        document.addEventListener("DOMContentLoaded", async function() {
-            const toggleButton = document.getElementById('dict-toggle-censorship');
-            if (toggleButton) {
-                toggleButton.addEventListener('click', async (event) => {
-                    event.stopPropagation(); // Prevent the button click from bubbling up
-                    censoringEnabled = !censoringEnabled; // This will invert the censoringEnabled flag
-                    await updateDictionaryBoxes(); // Await the update of boxes after toggling the flag
-                });
-            }
+        const toggleButton = document.getElementById('dict-toggle-censorship');
+        if (toggleButton) {
+            toggleButton.addEventListener('click', async (event) => {
+                event.stopPropagation(); // Prevent the button click from bubbling up
+                censoringEnabled = !censoringEnabled; // This will invert the censoringEnabled flag
+                await updateDictionaryBoxes(); // Await the update of boxes after toggling the flag
+            });
+        }
 
-            // Load offensive words and update dictionary boxes
-            await loadOffensiveWords();
-            console.log('Offensive Words Loaded:', offensiveWords);
-            await updateDictionaryBoxes();
-        });
+        // Load offensive words and update dictionary boxes
+        await loadOffensiveWords();
+        console.log('Offensive Words Loaded:', offensiveWords);
+        await updateDictionaryBoxes();
     } catch (error) {
         await captureError(`Error in initCensoring: ${error}`);
     }
