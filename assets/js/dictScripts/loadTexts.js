@@ -153,19 +153,19 @@ export async function setTexts(language) {
         if (loadingMessageText) {
             loadingMessageText.textContent = currentTexts.loadingMessage;
         } else {
-            console.error('Loading message text element not found');
+            captureError('Loading message text element not found');
         }
 
         const errorMessage = document.querySelector('.dict-error-message');
         if (errorMessage) {
             errorMessage.textContent = currentTexts.errorLoadingData;
         } else {
-            console.error('Error message element not found');
+            captureError('Error message element not found');
         }
 
         // Pending Changes Section
         const pendingChangesElement = document.querySelector('.dict-pending-changes');
-        if (pendingChangesElement) {
+        if (pendingChangesElement && universalPendingChanges) {
             pendingChangesElement.innerHTML = `
                 <p>${currentTexts.pendingChanges}</p>
                 <p>${currentTexts.noPendingChanges}</p>
