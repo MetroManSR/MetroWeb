@@ -1,4 +1,4 @@
-import { defaultPendingChanges, updateUniversalPendingChanges, updatePendingChangesList } from './initFormEventListeners.js';
+import { defaultPendingChanges, updateUniversalPendingChanges, updatePendingChangesList, universalPendingChanges } from './initFormEventListeners.js';
 import { UCurrentPage } from './processRows.js';
 import { renderBox } from './boxes.js';
 import { captureError } from './errorModule.js';
