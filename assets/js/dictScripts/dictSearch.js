@@ -36,7 +36,7 @@ export function displaySpecificEntry(row, allRows) {
     const dictionaryContainer = document.getElementById('dict-dictionary');
     dictionaryContainer.innerHTML = ''; // Clear previous entries
 
-    if (!row, { displayText }) {
+    if (!row) {
         const noMatchBox = createNoMatchBox();
         dictionaryContainer.appendChild(noMatchBox);
         return;
@@ -78,7 +78,7 @@ export async function initSearchInput(allRows, currentPage) {
         const searchTerm = this.value.trim().toLowerCase();
         predictionBox.style.width = `${searchInput.offsetWidth}px`;
 
-        debounceTimeout = setTimeout(async () => { // Set a new debounce timer
+        debounceTimeout = setTimeout(() => { // Set a new debounce timer
             if (searchTerm.length === 0) {
                 predictionBox.innerHTML = '';
                 pendingChanges.searchTerm = ''; // Clear searchTerm in pending changes
@@ -109,7 +109,7 @@ export async function initSearchInput(allRows, currentPage) {
                     const metaSimilarity = getSimilarity(row.meta, searchTerm);
                     const displayText = metaSimilarity > titleSimilarity ? row.meta : row.title;
                     const totalSimilarity = Math.max(titleSimilarity, metaSimilarity);
-                    return { title: row.title, meta: row.meta || '', displayText, totalSimilarity };
+                    return { title: row.title, meta: row.meta || '', displayText, totalSimilarity, exactMatch: displayText.toLowerCase() === searchTerm };
                 })
                 .sort((a, b) => b.totalSimilarity - a.totalSimilarity) // Sort by most matching to least matching
                 .slice(0, 10); // Limit to the first 10 matches
@@ -168,10 +168,11 @@ export async function initSearchInput(allRows, currentPage) {
                 updateQueryString();
                 return;
             } else {
-                predictionBox.innerHTML = predictions.map(({ displayText, totalSimilarity }) => {
+                predictionBox.innerHTML = predictions.map(({ displayText, totalSimilarity, exactMatch }) => {
                     const percentage = (totalSimilarity * 100).toFixed(2);
-                    const color = `rgb(${255 - totalSimilarity * 255}, ${totalSimilarity * 255}, 0)`; // Shades of green and red
-                    return `<div style="background-color: ${color}; cursor: pointer;">${displayText} (${percentage}%)</div>`;
+                    const color = exactMatch ? '' : `rgb(${255 - totalSimilarity * 255}, ${totalSimilarity * 255}, 0)`; // Shades of green and red for partial matches, no color for exact matches
+                    const content = exactMatch ? `<div>${displayText}</div>` : `<div style="background-color: ${color}; cursor: pointer;">${displayText} (${percentage}%)</div>`;
+                    return content;
                 }).join('');
 
                 Array.from(predictionBox.children).forEach((prediction, index) => {
@@ -206,7 +207,7 @@ export async function initSearchInput(allRows, currentPage) {
         }
     });
 
-    searchInput.addEventListener('focus', async () => {
+    searchInput.addEventListener('focus', () => {
         if (searchInput.value.trim().length > 0) {
             searchInput.dispatchEvent(new Event('input'));
         }
@@ -219,8 +220,7 @@ export async function initSearchInput(allRows, currentPage) {
                 pendingChanges.rowsPerPage = rowsPerPageValue;
                 updateUniversalPendingChanges(pendingChanges);
                 currentPage = 1;
- 
-                
+                updatePendingChangesList(pendingChanges);
             } catch (error) {
                 console.error('Error during change event handling:', error);
             }
