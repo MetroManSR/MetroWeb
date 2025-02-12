@@ -44,8 +44,8 @@ function revealText(element) {
 // Function to recensor text
 function recensorText(element) {
     element.classList.add('censored');
-    element.style.backgroundColor = 'black';
-    element.style.color = 'black';
+    element.style.backgroundColor = 'gray';
+    element.style.color = 'gray';
     element.style.cursor = 'pointer';
     element.onclick = () => revealText(element); // Add click event to reveal text again
 }
@@ -84,14 +84,23 @@ export async function updateDictionaryBoxes() {
             if (wordElement) {
                 const originalWordText = censoringEnabled ? censorText(wordElement.innerHTML) : uncensorText(wordElement.innerHTML);
                 wordElement.innerHTML = await highlight(originalWordText);
+                wordElement.querySelectorAll('.censored').forEach(el => {
+                    el.onclick = () => revealText(el);
+                });
             }
             if (metaElement) {
                 const originalMetaText = censoringEnabled ? censorText(metaElement.innerHTML) : uncensorText(metaElement.innerHTML);
                 metaElement.innerHTML = await highlight(originalMetaText);
+                metaElement.querySelectorAll('.censored').forEach(el => {
+                    el.onclick = () => revealText(el);
+                });
             }
             if (notesElement) {
                 const originalNotesText = censoringEnabled ? censorText(notesElement.innerHTML) : uncensorText(notesElement.innerHTML);
                 notesElement.innerHTML = await highlight(originalNotesText);
+                notesElement.querySelectorAll('.censored').forEach(el => {
+                    el.onclick = () => revealText(el);
+                });
             }
 
             // Ensure the morph element remains as it was before
