@@ -82,7 +82,7 @@ export async function initSearchInput(allRows, currentPage) {
             if (searchTerm.length === 0) {
                 predictionBox.innerHTML = '';
                 pendingChanges.searchTerm = ''; // Clear searchTerm in pending changes
-                updatePendingChanges(pendingChanges);
+                updateUniversalPendingChanges(pendingChanges);
                 currentPage = 1;
                 predictionBox.classList.remove("active");
                 predictionBox.classList.add("hidden");
@@ -150,7 +150,7 @@ export async function initSearchInput(allRows, currentPage) {
                             searchInput.value = suggestions[index].displayText;
                             predictionBox.innerHTML = '';
                             pendingChanges.searchTerm = suggestions[index].displayText; // Update searchTerm in pending changes
-                            updatePendingChanges(pendingChanges);
+                            updateUniversalPendingChanges(pendingChanges);
                             currentPage = 1;
                             updateQueryString();
                         });
@@ -160,7 +160,7 @@ export async function initSearchInput(allRows, currentPage) {
                 }
 
                 pendingChanges.searchTerm = searchTerm; // Update searchTerm in pending changes
-                updatePendingChanges(pendingChanges);
+                updateUniversalPendingChanges(pendingChanges);
                 currentPage = 1;
                 updateQueryString();
                 return;
@@ -176,7 +176,7 @@ export async function initSearchInput(allRows, currentPage) {
                         searchInput.value = predictions[index].displayText;
                         predictionBox.innerHTML = '';
                         pendingChanges.searchTerm = predictions[index].displayText; // Update searchTerm in pending changes
-                        updatePendingChanges(pendingChanges);
+                        updateUniversalPendingChanges(pendingChanges);
                         currentPage = 1;
                         updateQueryString();
                     });
@@ -186,7 +186,7 @@ export async function initSearchInput(allRows, currentPage) {
                 if (predictions.some(p => p.title.toLowerCase() === searchTerm)) {
                     predictionBox.innerHTML = '';
                     pendingChanges.searchTerm = searchTerm; // Update searchTerm in pending changes
-                    updatePendingChanges(pendingChanges);
+                    updateUniversalPendingChanges(pendingChanges);
                     currentPage = 1;
                     updateQueryString();
                     return;
@@ -212,7 +212,7 @@ export async function initSearchInput(allRows, currentPage) {
             try {
                 const rowsPerPageValue = parseInt(rowsPerPageSelect.value, 10);
                 pendingChanges.rowsPerPage = rowsPerPageValue;
-                updatePendingChanges(pendingChanges);
+                updateUniversalPendingChanges(pendingChanges);
                 currentPage = 1;
                 
             } catch (error) {
