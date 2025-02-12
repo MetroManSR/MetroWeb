@@ -68,7 +68,6 @@ export async function initSearchInput(allRows, currentPage) {
         pendingChanges.searchTerm = searchTerm;
         updateUniversalPendingChanges(pendingChanges);
         updateQueryString();
-        await updatePendingChangesListBasedOnLanguage();
     }
 
     // Add event listener to update on input
