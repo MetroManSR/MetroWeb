@@ -7,7 +7,7 @@ import { filteredRows } from "../mainDict.js";
 import { getTranslatedText } from './loadTexts.js';
 import { initUrl } from './urlParameters.js';
 import { updateDictionaryBoxes, initCensoring} from './censor-module.js'; 
-import { updateQueryString } from './urlParameters.js';
+import { updateQueryString, updatePendingChangesListBasedOnLanguage } from './urlParameters.js';
 import { initSearchInput } from './dictSearch.js';
 
 export async function initializeButtonEventListeners(allRows, rowsPerPage, currentSortOrder) {
