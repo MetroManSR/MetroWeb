@@ -57,8 +57,8 @@ export function censorText(text) {
     }
     console.log('Original Text:', text); // Debugging
     offensiveWords.forEach(word => {
-        const regex = new RegExp(`\\b${word}\\b`, 'gi');
-        text = text.replace(regex, `<span class="censored" onclick="revealText(this)">${word}</span>`);
+        const regex = new RegExp(`(${word})`, 'gi');
+        text = text.replace(regex, `<span class="censored" onclick="revealText(this)">$1</span>`);
     });
     console.log('Censored Text:', text); // Debugging
     return text;
