@@ -1,5 +1,5 @@
 import { universalPendingChanges } from "./initFormEventListeners.js";
-
+import { captureError } from "./errorModule.js";
 export async function fetchJson(filePath) {
     const response = await fetch(filePath);
     if (!response.ok) {
@@ -22,49 +22,49 @@ export async function setTexts(language) {
         if (searchInput) {
             searchInput.placeholder = currentTexts.searchPlaceholder;
         } else {
-            console.error('Search input element not found');
+            captureError('Search input element not found');
         }
 
         const clearSearchButton = document.querySelector('.dict-clear-search-button');
         if (clearSearchButton) {
             clearSearchButton.textContent = currentTexts.clearSearchButton;
         } else {
-            console.error('Clear search button element not found');
+            captureError('Clear search button element not found');
         }
 
         const rowsPerPageLabel = document.querySelector('#dct-rws-lbl');
         if (rowsPerPageLabel) {
             rowsPerPageLabel.textContent = currentTexts.rowsPerPageLabel;
         } else {
-            console.error('Rows per page label element not found');
+            captureError('Rows per page label element not found');
         }
 
         const applySettingsButton = document.querySelector('.dict-apply-settings-button');
         if (applySettingsButton) {
             applySettingsButton.textContent = currentTexts.applySettingsButton;
         } else {
-            console.error('Apply settings button element not found');
+            captureError('Apply settings button element not found');
         }
 
         const clearSettingsButton = document.querySelector('.dict-clear-settings-button');
         if (clearSettingsButton) {
             clearSettingsButton.textContent = currentTexts.clearSettingsButton;
         } else {
-            console.error('Clear settings button element not found');
+            captureError('Clear settings button element not found');
         }
 
         const advancedSearchButton = document.querySelector('.dict-advanced-search-button');
         if (advancedSearchButton) {
             advancedSearchButton.textContent = currentTexts.advancedSearchButton;
         } else {
-            console.error('Advanced search button element not found');
+            captureError('Advanced search button element not found');
         }
 
         const viewStatisticsButton = document.querySelector('.dict-view-statistics-button');
         if (viewStatisticsButton) {
             viewStatisticsButton.textContent = currentTexts.viewStatisticsButton;
         } else {
-            console.error('View statistics button element not found');
+            captureError('View statistics button element not found');
         }
 
         const closePopupButton = document.querySelector('.dict-close-popup-button');
@@ -78,14 +78,14 @@ export async function setTexts(language) {
         if (filterByLabel) {
             filterByLabel.textContent = currentTexts.filterByLabel;
         } else {
-            console.error('Filter by label element not found');
+            captureError('Filter by label element not found');
         }
 
         const orderByLabel = document.querySelector('#dct-ord-lbl');
         if (orderByLabel) {
             orderByLabel.textContent = currentTexts.orderByLabel;
         } else {
-            console.error('Order by label element not found');
+            captureError('Order by label element not found');
         }
 
         // Update the order by options text
@@ -102,7 +102,7 @@ export async function setTexts(language) {
             orderBySelect.options[8].textContent = currentTexts.metaLengthUp;
             orderBySelect.options[9].textContent = currentTexts.metaLengthDown;
         } else {
-            console.error('Order by select element not found');
+            captureError('Order by select element not found');
         }
 
         // Update the filter dropdown options text
@@ -120,7 +120,7 @@ export async function setTexts(language) {
             filterSelect.options[9].textContent = currentTexts.expression;
             filterSelect.options[10].textContent = currentTexts.pronoun;
         } else {
-            console.error('Filter select element not found');
+            captureError('Filter select element not found');
         }
 
             // Translations for Advanced Search Popup
@@ -181,10 +181,10 @@ export async function setTexts(language) {
                 </ul>
             `;
         } else {
-            console.error('Pending changes element not found');
+            captureError('Pending changes element not found');
         }
     } catch (error) {
-        console.error('Error loading texts:', error);
+        captureError('Error loading texts:', error);
     }
 } 
 
@@ -195,7 +195,7 @@ export async function getTranslatedText(key, language, filePath = '/assets/data/
         const defaultTexts = texts[language] || texts['en'];
         return defaultTexts[key];
     } catch (error) {
-        console.error('Error fetching translated text:', error);
+        captureError('Error fetching translated text:', error);
         return key; // Return the key as fallback
     }
             }
