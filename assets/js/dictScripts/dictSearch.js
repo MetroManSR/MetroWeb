@@ -36,7 +36,7 @@ export function displaySpecificEntry(row, allRows) {
     const dictionaryContainer = document.getElementById('dict-dictionary');
     dictionaryContainer.innerHTML = ''; // Clear previous entries
 
-    if (!row) {
+    if (!row, { displayText }) {
         const noMatchBox = createNoMatchBox();
         dictionaryContainer.appendChild(noMatchBox);
         return;
@@ -68,6 +68,7 @@ export async function initSearchInput(allRows, currentPage) {
         pendingChanges.searchTerm = searchTerm;
         updateUniversalPendingChanges(pendingChanges);
         updateQueryString();
+        updatePendingChangesList(pendingChanges);
     }
 
     // Add event listener to update on input
@@ -85,7 +86,7 @@ export async function initSearchInput(allRows, currentPage) {
                 currentPage = 1;
                 predictionBox.classList.remove("active");
                 predictionBox.classList.add("hidden");
-                
+                updatePendingChangesList(pendingChanges);
                 return;
             }
 
@@ -103,14 +104,15 @@ export async function initSearchInput(allRows, currentPage) {
                     const etymologyMatch = searchIn.etymology && row.morph.some(morphItem => morphItem.toLowerCase().includes(term));
                     return titleMatch || rootMatch || definitionMatch || etymologyMatch;
                 }))
-                .slice(0, 10) // Limit to the first 10 matches
                 .map(row => {
                     const titleSimilarity = getSimilarity(row.title, searchTerm);
                     const metaSimilarity = getSimilarity(row.meta, searchTerm);
                     const displayText = metaSimilarity > titleSimilarity ? row.meta : row.title;
                     const totalSimilarity = Math.max(titleSimilarity, metaSimilarity);
                     return { title: row.title, meta: row.meta || '', displayText, totalSimilarity };
-                });
+                })
+                .sort((a, b) => b.totalSimilarity - a.totalSimilarity) // Sort by most matching to least matching
+                .slice(0, 10); // Limit to the first 10 matches
 
             console.log('Predictions:', predictions); // Debug log
 
@@ -151,7 +153,7 @@ export async function initSearchInput(allRows, currentPage) {
                             pendingChanges.searchTerm = suggestions[index].displayText; // Update searchTerm in pending changes
                             updateUniversalPendingChanges(pendingChanges);
                             currentPage = 1;
-                        
+                            updatePendingChangesList(pendingChanges); // No need to await here
                             updateQueryString();
                         });
                     });
@@ -162,6 +164,7 @@ export async function initSearchInput(allRows, currentPage) {
                 pendingChanges.searchTerm = searchTerm; // Update searchTerm in pending changes
                 updateUniversalPendingChanges(pendingChanges);
                 currentPage = 1;
+                updatePendingChangesList(pendingChanges);
                 updateQueryString();
                 return;
             } else {
@@ -178,7 +181,7 @@ export async function initSearchInput(allRows, currentPage) {
                         pendingChanges.searchTerm = predictions[index].displayText; // Update searchTerm in pending changes
                         updateUniversalPendingChanges(pendingChanges);
                         currentPage = 1;
-                    
+                        updatePendingChangesList(pendingChanges);
                         updateQueryString();
                     });
                 });
@@ -189,7 +192,7 @@ export async function initSearchInput(allRows, currentPage) {
                     pendingChanges.searchTerm = searchTerm; // Update searchTerm in pending changes
                     updateUniversalPendingChanges(pendingChanges);
                     currentPage = 1;
-                     
+                    updatePendingChangesList(pendingChanges);
                     updateQueryString();
                     return;
                 }
@@ -216,6 +219,7 @@ export async function initSearchInput(allRows, currentPage) {
                 pendingChanges.rowsPerPage = rowsPerPageValue;
                 updateUniversalPendingChanges(pendingChanges);
                 currentPage = 1;
+ 
                 
             } catch (error) {
                 console.error('Error during change event handling:', error);
