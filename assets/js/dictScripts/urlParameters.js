@@ -79,21 +79,23 @@ export async function initUrl(allRows, rowsPerPage, displayPage, currentPage, cu
         // Handle filters from URL
         const filters = params.get('filters');
         if (filters) {
-            updateUniversalPendingChanges({ filters: filters.split(',') });
+            pendingChanges.filters = filters.split(',');
         }
 
         if (searchTerm && searchTerm.trim()) {
-            const criteria = { searchTerm: searchTerm.trim(), searchIn: { word: true, root: true, definition: true, etymology: false } };
-            console.log(`Processing search term: ${criteria.searchTerm}`);
+            pendingChanges.searchTerm = searchTerm.trim();
+            pendingChanges.searchIn = { word: true, root: true, definition: true, etymology: false };
+            updateUniversalPendingChanges(pendingChanges);
+            console.log(`Processing search term: ${pendingChanges.searchTerm}`);
             const filteredRows = allRows.filter(row => {
                 const normalizedTitle = row.title.toLowerCase();
                 const normalizedMeta = row.meta.toLowerCase();
                 const normalizedMorph = row.morph.map(morphItem => morphItem.toLowerCase()).join(' ');
 
-                return (criteria.searchIn.word && normalizedTitle.includes(criteria.searchTerm.toLowerCase())) ||
-                       (criteria.searchIn.root && row.type === 'root' && normalizedTitle.includes(criteria.searchTerm.toLowerCase())) ||
-                       (criteria.searchIn.definition && normalizedMeta.includes(criteria.searchTerm.toLowerCase())) ||
-                       (criteria.searchIn.etymology && normalizedMorph.includes(criteria.searchTerm.toLowerCase()));
+                return (pendingChanges.searchIn.word && normalizedTitle.includes(pendingChanges.searchTerm.toLowerCase())) ||
+                       (pendingChanges.searchIn.root && row.type === 'root' && normalizedTitle.includes(pendingChanges.searchTerm.toLowerCase())) ||
+                       (pendingChanges.searchIn.definition && normalizedMeta.includes(pendingChanges.searchTerm.toLowerCase())) ||
+                       (pendingChanges.searchIn.etymology && normalizedMorph.includes(pendingChanges.searchTerm.toLowerCase()));
             });
             return filteredRows; // Return filtered rows based on search term
         } else if (wordID && parseInt(wordID) > 0) {
@@ -115,12 +117,17 @@ export async function initUrl(allRows, rowsPerPage, displayPage, currentPage, cu
                 return false;
             }
         } else if (wordSpecificTerm && wordSpecificTerm.trim()) {
-            console.log(`Processing word specific term: ${wordSpecificTerm}`);
-            const filteredRows = allRows.filter(row => row.title.toLowerCase().includes(wordSpecificTerm.toLowerCase()));
+            pendingChanges.searchTerm = wordSpecificTerm.trim();
+            updateUniversalPendingChanges(pendingChanges);
+            console.log(`Processing word specific term: ${pendingChanges.searchTerm}`);
+            const filteredRows = allRows.filter(row => row.title.toLowerCase().includes(pendingChanges.searchTerm.toLowerCase()));
             return filteredRows; // Return filtered rows based on word specific term
         } else if (rootSpecificTerm && rootSpecificTerm.trim()) {
-            console.log(`Processing root specific term: ${rootSpecificTerm}`);
-            const filteredRows = allRows.filter(row => row.type === 'root' && row.title.toLowerCase().includes(rootSpecificTerm.toLowerCase()));
+            pendingChanges.searchTerm = rootSpecificTerm.trim();
+            pendingChanges.searchIn.root = true;
+            updateUniversalPendingChanges(pendingChanges);
+            console.log(`Processing root specific term: ${pendingChanges.searchTerm}`);
+            const filteredRows = allRows.filter(row => row.type === 'root' && row.title.toLowerCase().includes(pendingChanges.searchTerm.toLowerCase()));
             return filteredRows; // Return filtered rows based on root specific term
         } else {
             await captureError('No valid URL parameters found.');
@@ -135,5 +142,5 @@ export async function initUrl(allRows, rowsPerPage, displayPage, currentPage, cu
 // Update pending changes list based on document language
 export async function updatePendingChangesListBasedOnLanguage() {
     const language = document.documentElement.lang;
-    await updatePendingChangesList(language);
+    updatePendingChangesList(language);
 }
