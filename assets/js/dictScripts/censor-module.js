@@ -50,21 +50,21 @@ function recensorText(element) {
     element.onclick = () => revealText(element); // Add click event to reveal text again
 }
 
-// Function to censor text
+// Function to censor text while preserving original formatting
 export function censorText(text) {
     if (!censoringEnabled) {
         return text; // If censorship is disabled, return the text as is
     }
     console.log('Original Text:', text); // Debugging
     offensiveWords.forEach(word => {
-        const regex = new RegExp(`(${word})`, 'gi');
+        const regex = new RegExp(`(${word})(?!([^<]+)?>)`, 'gi'); // Ensure it doesn't match within HTML tags
         text = text.replace(regex, `<span class="censored" onclick="revealText(this)">$1</span>`);
     });
     console.log('Censored Text:', text); // Debugging
     return text;
 }
 
-// Function to uncensor text
+// Function to uncensor text while preserving original formatting
 export function uncensorText(text) {
     // Remove the censor elements and leave plain text, preserving the case
     const regex = /<span class="censored"[^>]*>(.*?)<\/span>/gi;
