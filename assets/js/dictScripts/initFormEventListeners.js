@@ -2,7 +2,7 @@ import { getTranslatedText } from './loadTexts.js';
 import { highlight, getSimilarity } from './utils.js';
 import { initAdvancedSearchPopup } from './popups.js';
 import { processAllSettings } from './processRows.js';
-import { initSearchInput } from './dictsearch.js'; // Import the initSearchInput function
+import { initSearchInput } from './dictSearch.js'; // Import the initSearchInput function
 
 export const defaultPendingChanges = {
     searchTerm: '',
