@@ -65,43 +65,60 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     const normalize = (text) => ignoreDiacritics ? text.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : text;
 
     let updatedRows = Array.isArray(allRows) ? [...allRows] : [];
+    const foundTerms = {};
 
     if (searchTerm && searchTerm.length > 0) {
-        const terms = searchTerm.map(term => normalize(term.toLowerCase()));
+        const terms = Array.isArray(searchTerm) ? searchTerm.map(term => normalize(term.toLowerCase())) : [normalize(searchTerm.toLowerCase())];
+        terms.forEach(term => foundTerms[term] = []);
+
         updatedRows = updatedRows.filter(row => {
             const normalizedTitle = normalize(row.title.toLowerCase());
             const normalizedMeta = normalize(row.meta.toLowerCase());
             const normalizedMorph = row.morph.map(morphItem => normalize(morphItem.toLowerCase()));
 
-            const titleMatch = searchIn.word && row.type === 'word' && terms.some(term => (
-                (exactMatch && normalizedTitle === term) ||
-                (startsWith && normalizedTitle.startsWith(term)) ||
-                (endsWith && normalizedTitle.endsWith(term)) ||
-                (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
-            ));
+            let termFound = false;
 
-            const rootMatch = searchIn.root && row.type === 'root' && terms.some(term => (
-                (exactMatch && normalizedTitle === term) ||
-                (startsWith && normalizedTitle.startsWith(term)) ||
-                (endsWith && normalizedTitle.endsWith(term)) ||
-                (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
-            ));
+            terms.forEach(term => {
+                const titleMatch = searchIn.word && row.type === 'word' && (
+                    (exactMatch && normalizedTitle === term) ||
+                    (startsWith && normalizedTitle.startsWith(term)) ||
+                    (endsWith && normalizedTitle.endsWith(term)) ||
+                    (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
+                );
 
-            const definitionMatch = searchIn.definition && terms.some(term => (
-                (exactMatch && normalizedMeta === term) ||
-                (startsWith && normalizedMeta.startsWith(term)) ||
-                (endsWith && normalizedMeta.endsWith(term)) ||
-                (!exactMatch && !startsWith && !endsWith && normalizedMeta.includes(term))
-            ));
+                const rootMatch = searchIn.root && row.type === 'root' && (
+                    (exactMatch && normalizedTitle === term) ||
+                    (startsWith && normalizedTitle.startsWith(term)) ||
+                    (endsWith && normalizedTitle.endsWith(term)) ||
+                    (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
+                );
 
-            const etymologyMatch = searchIn.etymology && terms.some(term => (
-                (exactMatch && normalizedMorph.includes(term)) ||
-                (startsWith && normalizedMorph.some(item => item.startsWith(term))) ||
-                (endsWith && normalizedMorph.some(item => item.endsWith(term))) ||
-                (!exactMatch && !startsWith && !endsWith && normalizedMorph.some(item => item.includes(term)))
-            ));
+                const definitionMatch = searchIn.definition && (
+                    (exactMatch && normalizedMeta === term) ||
+                    (startsWith && normalizedMeta.startsWith(term)) ||
+                    (endsWith && normalizedMeta.endsWith(term)) ||
+                    (!exactMatch && !startsWith && !endsWith && normalizedMeta.includes(term))
+                );
 
-            return titleMatch || rootMatch || definitionMatch || etymologyMatch;
+                const etymologyMatch = searchIn.etymology && (
+                    (exactMatch && normalizedMorph.includes(term)) ||
+                    (startsWith && normalizedMorph.some(item => item.startsWith(term))) ||
+                    (endsWith && normalizedMorph.some(item => item.endsWith(term))) ||
+                    (!exactMatch && !startsWith && !endsWith && normalizedMorph.some(item => item.includes(term)))
+                );
+
+                if (titleMatch || rootMatch || definitionMatch || etymologyMatch) {
+                    foundTerms[term].push(row);
+                    termFound = true;
+                }
+            });
+
+            return termFound;
+        });
+
+        // Sort the found terms for each search term
+        Object.keys(foundTerms).forEach(term => {
+            foundTerms[term] = sortRows(foundTerms[term], sortingManner);
         });
     }
 
@@ -111,8 +128,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     // Filter rows based on selected versionDisplay
     if (versionDisplay) {
-    //console.log(updatedRows) 
-       updatedRows = updatedRows.filter(row => versionDisplay[mapVersion(row.revision)] || false);
+        updatedRows = updatedRows.filter(row => versionDisplay[mapVersion(row.revision)] || false);
     } 
     
     const uniqueRows = [];
@@ -139,49 +155,14 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         renderContainer.innerHTML = '';
         await renderBox(updatedRows, searchTerm, exactMatch, searchIn, rowsPerPage, currentPage);
         updatePagination(currentPage, rowsPerPage);
-        await updateFloatingText(searchTerm, filters, searchIn, language, [exactMatch, ignoreDiacritics, startsWith, endsWith] );
+        await updateFloatingText(searchTerm, filters, searchIn, language, [exactMatch, ignoreDiacritics, startsWith, endsWith]);
     } else {
         await captureError("Error: 'dict-dictionary' element not found in the DOM.");
     }
 
     applySettingsButton.disabled = false; // Re-enable the button after the process is complete
-
-    //console.log('Process complete.');
 }
 
-/**
- * Displays the specified page of results.
- *
- * @param {number} page - The page number to display.
- * @param {number} rowsPerPage - The number of rows to display per page.
- * @param {string} searchTerm - The search term used to filter results.
- * @param {Object} searchIn - An object specifying which fields to search in.
- * @param {boolean} exactMatch - Whether to search for exact matches.
- * @param {Array} filteredRows - The filtered array of dictionary entries.
- * @param {Array} allRows - The array of all dictionary entries.
- */
-export function displayPage(page, rowsPerPage, searchTerm = '', searchIn = { word: true, root: true, definition: false, etymology: false }, exactMatch = false, allRows = []) {
-    //console.log('Displaying page:', page);
-    renderBox(allRows, searchTerm, exactMatch, searchIn, rowsPerPage, page);
-}
-
-/**
- * Handles the rows per page customization.
- *
- * @param {Event} e - The event object.
- */
-export function handleRowsPerPageChange(e) {
-    const rowsPerPage = parseInt(e.target.value, 10);
-    if (!isNaN(rowsPerPage) && rowsPerPage > 0) {
-        pendingChanges.rowsPerPage = rowsPerPage;
-    }
-}
-
-function splitArrayIntoChunks(array, chunkSize) {
-    let result = [];
-    for (let i = 0; i < array.length; i += chunkSize) {
-        let chunk = array.slice(i, i + chunkSize);
-        result.push(chunk);
-    }
-    return result;
+export function updateUniversalPendingChanges(i) {
+    universalPendingChanges = i;
 }
