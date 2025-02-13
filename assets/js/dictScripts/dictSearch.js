@@ -89,7 +89,7 @@ export async function initSearchInput(allRows, currentPage) {
                 return;
             }
 
-            const searchTermsArray = searchTerm.includes(',') ? searchTerm.split(',').map(term => term.trim()) : [searchTerm];
+            const searchTermsArray = searchTerm.includes(',') ? searchTerm.split(',').map(term => term.trim().toLowerCase()) : [searchTerm];
             pendingChanges.searchTerm = searchTermsArray;
             updateUniversalPendingChanges(pendingChanges);
 
@@ -106,8 +106,8 @@ export async function initSearchInput(allRows, currentPage) {
                     return titleMatch || rootMatch || definitionMatch || etymologyMatch;
                 }))
                 .map(row => {
-                    const titleSimilarity = getSimilarity(row.title, searchTerm);
-                    const metaSimilarity = getSimilarity(row.meta, searchTerm);
+                    const titleSimilarity = getSimilarity(row.title.toLowerCase(), searchTerm);
+                    const metaSimilarity = getSimilarity(row.meta.toLowerCase(), searchTerm);
                     const displayText = metaSimilarity > titleSimilarity ? row.meta : row.title;
                     const totalSimilarity = Math.max(titleSimilarity, metaSimilarity);
                     return { title: row.title, meta: row.meta || '', displayText, totalSimilarity, exactMatch: displayText.toLowerCase() === searchTerm };
@@ -121,11 +121,11 @@ export async function initSearchInput(allRows, currentPage) {
                 // If no predictions, suggest possible corrections
                 const suggestions = allRows
                     .map(row => {
-                        const metaParts = row.meta ? row.meta.split(',').map(part => part.trim()) : [];
+                        const metaParts = row.meta ? row.meta.split(',').map(part => part.trim().toLowerCase()) : [];
                         const metaSimilarity = metaParts.map(part => getSimilarity(part, searchTerm)).reduce((max, current) => Math.max(max, current), 0);
                         return {
                             title: row.title,
-                            similarity: getSimilarity(row.title, searchTerm),
+                            similarity: getSimilarity(row.title.toLowerCase(), searchTerm),
                             metaSimilarity: metaSimilarity
                         };
                     })
