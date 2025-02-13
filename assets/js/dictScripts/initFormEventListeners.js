@@ -2,6 +2,8 @@ import { getTranslatedText } from './loadTexts.js';
 import { highlight, getSimilarity } from './utils.js';
 import { initAdvancedSearchPopup } from './popups.js';
 import { processAllSettings } from './processRows.js';
+import { initSearchInput } from './dictsearch.js'; // Import the initSearchInput function
+
 export const defaultPendingChanges = {
     searchTerm: '',
     exactMatch: false,
@@ -20,9 +22,7 @@ export const defaultPendingChanges = {
         NV24: true, 
         NV25: true, 
         V225: true
-    
     }
-   
 };
 
 export let universalPendingChanges;
@@ -37,9 +37,10 @@ export async function updatePendingChangesList(language) {
     const { searchTerm, exactMatch, searchIn, filters, ignoreDiacritics, startsWith, endsWith, rowsPerPage, sortOrder } = pendingChanges;
 
     let changesList = [];
-    if (searchTerm) {
+    if (searchTerm && searchTerm.length > 0) {
         const translatedSearchTerm = await getTranslatedText('searchTerm', language);
-        changesList.push(`<strong>${translatedSearchTerm}</strong>: "${searchTerm}"`);
+        const searchTermList = Array.isArray(searchTerm) ? searchTerm.map(term => `"${term}"`).join(', ') : `"${searchTerm}"`;
+        changesList.push(`<strong>${translatedSearchTerm}</strong>: ${searchTermList}`);
     }
     if (exactMatch) {
         const translatedExactMatch = await getTranslatedText('exactMatch', language);
@@ -76,9 +77,6 @@ export async function updatePendingChangesList(language) {
         changesList.push(`<strong>${translatedRowsPerPage}</strong>: ${rowsPerPage}`);
     }
     if (sortOrder) {
-
-        console.log(sortOrder);
-        
         const translatedSortOrder = await getTranslatedText('sortOrder', language);
         const sortOrderTranslation = await getTranslatedText(sortOrder, language); // Get the translated value for sortOrder
         changesList.push(`<strong>${translatedSortOrder}</strong>: ${sortOrderTranslation}`);
@@ -107,7 +105,6 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
     const rowsPerPageSelect = document.getElementById('dct-rws-inp');
     const advancedSearchButton = document.getElementById('dict-advanced-search-btn');
     let currentPage = 1;
-    let debounceTimeout;
 
     if (filterSelect) {
         filterSelect.addEventListener('change', async () => {
@@ -141,55 +138,57 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
     }
 
     const versionChecks = document.querySelectorAll('input[name="version"]');
-const applySettingsButton = document.getElementById('dict-apply-settings-button');
+    const applySettingsButton = document.getElementById('dict-apply-settings-button');
 
-// Create the alert container
-const alertContainer = document.createElement('div');
-alertContainer.id = 'alert-container';
-alertContainer.style.position = 'fixed';
-alertContainer.style.top = '100px';
-alertContainer.style.left = '50%';
-alertContainer.style.transform = 'translateX(-50%)';
-alertContainer.style.backgroundColor = '#f44336';
-alertContainer.style.color = 'white';
-alertContainer.style.padding = '10px';
-alertContainer.style.borderRadius = '5px';
-alertContainer.style.display = 'none';
-alertContainer.style.zIndex = '1000';
-document.body.appendChild(alertContainer);
+    // Create the alert container
+    const alertContainer = document.createElement('div');
+    alertContainer.id = 'alert-container';
+    alertContainer.style.position = 'fixed';
+    alertContainer.style.top = '100px';
+    alertContainer.style.left = '50%';
+    alertContainer.style.transform = 'translateX(-50%)';
+    alertContainer.style.backgroundColor = '#f44336';
+    alertContainer.style.color = 'white';
+    alertContainer.style.padding = '10px';
+    alertContainer.style.borderRadius = '5px';
+    alertContainer.style.display = 'none';
+    alertContainer.style.zIndex = '1000';
+    document.body.appendChild(alertContainer);
 
-function showAlert(message) {
-    alertContainer.textContent = message;
-    alertContainer.style.display = 'block';
-    
-    setTimeout(() => {
-        alertContainer.style.display = 'none';
-    }, 3000);
-}
+    function showAlert(message) {
+        alertContainer.textContent = message;
+        alertContainer.style.display = 'block';
+        
+        setTimeout(() => {
+            alertContainer.style.display = 'none';
+        }, 3000);
+    }
 
-versionChecks.forEach(check => {
-    // Set the initial checked state based on pendingChanges
-    check.checked = !!universalPendingChanges.versionDisplay[check.value];
+    versionChecks.forEach(check => {
+        // Set the initial checked state based on pendingChanges
+        check.checked = !!universalPendingChanges.versionDisplay[check.value];
 
-    check.addEventListener('change', function() {
-        // Check if at least one checkbox is selected
-        const anySelected = Array.from(versionChecks).filter(c => c.checked).length > 0;
+        check.addEventListener('change', function() {
+            // Check if at least one checkbox is selected
+            const anySelected = Array.from(versionChecks).filter(c => c.checked).length > 0;
 
-        if (!anySelected) {
-            showAlert('Please select at least one version.');
-            this.checked = true; // Recheck the checkbox to prevent unchecking
-        } else {
-            // Update pendingChanges.versionDisplay based on the checkbox state
-            universalPendingChanges.versionDisplay[this.value] = this.checked;
+            if (!anySelected) {
+                showAlert('Please select at least one version.');
+                this.checked = true; // Recheck the checkbox to prevent unchecking
+            } else {
+                // Update pendingChanges.versionDisplay based on the checkbox state
+                universalPendingChanges.versionDisplay[this.value] = this.checked;
 
-            // Call processAllSettings to re-process the rows
-        }
+                // Call processAllSettings to re-process the rows
+                processAllSettings(allRows, universalPendingChanges.rowsPerPage, currentPage, universalPendingChanges.sortOrder);
+            }
+        });
     });
-});
 
-    
-} 
+    // Initialize the search input
+    await initSearchInput(allRows, currentPage);
+}
 
 export function updateUniversalPendingChanges(i) {
     universalPendingChanges = i;
-        }
+}
