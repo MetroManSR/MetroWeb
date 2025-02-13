@@ -56,7 +56,7 @@ export function getRelatedWordsByRoot(allRows) {
  * Highlights the search term in the specified field.
  *
  * @param {string} text - The text to search within.
- * @param {string} term - The term to highlight.
+ * @param {string|array} term - The term or terms to highlight.
  * @param {Object} searchIn - The fields to search within.
  * @param {Object} row - The current row being processed.
  * @returns {string} - The text with highlighted terms if criteria are met.
@@ -64,22 +64,29 @@ export function getRelatedWordsByRoot(allRows) {
 export function highlight(text, term, searchIn = { word: true, root: true, definition: false, etymology: false }, row) {
     if (!text || !term) return text;
 
-    const normalizedTerm = term.toLowerCase();
-    let regex;
+    const terms = Array.isArray(term) ? term : [term];
+    let highlightedText = text;
 
-    if (searchIn.word && row.type === 'word' && text === row.title) {
-        regex = new RegExp(`(${normalizedTerm})`, 'gi');
-    } else if (searchIn.root && row.type === 'root' && text === row.title) {
-        regex = new RegExp(`(${normalizedTerm})`, 'gi');
-    } else if (searchIn.definition && text === row.meta) {
-        regex = new RegExp(`(${normalizedTerm})`, 'gi');
-    } else if (searchIn.etymology && Array.isArray(row.morph) && row.morph.includes(text)) {
-        regex = new RegExp(`(${normalizedTerm})`, 'gi');
-    } else {
-        return text;
-    }
+    terms.forEach(normalizedTerm => {
+        const lowerCasedTerm = normalizedTerm.toLowerCase();
+        let regex;
 
-    return text.replace(regex, '<mark style="background-color: yellow;">$1</mark>');
+        if (searchIn.word && row.type === 'word' && text === row.title) {
+            regex = new RegExp(`(${lowerCasedTerm})`, 'gi');
+        } else if (searchIn.root && row.type === 'root' && text === row.title) {
+            regex = new RegExp(`(${lowerCasedTerm})`, 'gi');
+        } else if (searchIn.definition && text === row.meta) {
+            regex = new RegExp(`(${lowerCasedTerm})`, 'gi');
+        } else if (searchIn.etymology && Array.isArray(row.morph) && row.morph.includes(text)) {
+            regex = new RegExp(`(${lowerCasedTerm})`, 'gi');
+        } else {
+            return text;
+        }
+
+        highlightedText = highlightedText.replace(regex, '<mark style="background-color: yellow;">$1</mark>');
+    });
+
+    return highlightedText;
 }
 
 // Utility function to sanitize HTML
@@ -92,7 +99,7 @@ export function sanitizeHTML(html) {
 /**
  * Creates a hyperlink for dictionary entries if they exist.
  *
- * @param {string} searchTerm - The search term to highlight in the title.
+ * @param {string|array} searchTerm - The search term or terms to highlight in the title.
  * @param {string} title - The title of the related word.
  * @param {Array} allRows - The array of all dictionary rows.
  * @returns {string} - The HTML string of the hyperlink if found, otherwise the original string.
@@ -169,7 +176,6 @@ export function levenshteinDistance(a, b) {
     return matrix[b.length][a.length];
 }
 
-
 /**
  * Function to calculate similarity between two strings.
  *
@@ -221,6 +227,22 @@ export function editDistance(str1, str2) {
     }
     return costs[str2.length];
 }
+
+// Function to display an error message
+export function displayError(message) {
+    // Get the existing error container
+    const errorContainer = document.getElementById('error-container');
+
+    if (!errorContainer) {
+        console.error('Error container not found.');
+        return;
+    }
+
+    // Summarize the error message
+    const summary = summarizeError(message);
+
+    // Set the error message
+    errorContainer.textContent[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/romaaji/asnap/tree/a85146f6f3e10ed3193308c3c1f0087a1f567579/src%2Futils%2Fhelper.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "1")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/whbrown/GardenGnome/tree/d4a87ff176105d23f617b591db0d9fd20398eaf7/utils%2FgetLevenshteinDistance.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "2")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/kkohnFico/MicroFrontend/tree/8eb5e72075b6354ea140683f52bbb78c8b97ee64/node_modules%2F@angular-devkit%2Fcore%2Fsrc%2Futils%2Fstrings.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "3")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/onechiporenko/eslint-plugin-ember-cleanup/tree/83618c6ba242d6349f4d724d793bb6e05f057b88/lib%2Futils%2Fstring.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "4")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/ChandanNaik/30-Seconds-of-JavaScript/tree/fb39acfdc5d1b1346d6da8c715f59d79ae8c938e/snippets_archive%2FREADME.md?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "5")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/JPShankel/js_webgames/tree/7d2ec9a8df2981903168d4d26bc97c54b29d4036/nodejs%2Futils.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "6")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/rpt-labs/ghostbuster/tree/e09b68817fcdba1c6c2db342057aa72c7cb31813/common%2Futils.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "7")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/Abelintegration/website/tree/48029119d434c4e104118689f67a3d8667aa3b4b/error%2Fsearch.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "8")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/DavideTriso/simple-and-advanced-search/tree/dfabeddd4f177d2f887dc13b07af21de08c4fcac/dist%2Fadvanced-search.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "9")[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/ragesh-kr/plate/tree/e1344441ac307ea47549e48aea8aa53539ae6214/static%2Fjs%2Famsify.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "10")
 
 // Function to display an error message
 export function displayError(message) {
