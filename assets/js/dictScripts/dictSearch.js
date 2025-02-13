@@ -60,12 +60,11 @@ export function rootSpecific(term, allRows) {
     displaySpecificEntry(specificRoot, allRows);
 }
 
-// Function to initialize the search input
 export async function initSearchInput(allRows, currentPage) {
     // Check if there is already text in the search bar and update pendingChanges list and query
     if (searchInput.value.trim() !== '') {
         const searchTerm = searchInput.value.trim();
-        pendingChanges.searchTerm = searchTerm;
+        pendingChanges.searchTerm = searchTerm.includes(',') ? searchTerm.split(',').map(term => term.trim()) : [searchTerm];
         updateUniversalPendingChanges(pendingChanges);
         updateQueryString();
         updatePendingChangesList(pendingChanges);
@@ -81,7 +80,7 @@ export async function initSearchInput(allRows, currentPage) {
         debounceTimeout = setTimeout(() => { // Set a new debounce timer
             if (searchTerm.length === 0) {
                 predictionBox.innerHTML = '';
-                pendingChanges.searchTerm = ''; // Clear searchTerm in pending changes
+                pendingChanges.searchTerm = []; // Clear searchTerm in pending changes
                 updateUniversalPendingChanges(pendingChanges);
                 currentPage = 1;
                 predictionBox.classList.remove("active");
@@ -91,6 +90,8 @@ export async function initSearchInput(allRows, currentPage) {
             }
 
             const searchTermsArray = searchTerm.includes(',') ? searchTerm.split(',').map(term => term.trim()) : [searchTerm];
+            pendingChanges.searchTerm = searchTermsArray;
+            updateUniversalPendingChanges(pendingChanges);
 
             predictionBox.classList.remove("hidden");
             predictionBox.classList.add("active");
@@ -150,7 +151,7 @@ export async function initSearchInput(allRows, currentPage) {
                         suggestion.addEventListener('click', () => {
                             searchInput.value = suggestions[index].displayText;
                             predictionBox.innerHTML = '';
-                            pendingChanges.searchTerm = suggestions[index].displayText; // Update searchTerm in pending changes
+                            pendingChanges.searchTerm = [suggestions[index].displayText]; // Update searchTerm in pending changes
                             updateUniversalPendingChanges(pendingChanges);
                             currentPage = 1;
                             updatePendingChangesList(pendingChanges); // No need to await here
@@ -161,7 +162,7 @@ export async function initSearchInput(allRows, currentPage) {
                     predictionBox.innerHTML = '';
                 }
 
-                pendingChanges.searchTerm = searchTerm; // Update searchTerm in pending changes
+                pendingChanges.searchTerm = searchTermsArray; // Update searchTerm in pending changes
                 updateUniversalPendingChanges(pendingChanges);
                 currentPage = 1;
                 updatePendingChangesList(pendingChanges);
@@ -170,8 +171,8 @@ export async function initSearchInput(allRows, currentPage) {
             } else {
                 predictionBox.innerHTML = predictions.map(({ displayText, totalSimilarity, exactMatch }) => {
                     const percentage = (totalSimilarity * 100).toFixed(2);
-                    const color = exactMatch ? '' : `rgb(${255 - totalSimilarity * 255}, ${totalSimilarity * 255}, 0)`; // Shades of green and red for partial matches, no color for exact matches
-                    const content = exactMatch ? `<div>${displayText}</div>` : `<div style="background-color: ${color}; cursor: pointer;">${displayText} (${percentage}%)</div>`;
+                    const color = exactMatch ? 'gray' : `rgb(${255 - totalSimilarity * 255}, ${totalSimilarity * 255}, 0)`; // Neutral color for exact matches
+                    const content = `<div style="background-color: ${color}; cursor: pointer;">${displayText} (${percentage}%)</div>`;
                     return content;
                 }).join('');
 
@@ -179,7 +180,7 @@ export async function initSearchInput(allRows, currentPage) {
                     prediction.addEventListener('click', async () => {
                         searchInput.value = predictions[index].displayText;
                         predictionBox.innerHTML = '';
-                        pendingChanges.searchTerm = predictions[index].displayText; // Update searchTerm in pending changes
+                        pendingChanges.searchTerm = [predictions[index].displayText]; // Update searchTerm in pending changes
                         updateUniversalPendingChanges(pendingChanges);
                         currentPage = 1;
                         updatePendingChangesList(pendingChanges);
@@ -190,7 +191,7 @@ export async function initSearchInput(allRows, currentPage) {
                 // Remove suggestions if the input matches 100%
                 if (predictions.some(p => p.title.toLowerCase() === searchTerm || p.meta.toLowerCase() === searchTerm)) {
                     predictionBox.innerHTML = '';
-                    pendingChanges.searchTerm = searchTerm; // Update searchTerm in pending changes
+                    pendingChanges.searchTerm = searchTermsArray; // Update searchTerm in pending changes
                     updateUniversalPendingChanges(pendingChanges);
                     currentPage = 1;
                     updatePendingChangesList(pendingChanges);
@@ -227,3 +228,4 @@ export async function initSearchInput(allRows, currentPage) {
         });
     }
 }
+
