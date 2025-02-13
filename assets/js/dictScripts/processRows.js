@@ -66,40 +66,40 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     let updatedRows = Array.isArray(allRows) ? [...allRows] : [];
 
-    if (searchTerm) {
-        const term = normalize(searchTerm.toLowerCase());
+    if (searchTerm && searchTerm.length > 0) {
+        const terms = searchTerm.map(term => normalize(term.toLowerCase()));
         updatedRows = updatedRows.filter(row => {
             const normalizedTitle = normalize(row.title.toLowerCase());
             const normalizedMeta = normalize(row.meta.toLowerCase());
             const normalizedMorph = row.morph.map(morphItem => normalize(morphItem.toLowerCase()));
 
-            const titleMatch = searchIn.word && row.type === 'word' && (
+            const titleMatch = searchIn.word && row.type === 'word' && terms.some(term => (
                 (exactMatch && normalizedTitle === term) ||
                 (startsWith && normalizedTitle.startsWith(term)) ||
                 (endsWith && normalizedTitle.endsWith(term)) ||
                 (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
-            );
+            ));
 
-            const rootMatch = searchIn.root && row.type === 'root' && (
+            const rootMatch = searchIn.root && row.type === 'root' && terms.some(term => (
                 (exactMatch && normalizedTitle === term) ||
                 (startsWith && normalizedTitle.startsWith(term)) ||
                 (endsWith && normalizedTitle.endsWith(term)) ||
                 (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
-            );
+            ));
 
-            const definitionMatch = searchIn.definition && (
+            const definitionMatch = searchIn.definition && terms.some(term => (
                 (exactMatch && normalizedMeta === term) ||
                 (startsWith && normalizedMeta.startsWith(term)) ||
                 (endsWith && normalizedMeta.endsWith(term)) ||
                 (!exactMatch && !startsWith && !endsWith && normalizedMeta.includes(term))
-            );
+            ));
 
-            const etymologyMatch = searchIn.etymology && (
+            const etymologyMatch = searchIn.etymology && terms.some(term => (
                 (exactMatch && normalizedMorph.includes(term)) ||
                 (startsWith && normalizedMorph.some(item => item.startsWith(term))) ||
                 (endsWith && normalizedMorph.some(item => item.endsWith(term))) ||
                 (!exactMatch && !startsWith && !endsWith && normalizedMorph.some(item => item.includes(term)))
-            );
+            ));
 
             return titleMatch || rootMatch || definitionMatch || etymologyMatch;
         });
@@ -147,8 +147,8 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     applySettingsButton.disabled = false; // Re-enable the button after the process is complete
 
     //console.log('Process complete.');
-} 
-    
+}
+
 /**
  * Displays the specified page of results.
  *
