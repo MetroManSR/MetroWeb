@@ -91,7 +91,7 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
             morphElement.innerHTML = `<strong>${await getTranslatedText('etymology', language)}:</strong> ${await highlight(censorText(morphHtml), searchTerm, searchIn, row)}`;
         } else {
             // Old format
-            morphElement.innerHTML = `<strong>${await getTranslatedText('etymology', language)}:</strong> ${await highlight(censorText(row.morph.join(', ') || ''), searchTerm, searchIn, row)}`;
+            morphElement.innerHTML = `<strong>${await getTranslatedText('etymology', language)}:</strong> ${await highlight(censorText(Array.isArray(row.morph) ? row.morph.join(', ') : row.morph), searchTerm, searchIn, row)}`;
         }
 
         contentBox.appendChild(metaElement);
