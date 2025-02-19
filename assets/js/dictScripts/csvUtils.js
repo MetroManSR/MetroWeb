@@ -155,7 +155,7 @@ async function parseMorph(morphText, row) {
             console.log('Processing item:', item);
 
             const matchOriginLanguage = /^et ([^\[:]+)/.test(item);  // Match any character until :
-            const matchOriginWord = /: ([^\[]+)/.test(item);  // Match any character until [ or end of string
+            const matchOriginWord = /: ([^\[]]+)/.test(item);  // Match any character until [ or end of string
             const matchRomanization = /\[([^\]]+)\]/.test(item);  // Match any character until ]
 
             if (matchOriginLanguage || matchOriginWord || matchRomanization) {
@@ -163,23 +163,33 @@ async function parseMorph(morphText, row) {
 
                 if (matchOriginLanguage) {
                     const originLanguageMatch = item.match(/^et ([^\[:]+)/);
-                    morphDict.originLanguages.push(originLanguageMatch[1].trim());
-                } else {
-                    morphDict.originLanguages.push(''); // Add empty string for consistency
+                    if (originLanguageMatch && originLanguageMatch[1]) {
+                        morphDict.originLanguages.push(originLanguageMatch[1].trim());
+                    } else {
+                        morphDict.originLanguages.push(''); // Add empty string for consistency
+                    }
                 }
 
                 if (matchOriginWord) {
                     const originWordMatch = item.match(/: ([^\[]]+)/);
-                    morphDict.originWords.push(originWordMatch[1].trim());
+                    if (originWordMatch && originWordMatch[1]) {
+                        morphDict.originWords.push(originWordMatch[1].trim());
+                    } else {
+                        // If no romanization, assume the word is the whole remaining part after ":"
+                        const fallbackOriginWordMatch = item.match(/: ([^\[:]+)/);
+                        morphDict.originWords.push(fallbackOriginWordMatch ? fallbackOriginWordMatch[1].trim() : '');
+                    }
                 } else {
-                    // If no romanization, assume the word is the whole remaining part after ":"
-                    const originWordMatch = item.match(/: ([^\[:]+)/);
-                    morphDict.originWords.push(originWordMatch ? originWordMatch[1].trim() : '');
+                    morphDict.originWords.push(''); // Add empty string for consistency
                 }
 
                 if (matchRomanization) {
                     const romanizationMatch = item.match(/\[([^\]]+)\]/);
-                    morphDict.originRomanizations.push(romanizationMatch[1].replace(/[\[\]]/g, '').trim()); // Remove [] and trim
+                    if (romanizationMatch && romanizationMatch[1]) {
+                        morphDict.originRomanizations.push(romanizationMatch[1].replace(/[\[\]]/g, '').trim()); // Remove [] and trim
+                    } else {
+                        morphDict.originRomanizations.push(''); // Add empty string for consistency
+                    }
                 } else {
                     morphDict.originRomanizations.push(''); // Add empty string for consistency
                 }
