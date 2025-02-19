@@ -153,22 +153,42 @@ async function parseMorph(morphText, row) {
 
         morphData.forEach(item => {
             console.log('Processing item:', item);
-            const matches = item.match(/et ([\w\s]+?):?\s?([\w\s]+?)(?: \[([\w\s]+)\])?(?:,|$)/);
 
-            if (matches) {
-                const [, originLanguage, originWord, originRomanization] = matches;
-                console.log('Match found:', matches);
+            // Check if the item starts with "et" and contains content after it
+            const matchOriginLanguage = /^et ([\w\s\u00C0-\u00FF\u0100-\u017F]+)/.test(item);
+            const matchOriginWord = /: ([\w\s\u00C0-\u00FF\u0100-\u017F]+)/.test(item);
+            const matchRomanization = /\[([\w\s\u00C0-\u00FF\u0100-\u017F]+)\]/.test(item);
 
-                morphDict.originLanguages.push(originLanguage.trim());
-                morphDict.originWords.push(originWord.trim());
+            if (matchOriginLanguage || matchOriginWord || matchRomanization) {
+                console.log('Matches found - Origin Language:', matchOriginLanguage, 'Origin Word:', matchOriginWord, 'Romanization:', matchRomanization);
 
-                if (originRomanization) {
-                    morphDict.originRomanizations.push(romanization.replace(/[\[\]]/g, '').trim()); // Remove [] and trim
+                if (matchOriginLanguage) {
+                    const originLanguageMatch = item.match(/^et ([\w\s\u00C0-\u00FF\u0100-\u017F]+)/);
+                    morphDict.originLanguages.push(originLanguageMatch[1].trim());
+                } else {
+                    morphDict.originLanguages.push(''); // Add empty string for consistency
+                }
+
+                if (matchOriginWord) {
+                    const originWordMatch = item.match(/: ([\w\s\u00C0-\u00FF\u0100-\u017F]+)/);
+                    morphDict.originWords.push(originWordMatch[1].trim());
+                } else {
+                    morphDict.originWords.push(''); // Add empty string for consistency
+                }
+
+                if (matchRomanization) {
+                    const romanizationMatch = item.match(/\[([\w\s\u00C0-\u00FF\u0100-\u017F]+)\]/);
+                    morphDict.originRomanizations.push(romanizationMatch[1].replace(/[\[\]]/g, '').trim()); // Remove [] and trim
                 } else {
                     morphDict.originRomanizations.push(''); // Add empty string for consistency
                 }
+            } else if (item.toLowerCase().includes('balkeon original')) {
+                // Handle "Balkeon Original" case
+                morphDict.originLanguages.push('Balkeon');
+                morphDict.originWords.push('Original');
+                morphDict.originRomanizations.push('');
             } else {
-                console.log('No match found for item:', item);
+                console.log('No matches found for item:', item);
                 // If it doesn't match the special format, keep it as is
                 morphDict.originLanguages.push(item);
                 morphDict.originWords.push(item);
