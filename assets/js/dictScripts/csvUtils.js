@@ -198,27 +198,6 @@ async function parseMorph(morphText, allRows) {
         : parsedMorph;
 }
 
-/**
- * Formats the meta field to handle special formatting requirements.
- * @param {string} meta - The meta field to be formatted.
- * @returns {Promise<string>} - A promise that resolves to the formatted meta field.
- */
-async function formatMeta(meta) {
-    const matches = meta.match(/et (\w+): (.+?)(?: \[(.+?)\])?(?:, (.+?))?/);
-    if (!matches) return meta;
-
-    const [, originalLanguage, originalWord, romanizedScript, additionalInfo] = matches;
-
-    let formattedMeta = `${originalLanguage}: ${originalWord}`;
-    if (romanizedScript) {
-        formattedMeta += ` <sup style="color: gray;">${romanizedScript}</sup>`;
-    }
-    if (additionalInfo) {
-        formattedMeta += `, ${additionalInfo}`;
-    }
-
-    return formattedMeta;
-}
 
 /**
  * Sanitizes a string to remove any potentially harmful HTML content.
