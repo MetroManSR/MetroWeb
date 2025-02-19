@@ -135,7 +135,7 @@ async function parseMorph(morphText, row) {
     console.log(row);
     // Check if the row version is '25V2' and contains ':'
     if (row.col4 === '25V2') {
-        console.log('Processing morph for row:', row.id, 'Version:', row.revision);
+        console.log('Processing morph for row:', row.col2, 'Version:', row.col4);
         
         const morphData = morphText.split(',').map(item => item.trim());
 
