@@ -72,18 +72,18 @@ export async function cleanData(data, type, allRows) {
             cleanedRow.meta = sanitizeHTML(idsNeedingFixing.includes(index) ? fixEncoding(row.col2 ? row.col2.trim() : '') : row.col2 ? row.col2.trim() : ''); // Meta for roots
             cleanedRow.revision = sanitizeHTML(idsNeedingFixing.includes(index) ? fixEncoding(row.col4 ? row.col4.trim() : '') : row.col4 ? row.col4.trim() : ''); // Notes for words
 
-            const notesAndEtimology = row.col3 ? row.col3.trim() : '';
-            if (notesAndEtimology.includes('|')) {
-                const parts = notesAndEtimology.split('|');
+            const notesAndEtymology = row.col3 ? row.col3.trim() : '';
+            if (notesAndEtymology.includes('|')) {
+                const parts = notesAndEtymology.split('|');
                 cleanedRow.notes = sanitizeHTML(parts[0].trim());
-                cleanedRow.morph = parts[1] ? parts[1].split(',').map(item => sanitizeHTML(item.trim())) : [];
+                cleanedRow.morph = await parseMorph(parts[1], allRows);
             } else {
-                if (!notesAndEtimology.startsWith("et") && !notesAndEtimology.startsWith("del")) {
-                    cleanedRow.notes = sanitizeHTML(notesAndEtimology);
+                if (!notesAndEtymology.startsWith("et") && !notesAndEtymology.startsWith("del")) {
+                    cleanedRow.notes = sanitizeHTML(notesAndEtymology);
                     cleanedRow.morph = [];
                 } else {
                     cleanedRow.notes = '';
-                    cleanedRow.morph = notesAndEtimology.split(',').map(item => sanitizeHTML(item.trim()));
+                    cleanedRow.morph = await parseMorph(notesAndEtymology, allRows);
                 }
             }
 
@@ -98,6 +98,9 @@ export async function cleanData(data, type, allRows) {
             anomalies.push({ id: cleanedRow.id, title: cleanedRow.title, meta: cleanedRow.meta });
             continue; // Skip adding the row if it's invalid
         }
+
+        // Format the meta field
+        cleanedRow.meta = await formatMeta(cleanedRow.meta);
 
         cleanedData.push(cleanedRow);
 
@@ -133,6 +136,88 @@ export async function cleanData(data, type, allRows) {
     //console.log("Cleaned Data:", cleanedData);
 
     return cleanedData;
+}
+
+/**
+ * Formats the meta field to handle special formatting requirements.
+ * @param {string} meta - The meta field to be formatted.
+ * @returns {Promise<string>} - A promise that resolves to the formatted meta field.
+ */
+async function formatMeta(meta) {
+    const matches = meta.match(/et (\w+): (.+?)(?: \[(.+?)\])?(?:, (.+?))?/);
+    if (!matches) return meta;
+
+    const [, originalLanguage, originalWord, romanizedScript, additionalInfo] = matches;
+
+    let formattedMeta = `${originalLanguage}: ${originalWord}`;
+    if (romanizedScript) {
+        formattedMeta += ` <sup style="color: gray;">${romanizedScript}</sup>`;
+    }
+    if (additionalInfo) {
+        formattedMeta += `, ${additionalInfo}`;
+    }
+
+    return formattedMeta;
+}
+
+/**
+ * Parses the morph field to create a dictionary if it contains ":" and/or "[]".
+ * @param {string} morphText - The morph field to be parsed.
+ * @param {Array} allRows - The array of all dictionary rows.
+ * @returns {Promise<Object|Array>} - A promise that resolves to the parsed morph dictionary or the original morph array.
+ */
+async function parseMorph(morphText, allRows) {
+    const morphData = morphText.split(',').map(item => item.trim());
+
+    const morphDict = {
+        originLanguages: [],
+        originWords: [],
+        originRomanizations: [],
+    };
+
+    const parsedMorph = await Promise.all(morphData.map(async item => {
+        const matches = item.match(/et (\w+): (.+?)(?: \[(.+?)\])?/);
+
+        if (matches) {
+            const [, originLanguage, originWord, originRomanization] = matches;
+            morphDict.originLanguages.push(originLanguage);
+            morphDict.originWords.push(originWord);
+
+            if (originRomanization) {
+                morphDict.originRomanizations.push(originRomanization);
+            }
+        } else {
+            // If it doesn't match the special format, keep it as is
+            return item;
+        }
+    }));
+
+    // If morphDict has content, return it; otherwise, return the original array
+    return morphDict.originLanguages.length > 0 || morphDict.originWords.length > 0 || morphDict.originRomanizations.length > 0
+        ? morphDict
+        : parsedMorph;
+}
+
+/**
+ * Formats the meta field to handle special formatting requirements.
+ * @param {string} meta - The meta field to be formatted.
+ * @returns {Promise<string>} - A promise that resolves to the formatted meta field.
+ */
+async function formatMeta(meta) {
+    const matches = meta.match(/et (\w+): (.+?)(?: \[(.+?)\])?(?:, (.+?))?/);
+    if (!matches) return meta;
+
+    const [, originalLanguage, originalWord, romanizedScript, additionalInfo] = matches;
+
+    let formattedMeta = `${originalLanguage}: ${originalWord}`;
+    if (romanizedScript) {
+        formattedMeta += ` <sup style="color: gray;">${romanizedScript}</sup>`;
+    }
+    if (additionalInfo) {
+        formattedMeta += `, ${additionalInfo}`;
+    }
+
+    return formattedMeta;
 }
 
 /**
