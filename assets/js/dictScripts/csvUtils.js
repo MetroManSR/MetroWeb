@@ -53,8 +53,6 @@ export async function cleanData(data, type, allRows) {
             cleanedRow.notes = sanitizeHTML(idsNeedingFixing.includes(index) ? fixEncoding(row.col4 ? row.col4.trim() : '') : row.col4 ? row.col4.trim() : ''); // Notes for words
             cleanedRow.revision = sanitizeHTML(idsNeedingFixing.includes(index) ? fixEncoding(row.col6 ? row.col6.trim() : '') : row.col6 ? row.col6.trim() : ''); // Revision for words
 
-            //console.log(cleanedRow.revision);
-            
             let morphData = row.col5 ? row.col5.trim().split(',').map(item => item.trim()) : [];
 
             // Process morphData asynchronously to create hyperlinks
@@ -123,43 +121,8 @@ export async function cleanData(data, type, allRows) {
     progressBar.style.width = `100%`;
     progressText.textContent = `Parsing complete!`;
 
-  /* 
-    // After 3 seconds, display anomalies if any
-    setTimeout(() => {
-        if (anomalies.length > 0) {
-            progressText.textContent = `${anomalies.length} anomalies found: ${anomalies.map(anomaly => anomaly.title ? `Title: "${anomaly.title}"` : `Meta: "${anomaly.meta}"`).join(', ')}`;
-        } else {
-            progressText.textContent = `No anomalies found!`;
-        }
-    }, 3000);*/
-
-    //console.log("Cleaned Data:", cleanedData);
-
     return cleanedData;
 }
-
-/**
- * Formats the meta field to handle special formatting requirements.
- * @param {string} meta - The meta field to be formatted.
- * @returns {Promise<string>} - A promise that resolves to the formatted meta field.
- */
-async function formatMeta(meta) {
-    const matches = meta.match(/et (\w+): (.+?)(?: \[(.+?)\])?(?:, (.+?))?/);
-    if (!matches) return meta;
-
-    const [, originalLanguage, originalWord, romanizedScript, additionalInfo] = matches;
-
-    let formattedMeta = `${originalLanguage.trim()}: ${originalWord.trim()}`;
-    if (romanizedScript) {
-        formattedMeta += ` <sup style="color: gray;">${romanizedScript.replace(/[\[\]]/g, '').trim()}</sup>`;
-    }
-    if (additionalInfo) {
-        formattedMeta += `, ${additionalInfo.trim()}`;
-    }
-
-    return formattedMeta;
-} 
-
 
 /**
  * Parses the morph field to create a dictionary if it contains ":" and/or "[]".
@@ -176,8 +139,10 @@ async function parseMorph(morphText, allRows) {
         originRomanizations: [],
     };
 
-    const parsedMorph = await Promise.all(morphData.map(async item => {
-        const matches = item.match(/et (\w+): (.+?)(?: \[(.+?)\])?/);
+    console.log('Parsing morph:', morphText);
+
+    morphData.forEach(item => {
+        const matches = item.match(/et ([\w\s]+?):?\s?([\w\s]+?)(?: \[([\w\s]+)\])?(?:,|$)/);
 
         if (matches) {
             const [, originLanguage, originWord, originRomanization] = matches;
@@ -186,19 +151,43 @@ async function parseMorph(morphText, allRows) {
 
             if (originRomanization) {
                 morphDict.originRomanizations.push(originRomanization.replace(/[\[\]]/g, '').trim()); // Remove [] and trim
+            } else {
+                morphDict.originRomanizations.push(''); // Add empty string for consistency
             }
         } else {
             // If it doesn't match the special format, keep it as is
-            return item;
+            morphDict.originLanguages.push(item);
+            morphDict.originWords.push(item);
+            morphDict.originRomanizations.push('');
         }
-    }));
+    });
+
+    console.log('Morph dict:', morphDict);
 
     // If morphDict has content, return it; otherwise, return the original array
     return morphDict.originLanguages.length > 0 || morphDict.originWords.length > 0 || morphDict.originRomanizations.length > 0
         ? morphDict
-        : parsedMorph;
-} 
+        : morphData;
+}
 
+/**
+ * Formats the meta field to handle special formatting requirements.
+ * @param {string} meta - The meta field to be formatted.
+ * @returns {Promise<string>} - A promise that resolves to the formatted meta field.
+ */
+async function formatMeta(meta) {
+    const matches = meta.match(/et ([\w\s]+?):?\s?([\w\s]+?)(?: \[([\w\s]+)\])?(?:,|$)/);
+    if (!matches) return meta;
+
+    const [, originalLanguage, originalWord, romanizedScript] = matches;
+
+    let formattedMeta = `${originalLanguage.trim()}: ${originalWord.trim()}`;
+    if (romanizedScript) {
+        formattedMeta += ` <sup style="color: gray;">${romanizedScript.replace(/[\[\]]/g, '').trim()}</sup>`;
+    }
+
+    return formattedMeta;
+}
 
 /**
  * Sanitizes a string to remove any potentially harmful HTML content.
