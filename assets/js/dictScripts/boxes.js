@@ -172,7 +172,6 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
     }, 100);
 
     return box;
-    
 }
 
 
