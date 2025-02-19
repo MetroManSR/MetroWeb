@@ -38,9 +38,10 @@ function getPartOfSpeechAbbreviation(partOfSpeech, language) {
     return posAbbreviations[language][partOfSpeech.toLowerCase()] || partOfSpeech;
 }
 
+
 export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, searchIn) {
     if (!row || !row.title) {
-        //console.warnung('Invalid row data:', row);
+        //console.warn('Invalid row data:', row);
         return null;
     }
 
@@ -78,7 +79,21 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
     if (row.type === 'root') {
         metaElement.innerHTML = `<strong>${await getTranslatedText('translation', language)}:</strong> ${await highlight(censorText(row.meta), searchTerm, searchIn, row)}`;
         notesElement.innerHTML = `<strong>${await getTranslatedText('notes', language)}:</strong> ${await highlight(censorText(row.notes || ''), searchTerm, searchIn, row)}`;
-        morphElement.innerHTML = `<strong>${await getTranslatedText('etymology', language)}:</strong> ${await highlight(censorText(row.morph.join(', ') || ''), searchTerm, searchIn, row)}`;
+
+        if (typeof row.morph === 'object' && row.morph.originLanguages && row.morph.originWords) {
+            // New dictionary format
+            const morphHtml = row.morph.originWords.map((word, index) => {
+                const language = row.morph.originLanguages[index];
+                const romanized = row.morph.originRomanizations[index] ? `<sup style="color: gray;">${row.morph.originRomanizations[index]}</sup>` : '';
+                return `${language}: ${word} ${romanized}`;
+            }).join(', ');
+
+            morphElement.innerHTML = `<strong>${await getTranslatedText('etymology', language)}:</strong> ${await highlight(censorText(morphHtml), searchTerm, searchIn, row)}`;
+        } else {
+            // Old format
+            morphElement.innerHTML = `<strong>${await getTranslatedText('etymology', language)}:</strong> ${await highlight(censorText(row.morph.join(', ') || ''), searchTerm, searchIn, row)}`;
+        }
+
         contentBox.appendChild(metaElement);
         contentBox.appendChild(notesElement);
         contentBox.appendChild(morphElement);
@@ -90,11 +105,21 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
 
         if (Array.isArray(row.morph) && row.morph.length > 0) {
             morphElement.innerHTML = `<strong>${await getTranslatedText('morphology', language)}:</strong> `;
-            const morphLinks = await Promise.all(row.morph.map(async (morphTitle, index) => {
-                const matchingRoot = allRows.find(r => r.meta.toLowerCase() === morphTitle.toLowerCase() && r.type === 'root');
-                return matchingRoot 
-                    ? await createHyperlink(morphTitle, searchTerm, allRows, searchIn) 
-                    : await highlight(censorText(morphTitle), searchTerm, searchIn, row);
+            const morphLinks = await Promise.all(row.morph.map(async (morphItem, index) => {
+                if (typeof morphItem === 'object' && morphItem.originLanguages && morphItem.originWords) {
+                    // New dictionary format
+                    return morphItem.originWords.map((word, i) => {
+                        const language = morphItem.originLanguages[i];
+                        const romanized = morphItem.originRomanizations[i] ? `<sup style="color: gray;">${morphItem.originRomanizations[i]}</sup>` : '';
+                        return `${language}: ${word} ${romanized}`;
+                    }).join(', ');
+                } else {
+                    // Old format
+                    const matchingRoot = allRows.find(r => r.meta.toLowerCase() === morphItem.toLowerCase() && r.type === 'root');
+                    return matchingRoot 
+                        ? await createHyperlink(morphItem, searchTerm, allRows, searchIn) 
+                        : await highlight(censorText(morphItem), searchTerm, searchIn, row);
+                }
             }));
             morphElement.innerHTML += morphLinks.join(', ');
             contentBox.appendChild(morphElement);
@@ -147,7 +172,9 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
     }, 100);
 
     return box;
+    
 }
+
 
 /**
  * Function to create a no match box with suggestions.
