@@ -77,8 +77,14 @@ export function highlight(text, term, searchIn = { word: true, root: true, defin
             regex = new RegExp(`(${lowerCasedTerm})`, 'gi');
         } else if (searchIn.definition && text === row.meta) {
             regex = new RegExp(`(${lowerCasedTerm})`, 'gi');
-        } else if (searchIn.etymology && Array.isArray(row.morph) && row.morph.includes(text)) {
-            regex = new RegExp(`(${lowerCasedTerm})`, 'gi');
+        } else if (searchIn.etymology) {
+            if (Array.isArray(row.morph) && row.morph.includes(text)) {
+                regex = new RegExp(`(${lowerCasedTerm})`, 'gi');
+            } else if (typeof row.morph === 'object' && row.morph.originWords && row.morph.originWords.includes(text)) {
+                regex = new RegExp(`(${lowerCasedTerm})`, 'gi');
+            } else {
+                return text;
+            }
         } else {
             return text;
         }
