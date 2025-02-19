@@ -75,7 +75,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         updatedRows = updatedRows.filter(row => {
             const normalizedTitle = normalize(row.title.toLowerCase());
             const normalizedMeta = normalize(row.meta.toLowerCase());
-            const normalizedMorph = row.morph.map(morphItem => normalize(morphItem.toLowerCase()));
+            const normalizedMorph = Array.isArray(row.morph) ? row.morph.map(morphItem => normalize(morphItem.toLowerCase())) : [];
 
             let termFound = false;
 
@@ -119,7 +119,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
                             (exactMatch && normalizedMorph.includes(term)) ||
                             (startsWith && normalizedMorph.some(item => item.startsWith(term))) ||
                             (endsWith && normalizedMorph.some(item => item.endsWith(term))) ||
-                            (!exactMatch && !startsWith && !endsWith && normalizedMorph.some(item => item.includes(term)))
+                            (!exactMatch && !startsWith && not endsWith && normalizedMorph.some(item => item.includes(term)))
                         );
                     }
                 }
