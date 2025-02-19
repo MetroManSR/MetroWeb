@@ -1,4 +1,3 @@
-
 import { createPaginationControls, updatePagination } from './pagination.js';
 import { renderBox, updateFloatingText } from './boxes.js';
 import { highlight } from './utils.js';
@@ -119,7 +118,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
                             (exactMatch && normalizedMorph.includes(term)) ||
                             (startsWith && normalizedMorph.some(item => item.startsWith(term))) ||
                             (endsWith && normalizedMorph.some(item => item.endsWith(term))) ||
-                            (!exactMatch && !startsWith && not endsWith && normalizedMorph.some(item => item.includes(term)))
+                            (!exactMatch && !startsWith && !endsWith && normalizedMorph.some(item => item.includes(term)))
                         );
                     }
                 }
