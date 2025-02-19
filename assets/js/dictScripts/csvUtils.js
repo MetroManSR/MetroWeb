@@ -131,13 +131,15 @@ export async function cleanData(data, type, allRows) {
  * @returns {Promise<Object|Array>} - A promise that resolves to the parsed morph dictionary or the original morph array.
  */
 async function parseMorph(morphText, row) {
-    
     console.log(row);
     // Check if the row version is '25V2' and contains ':'
     if (row.col4 === '25V2') {
         console.log('Processing morph for row:', row.col2, 'Version:', row.col4);
         
-        const morphData = morphText.split(',').map(item => item.trim());
+        let morphData = morphText.split(',').map(item => item.trim());
+        if (!Array.isArray(morphData)) {
+            morphData = [morphData];
+        }
 
         const morphDict = {
             originLanguages: [],
