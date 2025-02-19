@@ -131,15 +131,19 @@ export async function cleanData(data, type, allRows) {
  * @returns {Promise<Object|Array>} - A promise that resolves to the parsed morph dictionary or the original morph array.
  */
 async function parseMorph(morphText, row) {
-    console.log(row);
+    console.log('Processing row:', row);
+
     // Check if the row version is '25V2' and contains ':'
-    if (row.col4 === '25V2') {
+    if (row.col4 && row.col4.trim() === '25V2') {
         console.log('Processing morph for row:', row.col2, 'Version:', row.col4);
-        
+
         let morphData = morphText.split(',').map(item => item.trim());
+        console.log('Initial morph data:', morphData);
+
         if (!Array.isArray(morphData)) {
             morphData = [morphData];
         }
+        console.log('Normalized morph data:', morphData);
 
         const morphDict = {
             originLanguages: [],
@@ -148,19 +152,23 @@ async function parseMorph(morphText, row) {
         };
 
         morphData.forEach(item => {
+            console.log('Processing item:', item);
             const matches = item.match(/et ([\w\s]+?):?\s?([\w\s]+?)(?: \[([\w\s]+)\])?(?:,|$)/);
 
             if (matches) {
                 const [, originLanguage, originWord, originRomanization] = matches;
+                console.log('Match found:', matches);
+
                 morphDict.originLanguages.push(originLanguage.trim());
                 morphDict.originWords.push(originWord.trim());
 
                 if (originRomanization) {
-                    morphDict.originRomanizations.push(originRomanization.replace(/[\[\]]/g, '').trim()); // Remove [] and trim
+                    morphDict.originRomanizations.push(romanization.replace(/[\[\]]/g, '').trim()); // Remove [] and trim
                 } else {
                     morphDict.originRomanizations.push(''); // Add empty string for consistency
                 }
             } else {
+                console.log('No match found for item:', item);
                 // If it doesn't match the special format, keep it as is
                 morphDict.originLanguages.push(item);
                 morphDict.originWords.push(item);
@@ -168,12 +176,13 @@ async function parseMorph(morphText, row) {
             }
         });
 
-        console.log('Morph dict:', morphDict);
+        console.log('Final morph dict:', JSON.stringify(morphDict, null, 2));
 
         return morphDict.originLanguages.length > 0 || morphDict.originWords.length > 0 || morphDict.originRomanizations.length > 0
             ? morphDict
             : morphData;
     } else {
+        console.log('Using old processing for row:', row.col2, 'Version:', row.col4);
         // Old processing
         return morphText.split(',').map(item => item.trim());
     }
