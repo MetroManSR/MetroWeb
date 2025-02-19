@@ -124,50 +124,49 @@ export async function cleanData(data, type, allRows) {
     return cleanedData;
 }
 
-/**
- * Parses the morph field to create a dictionary if it contains ":" and/or "[]".
- * @param {string} morphText - The morph field to be parsed.
- * @param {Array} allRows - The array of all dictionary rows.
- * @returns {Promise<Object|Array>} - A promise that resolves to the parsed morph dictionary or the original morph array.
- */
-async function parseMorph(morphText, allRows) {
-    const morphData = morphText.split(',').map(item => item.trim());
+async function parseMorph(morphText, row) {
+    // Check if the row version is '25V2' and contains ':'
+    if (row.revision === '25V2' && morphText.includes(':')) {
+        console.log('Processing morph for row:', row.id, 'Version:', row.revision);
+        
+        const morphData = morphText.split(',').map(item => item.trim());
 
-    const morphDict = {
-        originLanguages: [],
-        originWords: [],
-        originRomanizations: [],
-    };
+        const morphDict = {
+            originLanguages: [],
+            originWords: [],
+            originRomanizations: [],
+        };
 
-    console.log('Parsing morph:', morphText);
+        morphData.forEach(item => {
+            const matches = item.match(/et ([\w\s]+?):?\s?([\w\s]+?)(?: \[([\w\s]+)\])?(?:,|$)/);
 
-    morphData.forEach(item => {
-        const matches = item.match(/et ([\w\s]+?):?\s?([\w\s]+?)(?: \[([\w\s]+)\])?(?:,|$)/);
+            if (matches) {
+                const [, originLanguage, originWord, originRomanization] = matches;
+                morphDict.originLanguages.push(originLanguage.trim());
+                morphDict.originWords.push(originWord.trim());
 
-        if (matches) {
-            const [, originLanguage, originWord, originRomanization] = matches;
-            morphDict.originLanguages.push(originLanguage.trim());
-            morphDict.originWords.push(originWord.trim());
-
-            if (originRomanization) {
-                morphDict.originRomanizations.push(originRomanization.replace(/[\[\]]/g, '').trim()); // Remove [] and trim
+                if (originRomanization) {
+                    morphDict.originRomanizations.push(originRomanization.replace(/[\[\]]/g, '').trim()); // Remove [] and trim
+                } else {
+                    morphDict.originRomanizations.push(''); // Add empty string for consistency
+                }
             } else {
-                morphDict.originRomanizations.push(''); // Add empty string for consistency
+                // If it doesn't match the special format, keep it as is
+                morphDict.originLanguages.push(item);
+                morphDict.originWords.push(item);
+                morphDict.originRomanizations.push('');
             }
-        } else {
-            // If it doesn't match the special format, keep it as is
-            morphDict.originLanguages.push(item);
-            morphDict.originWords.push(item);
-            morphDict.originRomanizations.push('');
-        }
-    });
+        });
 
-    console.log('Morph dict:', morphDict);
+        console.log('Morph dict:', morphDict);
 
-    // If morphDict has content, return it; otherwise, return the original array
-    return morphDict.originLanguages.length > 0 || morphDict.originWords.length > 0 || morphDict.originRomanizations.length > 0
-        ? morphDict
-        : morphData;
+        return morphDict.originLanguages.length > 0 || morphDict.originWords.length > 0 || morphDict.originRomanizations.length > 0
+            ? morphDict
+            : morphData;
+    } else {
+        // Old processing
+        return morphText.split(',').map(item => item.trim());
+    }
 }
 
 /**
