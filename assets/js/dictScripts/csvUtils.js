@@ -131,93 +131,102 @@ export async function cleanData(data, type, allRows) {
  * @returns {Promise<Object|Array>} - A promise that resolves to the parsed morph dictionary or the original morph array.
  */
 async function parseMorph(morphText, row) {
-    console.log('Processing row:', row);
+    try {
+        console.log('Processing row:', row);
 
-    // Check if the row version is '25V2' and contains ':'
-    if (row.col4 && row.col4.trim() === '25V2') {
-        console.log('Processing morph for row:', row.col2, 'Version:', row.col4);
+        // Check if the row version is '25V2' and contains ':'
+        if (row.col4 && row.col4.trim() === '25V2') {
+            console.log('Processing morph for row:', row.col2, 'Version:', row.col4);
 
-        let morphData = morphText.split(',').map(item => item.trim());
-        console.log('Initial morph data:', morphData);
+            let morphData = morphText.split(',').map(item => item.trim());
+            console.log('Initial morph data:', morphData);
 
-        if (!Array.isArray(morphData)) {
-            morphData = [morphData];
-        }
-        console.log('Normalized morph data:', morphData);
-
-        const morphDict = {
-            originLanguages: [],
-            originWords: [],
-            originRomanizations: [],
-        };
-
-        morphData.forEach(item => {
-            console.log('Processing item:', item);
-
-            const matchOriginLanguage = /^et ([^\[:]+)/.test(item);  // Match any character until :
-            const matchOriginWord = /: ([^\[]]+)/.test(item);  // Match any character until [ or end of string
-            const matchRomanization = /\[([^\]]+)\]/.test(item);  // Match any character until ]
-
-            if (matchOriginLanguage || matchOriginWord || matchRomanization) {
-                console.log('Matches found - Origin Language:', matchOriginLanguage, 'Origin Word:', matchOriginWord, 'Romanization:', matchRomanization);
-
-                if (matchOriginLanguage) {
-                    const originLanguageMatch = item.match(/^et ([^\[:]+)/);
-                    if (originLanguageMatch && originLanguageMatch[1]) {
-                        morphDict.originLanguages.push(originLanguageMatch[1].trim());
-                    } else {
-                        morphDict.originLanguages.push(''); // Add empty string for consistency
-                    }
-                }
-
-                if (matchOriginWord) {
-                    const originWordMatch = item.match(/: ([^\[]]+)/);
-                    if (originWordMatch && originWordMatch[1]) {
-                        morphDict.originWords.push(originWordMatch[1].trim());
-                    } else {
-                        // If no romanization, assume the word is the whole remaining part after ":"
-                        const fallbackOriginWordMatch = item.match(/: ([^\[:]+)/);
-                        morphDict.originWords.push(fallbackOriginWordMatch ? fallbackOriginWordMatch[1].trim() : '');
-                    }
-                } else {
-                    morphDict.originWords.push(''); // Add empty string for consistency
-                }
-
-                if (matchRomanization) {
-                    const romanizationMatch = item.match(/\[([^\]]+)\]/);
-                    if (romanizationMatch && romanizationMatch[1]) {
-                        morphDict.originRomanizations.push(romanizationMatch[1].replace(/[\[\]]/g, '').trim()); // Remove [] and trim
-                    } else {
-                        morphDict.originRomanizations.push(''); // Add empty string for consistency
-                    }
-                } else {
-                    morphDict.originRomanizations.push(''); // Add empty string for consistency
-                }
-            } else if (item.toLowerCase().includes('balkeon original')) {
-                // Handle "Balkeon Original" case
-                morphDict.originLanguages.push('Balkeon');
-                morphDict.originWords.push('Original');
-                morphDict.originRomanizations.push('');
-            } else {
-                console.log('No matches found for item:', item);
-                // If it doesn't match the special format, keep it as is
-                morphDict.originLanguages.push(item);
-                morphDict.originWords.push(item);
-                morphDict.originRomanizations.push('');
+            if (!Array.isArray(morphData)) {
+                morphData = [morphData];
             }
-        });
+            console.log('Normalized morph data:', morphData);
 
-        console.log('Final morph dict:', JSON.stringify(morphDict, null, 2));
+            const morphDict = {
+                originLanguages: [],
+                originWords: [],
+                originRomanizations: [],
+            };
 
-        return morphDict.originLanguages.length > 0 || morphDict.originWords.length > 0 || morphDict.originRomanizations.length > 0
-            ? morphDict
-            : morphData;
-    } else {
-        console.log('Using old processing for row:', row.col2, 'Version:', row.col4);
-        // Old processing
-        return morphText.split(',').map(item => item.trim());
+            morphData.forEach(item => {
+                try {
+                    console.log('Processing item:', item);
+
+                    const matchOriginLanguage = /^et ([^\[:]+)/.test(item);  // Match any character until :
+                    const matchOriginWord = /: ([^\[]]+)/.test(item);  // Match any character until [ or end of string
+                    const matchRomanization = /\[([^\]]+)\]/.test(item);  // Match any character until ]
+
+                    if (matchOriginLanguage || matchOriginWord || matchRomanization) {
+                        console.log('Matches found - Origin Language:', matchOriginLanguage, 'Origin Word:', matchOriginWord, 'Romanization:', matchRomanization);
+
+                        if (matchOriginLanguage) {
+                            const originLanguageMatch = item.match(/^et ([^\[:]+)/);
+                            if (originLanguageMatch && originLanguageMatch[1]) {
+                                morphDict.originLanguages.push(originLanguageMatch[1].trim());
+                            } else {
+                                morphDict.originLanguages.push(''); // Add empty string for consistency
+                            }
+                        }
+
+                        if (matchOriginWord) {
+                            const originWordMatch = item.match(/: ([^\[]]+)/);
+                            if (originWordMatch && originWordMatch[1]) {
+                                morphDict.originWords.push(originWordMatch[1].trim());
+                            } else {
+                                // If no romanization, assume the word is the whole remaining part after ":"
+                                const fallbackOriginWordMatch = item.match(/: ([^\[:]+)/);
+                                morphDict.originWords.push(fallbackOriginWordMatch ? fallbackOriginWordMatch[1].trim() : '');
+                            }
+                        } else {
+                            morphDict.originWords.push(''); // Add empty string for consistency
+                        }
+
+                        if (matchRomanization) {
+                            const romanizationMatch = item.match(/\[([^\]]+)\]/);
+                            if (romanizationMatch && romanizationMatch[1]) {
+                                morphDict.originRomanizations.push(romanizationMatch[1].replace(/[\[\]]/g, '').trim()); // Remove [] and trim
+                            } else {
+                                morphDict.originRomanizations.push(''); // Add empty string for consistency
+                            }
+                        } else {
+                            morphDict.originRomanizations.push(''); // Add empty string for consistency
+                        }
+                    } else if (item.toLowerCase().includes('balkeon original')) {
+                        // Handle "Balkeon Original" case
+                        morphDict.originLanguages.push('Balkeon');
+                        morphDict.originWords.push('Original');
+                        morphDict.originRomanizations.push('');
+                    } else {
+                        console.log('No matches found for item:', item);
+                        // If it doesn't match the special format, keep it as is
+                        morphDict.originLanguages.push(item);
+                        morphDict.originWords.push(item);
+                        morphDict.originRomanizations.push('');
+                    }
+                } catch (error) {
+                    console.error('Error processing item:', item, error);
+                }
+            });
+
+            console.log('Final morph dict:', JSON.stringify(morphDict, null, 2));
+
+            return morphDict.originLanguages.length > 0 || morphDict.originWords.length > 0 || morphDict.originRomanizations.length > 0
+                ? morphDict
+                : morphData;
+        } else {
+            console.log('Using old processing for row:', row.col2, 'Version:', row.col4);
+            // Old processing
+            return morphText.split(',').map(item => item.trim());
+        }
+    } catch (error) {
+        console.error('Error processing row:', row, error);
+        return morphText.split(',').map(item => item.trim()); // Fallback to old processing in case of error
     }
-}
+} 
 
 /**
  * Formats the meta field to handle special formatting requirements.
