@@ -124,6 +124,7 @@ export async function cleanData(data, type, allRows) {
     return cleanedData;
 }
 
+
 /**
  * Parses the morph field to create a dictionary if it meets specific conditions.
  * @param {string} morphText - The morph field to be parsed.
@@ -154,9 +155,8 @@ async function parseMorph(morphText, row) {
         morphData.forEach(item => {
             console.log('Processing item:', item);
 
-            // Check if the item starts with "et" and contains content after it
             const matchOriginLanguage = /^et ([\w\s\u00C0-\u00FF\u0100-\u017F]+)/.test(item);
-            const matchOriginWord = /: ([\w\s\u00C0-\u00FF\u0100-\u017F]+)/.test(item);
+            const matchOriginWord = /: ([\w\s\u00C0-\u00FF\u0100-\u017F]+?)(?: \[|$)/.test(item);
             const matchRomanization = /\[([\w\s\u00C0-\u00FF\u0100-\u017F]+)\]/.test(item);
 
             if (matchOriginLanguage || matchOriginWord || matchRomanization) {
@@ -170,10 +170,12 @@ async function parseMorph(morphText, row) {
                 }
 
                 if (matchOriginWord) {
-                    const originWordMatch = item.match(/: ([\w\s\u00C0-\u00FF\u0100-\u017F]+)/);
+                    const originWordMatch = item.match(/: ([\w\s\u00C0-\u00FF\u0100-\u017F]+?)(?: \[|$)/);
                     morphDict.originWords.push(originWordMatch[1].trim());
                 } else {
-                    morphDict.originWords.push(''); // Add empty string for consistency
+                    // If no romanization, assume the word is the whole remaining part after ":"
+                    const originWordMatch = item.match(/: ([\w\s\u00C0-\u00FF\u0100-\u017F]+)/);
+                    morphDict.originWords.push(originWordMatch ? originWordMatch[1].trim() : '');
                 }
 
                 if (matchRomanization) {
