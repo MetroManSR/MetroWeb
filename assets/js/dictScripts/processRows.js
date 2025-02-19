@@ -1,3 +1,4 @@
+
 import { createPaginationControls, updatePagination } from './pagination.js';
 import { renderBox, updateFloatingText } from './boxes.js';
 import { highlight } from './utils.js';
@@ -100,12 +101,28 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
                     (!exactMatch && !startsWith && !endsWith && normalizedMeta.includes(term))
                 );
 
-                const etymologyMatch = searchIn.etymology && (
-                    (exactMatch && normalizedMorph.includes(term)) ||
-                    (startsWith && normalizedMorph.some(item => item.startsWith(term))) ||
-                    (endsWith && normalizedMorph.some(item => item.endsWith(term))) ||
-                    (!exactMatch && !startsWith && !endsWith && normalizedMorph.some(item => item.includes(term)))
-                );
+                let etymologyMatch = false;
+                if (searchIn.etymology) {
+                    if (typeof row.morph === 'object' && row.morph.originLanguages && row.morph.originWords) {
+                        // New dictionary format
+                        etymologyMatch = (
+                            row.morph.originWords.some(item => (
+                                (exactMatch && normalize(item).includes(term)) ||
+                                (startsWith && normalize(item).startsWith(term)) ||
+                                (endsWith && normalize(item).endsWith(term)) ||
+                                (!exactMatch && !startsWith && !endsWith && normalize(item).includes(term))
+                            ))
+                        );
+                    } else {
+                        // Old format
+                        etymologyMatch = (
+                            (exactMatch && normalizedMorph.includes(term)) ||
+                            (startsWith && normalizedMorph.some(item => item.startsWith(term))) ||
+                            (endsWith && normalizedMorph.some(item => item.endsWith(term))) ||
+                            (!exactMatch && !startsWith && !endsWith && normalizedMorph.some(item => item.includes(term)))
+                        );
+                    }
+                }
 
                 if (titleMatch || rootMatch || definitionMatch || etymologyMatch) {
                     foundTerms[term].push(row);
@@ -143,6 +160,19 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     // Sort rows
     updatedRows = sortRows(updatedRows, sortingManner);
 
+    // Update filteredRows to include morph dictionary processing
+    updatedRows.forEach(row => {
+        if (typeof row.morph === 'object' && row.morph.originLanguages && row.morph.originWords) {
+            row.morphHtml = row.morph.originWords.map((word, index) => {
+                const language = row.morph.originLanguages[index];
+                const romanized = row.morph.originRomanizations[index] ? `<sup style="color: gray;">${row.morph.originRomanizations[index]}</sup>` : '';
+                return `${language}: ${word} ${romanized}`;
+            }).join(', ');
+        } else {
+            row.morphHtml = Array.isArray(row.morph) ? row.morph.join(', ') : row.morph;
+        }
+    });
+
     updateFilteredRows(updatedRows);
 
     const totalRows = updatedRows.length;
@@ -161,45 +191,4 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     }
 
     applySettingsButton.disabled = false; // Re-enable the button after the process is complete
-}
-
-export function updateUniversalPendingChanges(i) {
-    universalPendingChanges = i;
-}
-
-/**
- * Displays the specified page of results.
- *
- * @param {number} page - The page number to display.
- * @param {number} rowsPerPage - The number of rows to display per page.
- * @param {string} searchTerm - The search term used to filter results.
- * @param {Object} searchIn - An object specifying which fields to search in.
- * @param {boolean} exactMatch - Whether to search for exact matches.
- * @param {Array} filteredRows - The filtered array of dictionary entries.
- * @param {Array} allRows - The array of all dictionary entries.
- */
-export function displayPage(page, rowsPerPage, searchTerm = '', searchIn = { word: true, root: true, definition: false, etymology: false }, exactMatch = false, allRows = []) {
-    //console.log('Displaying page:', page);
-    renderBox(allRows, searchTerm, exactMatch, searchIn, rowsPerPage, page);
-}
-
-/**
- * Handles the rows per page customization.
- *
- * @param {Event} e - The event object.
- */
-export function handleRowsPerPageChange(e) {
-    const rowsPerPage = parseInt(e.target.value, 10);
-    if (!isNaN(rowsPerPage) && rowsPerPage > 0) {
-        pendingChanges.rowsPerPage = rowsPerPage;
-    }
-}
-
-function splitArrayIntoChunks(array, chunkSize) {
-    let result = [];
-    for (let i = 0; i < array.length; i += chunkSize) {
-        let chunk = array.slice(i, i + chunkSize);
-        result.push(chunk);
-    }
-    return result;
 }
