@@ -149,16 +149,17 @@ async function formatMeta(meta) {
 
     const [, originalLanguage, originalWord, romanizedScript, additionalInfo] = matches;
 
-    let formattedMeta = `${originalLanguage}: ${originalWord}`;
+    let formattedMeta = `${originalLanguage.trim()}: ${originalWord.trim()}`;
     if (romanizedScript) {
-        formattedMeta += ` <sup style="color: gray;">${romanizedScript}</sup>`;
+        formattedMeta += ` <sup style="color: gray;">${romanizedScript.replace(/[\[\]]/g, '').trim()}</sup>`;
     }
     if (additionalInfo) {
-        formattedMeta += `, ${additionalInfo}`;
+        formattedMeta += `, ${additionalInfo.trim()}`;
     }
 
     return formattedMeta;
-}
+} 
+
 
 /**
  * Parses the morph field to create a dictionary if it contains ":" and/or "[]".
@@ -180,11 +181,11 @@ async function parseMorph(morphText, allRows) {
 
         if (matches) {
             const [, originLanguage, originWord, originRomanization] = matches;
-            morphDict.originLanguages.push(originLanguage);
-            morphDict.originWords.push(originWord);
+            morphDict.originLanguages.push(originLanguage.trim());
+            morphDict.originWords.push(originWord.trim());
 
             if (originRomanization) {
-                morphDict.originRomanizations.push(originRomanization);
+                morphDict.originRomanizations.push(originRomanization.replace(/[\[\]]/g, '').trim()); // Remove [] and trim
             }
         } else {
             // If it doesn't match the special format, keep it as is
@@ -196,7 +197,7 @@ async function parseMorph(morphText, allRows) {
     return morphDict.originLanguages.length > 0 || morphDict.originWords.length > 0 || morphDict.originRomanizations.length > 0
         ? morphDict
         : parsedMorph;
-}
+} 
 
 
 /**
