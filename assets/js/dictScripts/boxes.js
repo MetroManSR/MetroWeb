@@ -38,7 +38,6 @@ function getPartOfSpeechAbbreviation(partOfSpeech, language) {
     return posAbbreviations[language][partOfSpeech.toLowerCase()] || partOfSpeech;
 }
 
-
 export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, searchIn) {
     if (!row || !row.title) {
         //console.warn('Invalid row data:', row);
@@ -173,7 +172,6 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
 
     return box;
 }
-
 
 /**
  * Function to create a no match box with suggestions.
