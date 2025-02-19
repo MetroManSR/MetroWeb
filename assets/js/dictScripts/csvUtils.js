@@ -74,14 +74,14 @@ export async function cleanData(data, type, allRows) {
             if (notesAndEtymology.includes('|')) {
                 const parts = notesAndEtymology.split('|');
                 cleanedRow.notes = sanitizeHTML(parts[0].trim());
-                cleanedRow.morph = await parseMorph(parts[1], allRows);
+                cleanedRow.morph = await parseMorph(parts[1], row);
             } else {
                 if (!notesAndEtymology.startsWith("et") && !notesAndEtymology.startsWith("del")) {
                     cleanedRow.notes = sanitizeHTML(notesAndEtymology);
                     cleanedRow.morph = [];
                 } else {
                     cleanedRow.notes = '';
-                    cleanedRow.morph = await parseMorph(notesAndEtymology, allRows);
+                    cleanedRow.morph = await parseMorph(notesAndEtymology, row);
                 }
             }
 
@@ -124,6 +124,12 @@ export async function cleanData(data, type, allRows) {
     return cleanedData;
 }
 
+/**
+ * Parses the morph field to create a dictionary if it meets specific conditions.
+ * @param {string} morphText - The morph field to be parsed.
+ * @param {Object} row - The current row being processed.
+ * @returns {Promise<Object|Array>} - A promise that resolves to the parsed morph dictionary or the original morph array.
+ */
 async function parseMorph(morphText, row) {
     // Check if the row version is '25V2' and contains ':'
     if (row.revision === '25V2' && morphText.includes(':')) {
