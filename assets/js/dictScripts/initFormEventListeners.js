@@ -95,6 +95,30 @@ export async function updatePendingChangesList(language) {
     pendingChangesElement.innerHTML = changesList.length > 0 ? `<ul>${changesList.map(item => `<li>${item}</li>`).join('')}</ul>` : `<p>${translatedNoPendingChanges}</p>`;
 }
 
+function populateLanguageFilterSelect(rows) {
+    const languageFilterSelect = document.getElementById('dct-ogn-lng-slt');
+    const uniqueLanguages = new Set();
+
+    rows.forEach(row => {
+        if (Array.isArray(row.morph) && row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages) {
+            row.morph[0].originLanguages.forEach(language => uniqueLanguages.add(language));
+        } else if (Array.isArray(row.morph)) {
+            row.morph.forEach(morphItem => {
+                if (typeof morphItem === 'string') {
+                    uniqueLanguages.add(morphItem);
+                }
+            });
+        }
+    });
+
+    uniqueLanguages.forEach(language => {
+        const option = document.createElement('option');
+        option.value = language;
+        option.textContent = language;
+        languageFilterSelect.appendChild(option);
+    });
+}
+
 export async function initializeFormEventListeners(allRows, rowsPerPage) {
     let pendingChanges = universalPendingChanges ? universalPendingChanges : { ...defaultPendingChanges };
 
@@ -110,6 +134,9 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
     const advancedSearchButton = document.getElementById('dict-advanced-search-btn');
     const languageFilterSelect = document.getElementById('dct-ogn-lng-slt'); // Define the language filter select element
     let currentPage = 1;
+
+    // Populate language filter select
+    populateLanguageFilterSelect(allRows);
 
     if (filterSelect) {
         filterSelect.addEventListener('change', async () => {
