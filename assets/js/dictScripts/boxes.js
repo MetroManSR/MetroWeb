@@ -81,8 +81,10 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
 
         if (row.revision === "25V2") {
             // New 25V2 format
+            console.log(row.morph)
             if (row.morph) {
                 const morphHtml = row.morph.originWords.map((word, index) => {
+                    
                     const language = row.morph.originLanguages[index];
                     const romanized = row.morph.originRomanizations[index] ? `<sup style="color: gray;">${row.morph.originRomanizations[index]}</sup>` : '';
                     return `${language}: ${word} ${romanized}`;
