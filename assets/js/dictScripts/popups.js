@@ -108,13 +108,16 @@ export async function initStatisticsPopup(allRows) {
         if (row.revision === '25V2' && row.morph && Array.isArray(row.morph) && row.morph[0] && row.morph[0].originLanguages) {
             row.morph[0].originLanguages.forEach(language => {
                 language = language.replace(/\b(old|antiguo|middle|medio|vulgar|medieval)\b/gi, '').trim();
-                counts[language] = (counts[language] || 0) + 1;
+                if (language.toLowerCase() !== 'balkeon') {
+                    counts[language] = (counts[language] || 0) + 1;
+                }
             });
         }
         return counts;
     }, {});
 
     const sortedLanguages = Object.entries(languageOriginCounts).sort(([, a], [, b]) => b - a);
+    const uniqueLanguageCount = Object.keys(languageOriginCounts).length;
 
     // Translations for Statistics Popup
     const statisticsTitle = await getTranslatedText('statisticsTitle', currentLanguage);
@@ -123,6 +126,7 @@ export async function initStatisticsPopup(allRows) {
     const partOfSpeechTitle = await getTranslatedText('partOfSpeechTitle', currentLanguage);
     const wordsByLetterTitle = await getTranslatedText('wordsByLetterTitle', currentLanguage);
     const languageOriginTitle = await getTranslatedText('languageOriginTitle', currentLanguage);
+    const uniqueLanguageText = await getTranslatedText('uniqueLanguages', currentLanguage);
     const closeStatsText = await getTranslatedText('close', currentLanguage);
 
     const validPartOfSpeeches = [
@@ -159,6 +163,7 @@ export async function initStatisticsPopup(allRows) {
             `).join('')}
         </table>
         <h4>${languageOriginTitle}</h4>
+        <p>${uniqueLanguageText}: ${uniqueLanguageCount}</p>
         <table>
             <tr>
                 <th>Language</th>
@@ -192,4 +197,4 @@ export async function initStatisticsPopup(allRows) {
         await infoClose.classList.remove('active');
         await infoClose.classList.add('hidden');
     });
-} 
+}
