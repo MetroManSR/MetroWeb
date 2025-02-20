@@ -67,6 +67,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     let updatedRows = Array.isArray(allRows) ? [...allRows] : [];
     const foundTerms = {};
 
+    // Step 1: Filter rows by search term, respecting advanced search terms
     if (searchTerm && searchTerm.length > 0) {
         const terms = Array.isArray(searchTerm) ? searchTerm.map(term => normalize(term.toLowerCase())) : [normalize(searchTerm.toLowerCase())];
         terms.forEach(term => foundTerms[term] = []);
@@ -136,6 +137,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         });
     }
 
+    // Step 2: Filter rows by part of speech and type of row
     if (filters.length > 0) {
         updatedRows = updatedRows.filter(row => filters.includes(row.partofspeech?.toLowerCase()));
     }
@@ -159,6 +161,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         });
     }
 
+    // Step 3: Remove duplicate rows
     const uniqueRows = [];
     updatedRows.forEach(row => {
         if (!uniqueRows.some(uniqueRow => uniqueRow.id === row.id)) {
@@ -168,7 +171,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     
     updatedRows = uniqueRows;
 
-    // Sort rows
+    // Step 4: Sort rows
     updatedRows = sortRows(updatedRows, sortingManner);
 
     // Update filteredRows to include morph dictionary processing
