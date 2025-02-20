@@ -104,12 +104,25 @@ export async function initStatisticsPopup(allRows) {
         return counts;
     }, {});
 
+    const languageOriginCounts = allRows.reduce((counts, row) => {
+        if (row.revision === '25V2' && row.morph && Array.isArray(row.morph) && row.morph[0] && row.morph[0].originLanguages) {
+            row.morph[0].originLanguages.forEach(language => {
+                language = language.replace(/\b(old|antiguo|middle|medio|vulgar|medieval)\b/gi, '').trim();
+                counts[language] = (counts[language] || 0) + 1;
+            });
+        }
+        return counts;
+    }, {});
+
+    const sortedLanguages = Object.entries(languageOriginCounts).sort(([, a], [, b]) => b - a);
+
     // Translations for Statistics Popup
     const statisticsTitle = await getTranslatedText('statisticsTitle', currentLanguage);
     const totalWordsText = await getTranslatedText('totalWords', currentLanguage);
     const totalRootsText = await getTranslatedText('totalRoots', currentLanguage);
     const partOfSpeechTitle = await getTranslatedText('partOfSpeechTitle', currentLanguage);
     const wordsByLetterTitle = await getTranslatedText('wordsByLetterTitle', currentLanguage);
+    const languageOriginTitle = await getTranslatedText('languageOriginTitle', currentLanguage);
     const closeStatsText = await getTranslatedText('close', currentLanguage);
 
     const validPartOfSpeeches = [
@@ -145,6 +158,19 @@ export async function initStatisticsPopup(allRows) {
                 </tr>
             `).join('')}
         </table>
+        <h4>${languageOriginTitle}</h4>
+        <table>
+            <tr>
+                <th>Language</th>
+                <th>Count</th>
+            </tr>
+            ${sortedLanguages.map(([language, count]) => `
+                <tr>
+                    <td>${language}</td>
+                    <td>${count}</td>
+                </tr>
+            `).join('')}
+        </table>
         <button id="dict-close-statistics-button" class="btn">${closeStatsText}</button>
     `;
     
@@ -166,4 +192,4 @@ export async function initStatisticsPopup(allRows) {
         await infoClose.classList.remove('active');
         await infoClose.classList.add('hidden');
     });
-}
+} 
