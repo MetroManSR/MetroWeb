@@ -82,14 +82,18 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
         if (row.revision === "25V2") {
             // New 25V2 format
             const morphArray = row.morph[0];
-            if (morphArray && typeof morphArray === 'object' && morphArray.originLanguages && morphArray.originWords) {
-                const morphHtml = morphArray.originWords.map((word, index) => {
-                    const language = morphArray.originLanguages[index];
-                    const romanized = morphArray.originRomanizations[index] ? `<sup style="color: gray;">${morphArray.originRomanizations[index]}</sup>` : '';
-                    return `${language}: ${word} ${romanized}`;
-                }).join(', ');
+            if (morphArray && morphArray.originLanguages && morphArray.originWords) {
+                try {
+                    const morphHtml = morphArray.originWords.map((word, index) => {
+                        const language = morphArray.originLanguages[index];
+                        const romanized = morphArray.originRomanizations[index] ? `<sup style="color: gray;">${morphArray.originRomanizations[index]}</sup>` : '';
+                        return `${language}: ${word} ${romanized}`;
+                    }).join(', ');
 
-                morphElement.innerHTML = `<strong>${await getTranslatedText('etymology', language)}:</strong> ${await highlight(censorText(morphHtml), searchTerm, searchIn, row)}`;
+                    morphElement.innerHTML = `<strong>${await getTranslatedText('etymology', language)}:</strong> ${await highlight(censorText(morphHtml), searchTerm, searchIn, row)}`;
+                } catch (error) {
+                    console.error('Error processing row:', row, error);
+                }
             }
         } else {
             // Old format
@@ -111,11 +115,15 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
                 if (row.revision === "25V2") {
                     // New 25V2 format
                     const morphArray = row.morph[0];
-                    return morphArray.originWords.map((word, i) => {
-                        const language = morphArray.originLanguages[i];
-                        const romanized = morphArray.originRomanizations[i] ? `<sup style="color: gray;">${morphArray.originRomanizations[i]}</sup>` : '';
-                        return `${language}: ${word} ${romanized}`;
-                    }).join(', ');
+                    try {
+                        return morphArray.originWords.map((word, i) => {
+                            const language = morphArray.originLanguages[i];
+                            const romanized = morphArray.originRomanizations[i] ? `<sup style="color: gray;">${morphArray.originRomanizations[i]}</sup>` : '';
+                            return `${language}: ${word} ${romanized}`;
+                        }).join(', ');
+                    } catch (error) {
+                        console.error('Error processing morph array in row:', row, error);
+                    }
                 } else {
                     // Old format
                     const matchingRoot = allRows.find(r => r.meta.toLowerCase() === morphItem.toLowerCase() && r.type === 'root');
