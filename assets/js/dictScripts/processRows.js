@@ -75,7 +75,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         updatedRows = updatedRows.filter(row => {
             const normalizedTitle = normalize(row.title.toLowerCase());
             const normalizedMeta = normalize(row.meta.toLowerCase());
-            const normalizedMorph = Array.isArray(row.morph) ? row.morph.map(morphItem => typeof morphItem === 'string' ? normalize(morphItem.toLowerCase()) : morphItem) : [];
+            const normalizedMorph = row.morph.map(morphItem => typeof morphItem === 'string' ? normalize(morphItem.toLowerCase()) : morphItem);
 
             let termFound = false;
 
@@ -103,7 +103,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
                 let etymologyMatch = false;
                 if (searchIn.etymology) {
-                    if (Array.isArray(row.morph) && row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
+                    if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
                         // New dictionary format (25V2)
                         etymologyMatch = row.morph[0].originWords.some(item => (
                             (exactMatch && normalize(item).includes(term)) ||
@@ -150,9 +150,12 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     // Filter rows based on selected languageOriginFilter
     if (Array.isArray(languageOriginFilter) && languageOriginFilter.length > 0) {
         updatedRows = updatedRows.filter(row => {
-            if (Array.isArray(row.morph) && row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages) {
+            if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages) {
                 // New dictionary format (25V2)
-                return row.morph[0].originLanguages.some(language => languageOriginFilter.includes(normalize(language.toLowerCase())));
+                return row.morph[0].originLanguages.some(language => {
+                    language = language.replace(/\b(old|antiguo|middle|medio|vulgar|medieval|alto|high)\b/gi, '').trim();
+                    return languageOriginFilter.includes(normalize(language.toLowerCase()));
+                });
             }
             return false;
         });
@@ -172,18 +175,15 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     // Update filteredRows to include morph dictionary processing
     updatedRows.forEach(row => {
-        if (Array.isArray(row.morph) && row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
+        if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
             // New dictionary format (25V2)
             row.morphHtml = row.morph[0].originWords.map((word, index) => {
                 const language = row.morph[0].originLanguages[index];
                 const romanized = row.morph[0].originRomanizations[index] ? `<sup style="color: gray;">${row.morph[0].originRomanizations[index]}</sup>` : '';
                 return `${language}: ${word} ${romanized}`;
             }).join(', ');
-        } else if (Array.isArray(row.morph)) {
-            // Old dictionary format or word format
-            row.morphHtml = row.morph.join(', ');
         } else {
-            row.morphHtml = row.morph;
+            row.morphHtml = row.morph.join(', ');
         }
     });
 
@@ -205,9 +205,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     }
 
     applySettingsButton.disabled = false; // Re-enable the button after the process is complete
-                                
 }
-
 
 /**
  * Displays the specified page of results.
