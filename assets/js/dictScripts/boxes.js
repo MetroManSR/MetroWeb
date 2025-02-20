@@ -81,12 +81,11 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
 
         if (row.revision === "25V2") {
             // New 25V2 format
-            console.log(row.morph)
-            if (row.morph) {
-                const morphHtml = row.morph.originWords.map((word, index) => {
-                    
-                    const language = row.morph.originLanguages[index];
-                    const romanized = row.morph.originRomanizations[index] ? `<sup style="color: gray;">${row.morph.originRomanizations[index]}</sup>` : '';
+            const morphArray = row.morph[0];
+            if (morphArray && typeof morphArray === 'object' && morphArray.originLanguages && morphArray.originWords) {
+                const morphHtml = morphArray.originWords.map((word, index) => {
+                    const language = morphArray.originLanguages[index];
+                    const romanized = morphArray.originRomanizations[index] ? `<sup style="color: gray;">${morphArray.originRomanizations[index]}</sup>` : '';
                     return `${language}: ${word} ${romanized}`;
                 }).join(', ');
 
@@ -111,9 +110,10 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
             const morphLinks = await Promise.all(row.morph.map(async (morphItem, index) => {
                 if (row.revision === "25V2") {
                     // New 25V2 format
-                    return morphItem.originWords.map((word, i) => {
-                        const language = morphItem.originLanguages[i];
-                        const romanized = morphItem.originRomanizations[i] ? `<sup style="color: gray;">${morphItem.originRomanizations[i]}</sup>` : '';
+                    const morphArray = row.morph[0];
+                    return morphArray.originWords.map((word, i) => {
+                        const language = morphArray.originLanguages[i];
+                        const romanized = morphArray.originRomanizations[i] ? `<sup style="color: gray;">${morphArray.originRomanizations[i]}</sup>` : '';
                         return `${language}: ${word} ${romanized}`;
                     }).join(', ');
                 } else {
