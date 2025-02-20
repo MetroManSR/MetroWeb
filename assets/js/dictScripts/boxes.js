@@ -79,15 +79,17 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
         metaElement.innerHTML = `<strong>${await getTranslatedText('translation', language)}:</strong> ${await highlight(censorText(row.meta), searchTerm, searchIn, row)}`;
         notesElement.innerHTML = `<strong>${await getTranslatedText('notes', language)}:</strong> ${await highlight(censorText(row.notes || ''), searchTerm, searchIn, row)}`;
 
-        if (typeof row.morph === 'object' && row.morph.originLanguages && row.morph.originWords) {
-            // New dictionary format
-            const morphHtml = row.morph.originWords.map((word, index) => {
-                const language = row.morph.originLanguages[index];
-                const romanized = row.morph.originRomanizations[index] ? `<sup style="color: gray;">${row.morph.originRomanizations[index]}</sup>` : '';
-                return `${language}: ${word} ${romanized}`;
-            }).join(', ');
+        if (row.revision === "25V2") {
+            // New 25V2 format
+            if (row.morph) {
+                const morphHtml = row.morph.originWords.map((word, index) => {
+                    const language = row.morph.originLanguages[index];
+                    const romanized = row.morph.originRomanizations[index] ? `<sup style="color: gray;">${row.morph.originRomanizations[index]}</sup>` : '';
+                    return `${language}: ${word} ${romanized}`;
+                }).join(', ');
 
-            morphElement.innerHTML = `<strong>${await getTranslatedText('etymology', language)}:</strong> ${await highlight(censorText(morphHtml), searchTerm, searchIn, row)}`;
+                morphElement.innerHTML = `<strong>${await getTranslatedText('etymology', language)}:</strong> ${await highlight(censorText(morphHtml), searchTerm, searchIn, row)}`;
+            }
         } else {
             // Old format
             morphElement.innerHTML = `<strong>${await getTranslatedText('etymology', language)}:</strong> ${await highlight(censorText(Array.isArray(row.morph) ? row.morph.join(', ') : row.morph), searchTerm, searchIn, row)}`;
@@ -105,8 +107,8 @@ export async function createDictionaryBox(row, allRows, searchTerm, exactMatch, 
         if (Array.isArray(row.morph) && row.morph.length > 0) {
             morphElement.innerHTML = `<strong>${await getTranslatedText('morphology', language)}:</strong> `;
             const morphLinks = await Promise.all(row.morph.map(async (morphItem, index) => {
-                if (typeof morphItem === 'object' && morphItem.originLanguages && morphItem.originWords) {
-                    // New dictionary format
+                if (row.revision === "25V2") {
+                    // New 25V2 format
                     return morphItem.originWords.map((word, i) => {
                         const language = morphItem.originLanguages[i];
                         const romanized = morphItem.originRomanizations[i] ? `<sup style="color: gray;">${morphItem.originRomanizations[i]}</sup>` : '';
