@@ -131,19 +131,19 @@ export async function cleanData(data, type, allRows) {
  */
 async function parseMorph(morphText, row) {
     try {
-        console.log('Processing row:', row);
+        //console.log('Processing row:', row);
 
         // Check if the row version is '25V2' and contains ':'
         if (row.col4 && row.col4.trim() === '25V2') {
-            console.log('Processing morph for row:', row.col2, 'Version:', row.col4);
+            //console.log('Processing morph for row:', row.col2, 'Version:', row.col4);
 
             let morphData = morphText.split(',').map(item => item.trim());
-            console.log('Initial morph data:', morphData);
+            //console.log('Initial morph data:', morphData);
 
             if (!Array.isArray(morphData)) {
                 morphData = [morphData];
             }
-            console.log('Normalized morph data:', morphData);
+            //console.log('Normalized morph data:', morphData);
 
             const morphDict = {
                 originLanguages: [],
@@ -161,7 +161,7 @@ async function parseMorph(morphText, row) {
                     const matchRomanization = /\[([^\]]+)\]/.test(item);  // Match any character until ]
 
                     if (matchOriginLanguage || matchOriginWord || matchRomanization) {
-                        console.log('Matches found - Origin Language:', matchOriginLanguage, 'Origin Word:', matchOriginWord, 'Romanization:', matchRomanization);
+                        //console.log('Matches found - Origin Language:', matchOriginLanguage, 'Origin Word:', matchOriginWord, 'Romanization:', matchRomanization);
 
                         if (matchOriginLanguage) {
                             const originLanguageMatch = item.match(/^et (.+?)(?=:|$)/);
@@ -201,7 +201,7 @@ async function parseMorph(morphText, row) {
                         morphDict.originWords.push('Original');
                         morphDict.originRomanizations.push('');
                     } else {
-                        console.log('No matches found for item:', item);
+                        //console.log('No matches found for item:', item);
                         // If it doesn't match the special format, keep it as is
                         morphDict.originLanguages.push(item);
                         morphDict.originWords.push(item);
@@ -212,7 +212,7 @@ async function parseMorph(morphText, row) {
                 }
             });
 
-            console.log('Final morph dict:', JSON.stringify(morphDict, null, 2));
+            //console.log('Final morph dict:', JSON.stringify(morphDict, null, 2));
 
             return morphDict.originLanguages.length > 0 || morphDict.originWords.length > 0 || morphDict.originRomanizations.length > 0
                 ? morphDict
