@@ -156,7 +156,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
                 const match = row.morph[0].originLanguages.some(language => {
                     const normalizedLanguage = normalize(language.toLowerCase().replace(/\b(old|antiguo|middle|medio|vulgar|medieval|alto|high)\b/gi, '').trim());
                     const isMatch = languageOriginFilter.includes(normalizedLanguage);
-                    console.log(`Checking language: ${normalizedLanguage}, Match: ${isMatch}`);
+                    console.log(`Checking language: ${normalizedLanguage}, Match: ${isMatch}, against ${languageOriginFilter}`);
                     return isMatch;
                 });
                 console.log(`Row ${row.id} match: ${match}`);
