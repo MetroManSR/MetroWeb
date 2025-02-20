@@ -84,9 +84,9 @@ export async function updateDictionaryBoxes() {
 
             if (wordElement) {
                 const originalWordText = wordElement.innerHTML;
-                console.log('Original Word Text:', originalWordText); // Debugging
+                //console.log('Original Word Text:', originalWordText); // Debugging
                 const processedWordText = censoringEnabled ? censorText(originalWordText) : uncensorText(originalWordText);
-                console.log('Processed Word Text:', processedWordText); // Debugging
+                //console.log('Processed Word Text:', processedWordText); // Debugging
                 wordElement.innerHTML = await highlight(processedWordText);
                 wordElement.querySelectorAll('.censored').forEach(el => {
                     el.onclick = () => revealText(el);
@@ -94,9 +94,9 @@ export async function updateDictionaryBoxes() {
             }
             if (metaElement) {
                 const originalMetaText = metaElement.innerHTML;
-                console.log('Original Meta Text:', originalMetaText); // Debugging
+                //console.log('Original Meta Text:', originalMetaText); // Debugging
                 const processedMetaText = censoringEnabled ? censorText(originalMetaText) : uncensorText(originalMetaText);
-                console.log('Processed Meta Text:', processedMetaText); // Debugging
+                //console.log('Processed Meta Text:', processedMetaText); // Debugging
                 metaElement.innerHTML = await highlight(processedMetaText);
                 metaElement.querySelectorAll('.censored').forEach(el => {
                     el.onclick = () => revealText(el);
@@ -104,9 +104,9 @@ export async function updateDictionaryBoxes() {
             }
             if (notesElement) {
                 const originalNotesText = notesElement.innerHTML;
-                console.log('Original Notes Text:', originalNotesText); // Debugging
+                //console.log('Original Notes Text:', originalNotesText); // Debugging
                 const processedNotesText = censoringEnabled ? censorText(originalNotesText) : uncensorText(originalNotesText);
-                console.log('Processed Notes Text:', processedNotesText); // Debugging
+                //console.log('Processed Notes Text:', processedNotesText); // Debugging
                 notesElement.innerHTML = await highlight(processedNotesText);
                 notesElement.querySelectorAll('.censored').forEach(el => {
                     el.onclick = () => revealText(el);
