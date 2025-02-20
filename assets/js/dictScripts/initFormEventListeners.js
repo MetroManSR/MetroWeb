@@ -219,6 +219,9 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
         languageFilterSelect.addEventListener('change', async () => {
             pendingChanges.languageOriginFilter = Array.from(languageFilterSelect.selectedOptions).map(option => option.value);
             universalPendingChanges = pendingChanges;
+
+            console.log(universalPendingChanges) 
+            
             await updatePendingChangesList(language);
             currentPage = 1;
 
@@ -230,6 +233,7 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
     // Initialize the search input
     await initSearchInput(allRows, currentPage);
 }
+
 
 export function updateUniversalPendingChanges(i) {
     universalPendingChanges = i;
