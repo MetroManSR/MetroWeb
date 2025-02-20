@@ -67,7 +67,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     let updatedRows = Array.isArray(allRows) ? [...allRows] : [];
     const foundTerms = {};
 
-    // Step 1: Filter rows by search term, respecting advanced search terms
+    // Apply search term filtering first
     if (searchTerm && searchTerm.length > 0) {
         const terms = Array.isArray(searchTerm) ? searchTerm.map(term => normalize(term.toLowerCase())) : [normalize(searchTerm.toLowerCase())];
         terms.forEach(term => foundTerms[term] = []);
@@ -137,7 +137,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         });
     }
 
-    // Step 2: Filter rows by part of speech and type of row
+    // Apply part of speech and type filtering
     if (filters.length > 0) {
         updatedRows = updatedRows.filter(row => filters.includes(row.partofspeech?.toLowerCase()));
     }
@@ -153,25 +153,21 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
             if (Array.isArray(row.morph) && row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages) {
                 // New dictionary format (25V2)
                 return row.morph[0].originLanguages.some(language => languageOriginFilter.includes(normalize(language.toLowerCase())));
-            } else if (Array.isArray(row.morph)) {
-                // Old dictionary format or word format
-                return row.morph.some(morphItem => typeof morphItem === 'string' && languageOriginFilter.includes(normalize(morphItem.toLowerCase())));
             }
             return false;
         });
     }
 
-    // Step 3: Remove duplicate rows
+    // Ensure unique rows
     const uniqueRows = [];
     updatedRows.forEach(row => {
         if (!uniqueRows.some(uniqueRow => uniqueRow.id === row.id)) {
             uniqueRows.push(row);
         }
     });
-    
     updatedRows = uniqueRows;
 
-    // Step 4: Sort rows
+    // Sort rows
     updatedRows = sortRows(updatedRows, sortingManner);
 
     // Update filteredRows to include morph dictionary processing
@@ -209,7 +205,9 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     }
 
     applySettingsButton.disabled = false; // Re-enable the button after the process is complete
+                                
 }
+
 
 /**
  * Displays the specified page of results.
