@@ -108,7 +108,7 @@ export async function initStatisticsPopup(allRows) {
         if (row.revision === '25V2' && row.morph && Array.isArray(row.morph) && row.morph[0] && row.morph[0].originLanguages) {
             row.morph[0].originLanguages.forEach(language => {
                 language = language.replace(/\b(old|antiguo|middle|medio|vulgar|medieval|alto|high)\b/gi, '').trim();
-                if (language.toLowerCase() !== 'balkeon') {
+                if (language.toLowerCase() !== 'balkeon' && language.toLowerCase() !== 'onomatopoeia' && language.toLowerCase() !== 'onomatopeya') {
                     counts[language] = (counts[language] || 0) + 1;
                 }
             });
@@ -119,6 +119,10 @@ export async function initStatisticsPopup(allRows) {
     const sortedLanguages = Object.entries(languageOriginCounts).sort(([, a], [, b]) => b - a);
     const uniqueLanguageCount = Object.keys(languageOriginCounts).filter(lang => lang.toLowerCase() !== 'balkeon' && lang.toLowerCase() !== 'onomatopoeia' && lang.toLowerCase() !== 'onomatopeya').length;
 
+    const balkeonOriginalCount = allRows.filter(row => row.morph && row.morph.includes('Balkeon Original')).length;
+    const balkeonMixedCount = allRows.filter(row => row.morph && row.morph.includes('Balkeon') && !row.morph.includes('Balkeon Original')).length;
+    const onomatopoeiaCount = allRows.filter(row => row.morph && (row.morph.includes('onomatopoeia') || row.morph.includes('onomatopeya'))).length;
+
     // Translations for Statistics Popup
     const statisticsTitle = await getTranslatedText('statisticsTitle', currentLanguage);
     const totalWordsText = await getTranslatedText('totalWords', currentLanguage);
@@ -128,7 +132,7 @@ export async function initStatisticsPopup(allRows) {
     const languageOriginTitle = await getTranslatedText('languageOriginTitle', currentLanguage);
     const uniqueLanguageText = await getTranslatedText('uniqueLanguages', currentLanguage);
     const closeStatsText = await getTranslatedText('close', currentLanguage);
-    const originalWordText = await getTranslatedText('originalWord', currentLanguage);
+    const balkeonOriginalWordsText = await getTranslatedText('balkeonOriginalWords', currentLanguage);
     const balkeonMixedWordsText = await getTranslatedText('balkeonMixedWords', currentLanguage);
 
     const validPartOfSpeeches = [
@@ -166,6 +170,9 @@ export async function initStatisticsPopup(allRows) {
         </table>
         <h4>${languageOriginTitle}</h4>
         <p>${uniqueLanguageText}: ${uniqueLanguageCount}</p>
+        <p>${balkeonOriginalWordsText}: ${balkeonOriginalCount}</p>
+        <p>${balkeonMixedWordsText}: ${balkeonMixedCount}</p>
+        <p>Onomatopoeia: ${onomatopoeiaCount}</p>
         <table>
             <tr>
                 <th>Language</th>
@@ -173,7 +180,7 @@ export async function initStatisticsPopup(allRows) {
             </tr>
             ${sortedLanguages.map(([language, count]) => `
                 <tr>
-                    <td>${language === 'onomatopoeia' ? 'Onomatopoeia (Original Words)' : language === 'balkeon original' ? 'Balkeon Original (Onomatopoeia)' : language === 'balkeon' ? 'Balkeon Mixed Words' : language}</td>
+                    <td>${language}</td>
                     <td>${count}</td>
                 </tr>
             `).join('')}
