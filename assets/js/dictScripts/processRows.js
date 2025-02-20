@@ -175,6 +175,9 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     // Update filteredRows to include morph dictionary processing
     updatedRows.forEach(row => {
+        
+        console.log(row) 
+        
         if (row.revision === '25V2') {
             // New dictionary format (25V2)
            
