@@ -55,7 +55,7 @@ export function censorText(text) {
     if (!censoringEnabled) {
         return text; // If censorship is disabled, return the text as is
     }
-    console.log('Original Text:', text); // Debugging
+    //console.log('Original Text:', text); // Debugging
     offensiveWords.forEach(word => {
         const regex = new RegExp(`(${word})(?!([^<]+)?>)`, 'gi'); // Ensure it doesn't match within HTML tags
         text = text.replace(regex, `<span class="censored" onclick="revealText(this)">$1</span>`);
