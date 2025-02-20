@@ -46,6 +46,7 @@ export function sortRows(rows, sortingManner) {
     return [...rows].sort(sortFunctions[sortingManner] || sortFunctions.titleup);
 }
 
+
 /**
  * Processes all settings and updates the UI.
  * @param {Array} allRows - The array of all rows.
@@ -149,13 +150,18 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     // Filter rows based on selected languageOriginFilter
     if (Array.isArray(languageOriginFilter) && languageOriginFilter.length > 0) {
+        console.log("Applying language origin filter:", languageOriginFilter);
         updatedRows = updatedRows.filter(row => {
             if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages) {
                 // New dictionary format (25V2)
-                return row.morph[0].originLanguages.some(language => {
-                    language = language.replace(/\b(old|antiguo|middle|medio|vulgar|medieval|alto|high)\b/gi, '').trim();
-                    return languageOriginFilter.includes(normalize(language.toLowerCase()));
+                const match = row.morph[0].originLanguages.some(language => {
+                    const normalizedLanguage = normalize(language.toLowerCase().replace(/\b(old|antiguo|middle|medio|vulgar|medieval|alto|high)\b/gi, '').trim());
+                    const isMatch = languageOriginFilter.includes(normalizedLanguage);
+                    console.log(`Checking language: ${normalizedLanguage}, Match: ${isMatch}`);
+                    return isMatch;
                 });
+                console.log(`Row ${row.id} match: ${match}`);
+                return match;
             }
             return false;
         });
@@ -175,17 +181,9 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     // Update filteredRows to include morph dictionary processing
     updatedRows.forEach(row => {
-        
-        console.log(row) 
-        
-        if (row.revision === '25V2') {
+        if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
             // New dictionary format (25V2)
-           
-            console.log(row.morph[0])
- 
             row.morphHtml = row.morph[0].originWords.map((word, index) => {
-                
-                console.log(word) 
                 const language = row.morph[0].originLanguages[index];
                 const romanized = row.morph[0].originRomanizations[index] ? `<sup style="color: gray;">${row.morph[0].originRomanizations[index]}</sup>` : '';
                 return `${language}: ${word} ${romanized}`;
