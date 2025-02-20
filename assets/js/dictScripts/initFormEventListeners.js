@@ -102,12 +102,6 @@ function populateLanguageFilterSelect(rows) {
     rows.forEach(row => {
         if (Array.isArray(row.morph) && row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages) {
             row.morph[0].originLanguages.forEach(language => uniqueLanguages.add(language));
-        } else if (Array.isArray(row.morph)) {
-            row.morph.forEach(morphItem => {
-                if (typeof morphItem === 'string') {
-                    uniqueLanguages.add(morphItem);
-                }
-            });
         }
     });
 
