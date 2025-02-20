@@ -77,7 +77,7 @@ export async function initAdvancedSearchPopup(allRows, rowsPerPage, currentLangu
     });
 }
 
-export async function initStatisticsPopup(allRows) {
+        export async function initStatisticsPopup(allRows) {
     const statisticsPopup = document.getElementById('dict-statistics-popup');  
     
     if (statisticsPopup.classList.contains('active')) {
@@ -107,8 +107,8 @@ export async function initStatisticsPopup(allRows) {
     const languageOriginCounts = allRows.reduce((counts, row) => {
         if (row.revision === '25V2' && row.morph && Array.isArray(row.morph) && row.morph[0] && row.morph[0].originLanguages) {
             row.morph[0].originLanguages.forEach(language => {
-                language = language.replace(/\b(old|antiguo|middle|medio|vulgar|medieval|high|alto)\b/gi, '').trim();
-                if (language.toLowerCase() !== 'balkeon') {
+                language = language.replace(/\b(old|antiguo|middle|medio|vulgar|medieval|alto|high)\b/gi, '').trim();
+                if (language.toLowerCase() !== 'balkeon' && language.toLowerCase() !== 'onomatopoeia' && language.toLowerCase() !== 'onomatopeya') {
                     counts[language] = (counts[language] || 0) + 1;
                 }
             });
@@ -117,7 +117,7 @@ export async function initStatisticsPopup(allRows) {
     }, {});
 
     const sortedLanguages = Object.entries(languageOriginCounts).sort(([, a], [, b]) => b - a);
-    const uniqueLanguageCount = Object.keys(languageOriginCounts).length;
+    const uniqueLanguageCount = Object.keys(languageOriginCounts).filter(lang => lang.toLowerCase() !== 'onomatopoeia' && lang.toLowerCase() !== 'onomatopeya').length;
 
     // Translations for Statistics Popup
     const statisticsTitle = await getTranslatedText('statisticsTitle', currentLanguage);
@@ -197,4 +197,4 @@ export async function initStatisticsPopup(allRows) {
         await infoClose.classList.remove('active');
         await infoClose.classList.add('hidden');
     });
-}
+        }
