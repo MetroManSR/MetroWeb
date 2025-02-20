@@ -46,7 +46,6 @@ export function sortRows(rows, sortingManner) {
     return [...rows].sort(sortFunctions[sortingManner] || sortFunctions.titleup);
 }
 
-
 /**
  * Processes all settings and updates the UI.
  * @param {Array} allRows - The array of all rows.
@@ -212,6 +211,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     applySettingsButton.disabled = false; // Re-enable the button after the process is complete
 }
+
 
 /**
  * Displays the specified page of results.
