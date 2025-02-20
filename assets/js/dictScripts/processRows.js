@@ -177,7 +177,12 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     updatedRows.forEach(row => {
         if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
             // New dictionary format (25V2)
+           
+            console.log(row.morph[0])
+ 
             row.morphHtml = row.morph[0].originWords.map((word, index) => {
+                
+                console.log(word) 
                 const language = row.morph[0].originLanguages[index];
                 const romanized = row.morph[0].originRomanizations[index] ? `<sup style="color: gray;">${row.morph[0].originRomanizations[index]}</sup>` : '';
                 return `${language}: ${word} ${romanized}`;
