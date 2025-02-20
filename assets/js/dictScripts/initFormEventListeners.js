@@ -34,7 +34,7 @@ export async function updatePendingChangesList(language) {
     // Initialize pendingChanges with fallback to defaults
     let pendingChanges = universalPendingChanges ? universalPendingChanges : { ...defaultPendingChanges };
 
-    const { searchTerm, exactMatch, searchIn, filters, ignoreDiacritics, startsWith, endsWith, rowsPerPage, sortOrder } = pendingChanges;
+    const { searchTerm, exactMatch, searchIn, filters, ignoreDiacritics, startsWith, endsWith, rowsPerPage, sortOrder, languageOriginFilter } = pendingChanges;
 
     let changesList = [];
     if (searchTerm && searchTerm.length > 0) {
@@ -81,6 +81,10 @@ export async function updatePendingChangesList(language) {
         const sortOrderTranslation = await getTranslatedText(sortOrder, language); // Get the translated value for sortOrder
         changesList.push(`<strong>${translatedSortOrder}</strong>: ${sortOrderTranslation}`);
     }
+    if (languageOriginFilter && languageOriginFilter.length > 0) {
+        const translatedLanguageOriginFilter = await getTranslatedText('languageOriginFilter', language);
+        changesList.push(`<strong>${translatedLanguageOriginFilter}</strong>: ${languageOriginFilter.join(', ')}`);
+    }
     const translatedPendingChanges = await getTranslatedText('pendingChanges', language);
     const translatedNoPendingChanges = await getTranslatedText('noPendingChanges', language);
 
@@ -104,6 +108,7 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
     const predictionBox = document.getElementById('dict-search-predictions');
     const rowsPerPageSelect = document.getElementById('dct-rws-inp');
     const advancedSearchButton = document.getElementById('dict-advanced-search-btn');
+    const languageFilterSelect = document.getElementById('dct-ogn-lng-slt'); // Define the language filter select element
     let currentPage = 1;
 
     if (filterSelect) {
@@ -184,6 +189,18 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
             }
         });
     });
+
+    if (languageFilterSelect) {
+        languageFilterSelect.addEventListener('change', async () => {
+            pendingChanges.languageOriginFilter = Array.from(languageFilterSelect.selectedOptions).map(option => option.value);
+            universalPendingChanges = pendingChanges;
+            await updatePendingChangesList(language);
+            currentPage = 1;
+
+            // Call processAllSettings to re-process the rows with the new language filter
+            processAllSettings(allRows, universalPendingChanges.rowsPerPage, currentPage, universalPendingChanges.sortOrder);
+        });
+    }
 
     // Initialize the search input
     await initSearchInput(allRows, currentPage);
