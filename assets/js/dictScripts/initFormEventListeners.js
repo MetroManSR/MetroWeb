@@ -101,7 +101,11 @@ function populateLanguageFilterSelect(rows) {
 
     rows.forEach(row => {
         if (Array.isArray(row.morph) && row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages) {
-            row.morph[0].originLanguages.forEach(language => uniqueLanguages.add(language));
+            row.morph[0].originLanguages.forEach(language => {
+                // Normalize the language names
+                language = language.replace(/\b(old|antiguo|middle|medio|medieval|alto|high|vulgar|bajo|low)\b/gi, '').trim();
+                uniqueLanguages.add(language);
+            });
         }
     });
 
