@@ -64,8 +64,10 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     const normalize = (text) => ignoreDiacritics ? text.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : text;
 
-    // Normalize languageOriginFilter by converting to lowercase
-    const normalizedLanguageOriginFilter = languageOriginFilter.map(language => normalize(language.toLowerCase()));
+    // Check if languageOriginFilter is defined and has entries, normalize if true
+    const normalizedLanguageOriginFilter = Array.isArray(languageOriginFilter) && languageOriginFilter.length > 0
+        ? languageOriginFilter.map(language => normalize(language.toLowerCase()))
+        : [];
 
     let updatedRows = Array.isArray(allRows) ? [...allRows] : [];
     const foundTerms = {};
@@ -150,8 +152,8 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         updatedRows = updatedRows.filter(row => versionDisplay[mapVersion(row.revision)] || false);
     }
 
-    // Filter rows based on selected languageOriginFilter
-    if (Array.isArray(normalizedLanguageOriginFilter) && normalizedLanguageOriginFilter.length > 0) {
+    // Filter rows based on selected languageOriginFilter if any languages are selected
+    if (normalizedLanguageOriginFilter.length > 0) {
         console.log("Applying language origin filter:", normalizedLanguageOriginFilter);
         updatedRows = updatedRows.filter(row => {
             if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages) {
