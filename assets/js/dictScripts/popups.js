@@ -77,7 +77,7 @@ export async function initAdvancedSearchPopup(allRows, rowsPerPage, currentLangu
     });
 }
 
-export async function initStatisticsPopup(allRows) {
+        export async function initStatisticsPopup(allRows) {
     const statisticsPopup = document.getElementById('dict-statistics-popup');  
     
     if (statisticsPopup.classList.contains('active')) {
@@ -108,16 +108,19 @@ export async function initStatisticsPopup(allRows) {
         if (row.revision === '25V2' && row.morph && Array.isArray(row.morph) && row.morph[0] && row.morph[0].originLanguages) {
             row.morph[0].originLanguages.forEach(language => {
                 language = language.replace(/\b(old|antiguo|middle|medio|vulgar|medieval|alto|high|ancient)\b/gi, '').trim();
-                if (language.toLowerCase() !== 'balkeon' && language.toLowerCase() !== 'onomatopoeia' && language.toLowerCase() !== 'onomatopeya') {
-                    counts[language] = (counts[language] || 0) + 1;
-                }
+                counts[language] = (counts[language] || 0) + 1;
             });
         }
         return counts;
     }, {});
 
+    // Exclude specific languages
+    ["balkeon", "onomatopoeia", "onomatopeya"].forEach(lang => {
+        delete languageOriginCounts[lang];
+    });
+
     const sortedLanguages = Object.entries(languageOriginCounts).sort(([, a], [, b]) => b - a);
-    const uniqueLanguageCount = Object.keys(languageOriginCounts).filter(lang => lang.toLowerCase() !== 'balkeon' && lang.toLowerCase() !== 'onomatopoeia' && lang.toLowerCase() !== 'onomatopeya').length;
+    const uniqueLanguageCount = Object.keys(languageOriginCounts).length;
 
     const balkeonOriginalCount = allRows.filter(row => row.morph && row.morph.includes('Balkeon Original')).length;
     const balkeonMixedCount = allRows.filter(row => row.morph && row.morph.includes('Balkeon') && !row.morph.includes('Balkeon Original')).length;
@@ -211,4 +214,5 @@ export async function initStatisticsPopup(allRows) {
         await infoClose.classList.remove('active');
         await infoClose.classList.add('hidden');
     });
-}
+       
+ } 
