@@ -107,7 +107,7 @@ export async function initStatisticsPopup(allRows) {
     const languageOriginCounts = allRows.reduce((counts, row) => {
         if (row.revision === '25V2' && row.morph && Array.isArray(row.morph) && row.morph[0] && row.morph[0].originLanguages) {
             row.morph[0].originLanguages.forEach(language => {
-                language = language.replace(/\b(old|antiguo|middle|medio|vulgar|medieval|alto|high)\b/gi, '').trim();
+                language = language.replace(/\b(old|antiguo|middle|medio|vulgar|medieval|alto|high|ancient)\b/gi, '').trim();
                 if (language.toLowerCase() !== 'balkeon' && language.toLowerCase() !== 'onomatopoeia' && language.toLowerCase() !== 'onomatopeya') {
                     counts[language] = (counts[language] || 0) + 1;
                 }
