@@ -183,18 +183,14 @@ export async function initStatisticsPopup(allRows) {
                 <th>Count</th>
             </tr>
             ${sortedLanguages.map(([language, count]) => `
-                <tr>
+                <tr ${count > 10 ? 'style="background-color: yellow;"' : ''}>
                     <td>${language}</td>
                     <td>${count}</td>
                 </tr>
             `).join('')}
         </table>
         <h4>${languagesWithOver10RootsText}</h4>
-        <ul>
-            ${languagesWithOver10Roots.map(([language, count]) => `
-                <li>${language}: ${count}</li>
-            `).join('')}
-        </ul>
+        <p>${languagesWithOver10Roots.length}</p>
         <button id="dict-close-statistics-button" class="btn">${closeStatsText}</button>
     `;
     
@@ -216,5 +212,4 @@ export async function initStatisticsPopup(allRows) {
         await infoClose.classList.remove('active');
         await infoClose.classList.add('hidden');
     });
-                   
-}
+} 
