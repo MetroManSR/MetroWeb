@@ -177,6 +177,7 @@ export async function initStatisticsPopup(allRows) {
         <p>${balkeonOriginalWordsText}: ${balkeonOriginalCount}</p>
         <p>${balkeonMixedWordsText}: ${balkeonMixedCount}</p>
         <p>Onomatopoeia: ${onomatopoeiaCount}</p>
+        <p>${languagesWithOver10RootsText}: ${languagesWithOver10Roots.length}</p>
         <table>
             <tr>
                 <th>Language</th>
@@ -189,8 +190,6 @@ export async function initStatisticsPopup(allRows) {
                 </tr>
             `).join('')}
         </table>
-        <h4>${languagesWithOver10RootsText}</h4>
-        <p>${languagesWithOver10Roots.length}</p>
         <button id="dict-close-statistics-button" class="btn">${closeStatsText}</button>
     `;
     
@@ -212,4 +211,4 @@ export async function initStatisticsPopup(allRows) {
         await infoClose.classList.remove('active');
         await infoClose.classList.add('hidden');
     });
-} 
+}
