@@ -77,7 +77,7 @@ export async function initAdvancedSearchPopup(allRows, rowsPerPage, currentLangu
     });
 }
 
-        export async function initStatisticsPopup(allRows) {
+export async function initStatisticsPopup(allRows) {
     const statisticsPopup = document.getElementById('dict-statistics-popup');  
     
     if (statisticsPopup.classList.contains('active')) {
@@ -85,18 +85,29 @@ export async function initAdvancedSearchPopup(allRows, rowsPerPage, currentLangu
     }
 
     const currentLanguage = document.querySelector('meta[name="language"]').content || 'en';
-    
-    const totalWords = allRows.filter(row => row.type === 'word').length;
-    const totalRoots = allRows.filter(row => row.type === 'root').length;
 
-    const partOfSpeechCounts = allRows.reduce((counts, row) => {
+    const allRowsInclusive = allRows;
+    const allRowsExclusive = allRows.filter(row => 
+        !row.morph || 
+        (
+            !row.morph.includes('Balkeon Original') && 
+            !row.morph.includes('Balkeon') && 
+            !row.morph.includes('onomatopoeia') && 
+            !row.morph.includes('onomatopeya')
+        )
+    );
+
+    const totalWords = allRowsInclusive.filter(row => row.type === 'word').length;
+    const totalRoots = allRowsInclusive.filter(row => row.type === 'root').length;
+
+    const partOfSpeechCounts = allRowsInclusive.reduce((counts, row) => {
         if (row.type === 'word' && row.partofspeech) {
             counts[row.partofspeech] = (counts[row.partofspeech] || 0) + 1;
         }
         return counts;
     }, {});
 
-    const wordsByInitialLetter = allRows.reduce((counts, row) => {
+    const wordsByInitialLetter = allRowsInclusive.reduce((counts, row) => {
         if (row.type === 'word' && row.title) {
             const initial = row.title.charAt(0).toUpperCase();
             counts[initial] = (counts[initial] || 0) + 1;
@@ -104,7 +115,7 @@ export async function initAdvancedSearchPopup(allRows, rowsPerPage, currentLangu
         return counts;
     }, {});
 
-    const languageOriginCounts = allRows.reduce((counts, row) => {
+    const languageOriginCounts = allRowsExclusive.reduce((counts, row) => {
         if (row.revision === '25V2' && row.morph && Array.isArray(row.morph) && row.morph[0] && row.morph[0].originLanguages) {
             row.morph[0].originLanguages.forEach(language => {
                 language = language.replace(/\b(old|antiguo|middle|medio|vulgar|medieval|alto|high|ancient)\b/gi, '').trim();
@@ -114,17 +125,12 @@ export async function initAdvancedSearchPopup(allRows, rowsPerPage, currentLangu
         return counts;
     }, {});
 
-    // Exclude specific languages
-    ["balkeon", "onomatopoeia", "onomatopeya"].forEach(lang => {
-        delete languageOriginCounts[lang];
-    });
-
     const sortedLanguages = Object.entries(languageOriginCounts).sort(([, a], [, b]) => b - a);
     const uniqueLanguageCount = Object.keys(languageOriginCounts).length;
 
-    const balkeonOriginalCount = allRows.filter(row => row.morph && row.morph.includes('Balkeon Original')).length;
-    const balkeonMixedCount = allRows.filter(row => row.morph && row.morph.includes('Balkeon') && !row.morph.includes('Balkeon Original')).length;
-    const onomatopoeiaCount = allRows.filter(row => row.morph && (row.morph.includes('onomatopoeia') || row.morph.includes('onomatopeya'))).length;
+    const balkeonOriginalCount = allRowsInclusive.filter(row => row.morph && row.morph.includes('Balkeon Original')).length;
+    const balkeonMixedCount = allRowsInclusive.filter(row => row.morph && row.morph.includes('Balkeon') && !row.morph.includes('Balkeon Original')).length;
+    const onomatopoeiaCount = allRowsInclusive.filter(row => row.morph && (row.morph.includes('onomatopoeia') || row.morph.includes('onomatopeya'))).length;
 
     // Count languages with over 10 roots
     const languagesWithOver10Roots = sortedLanguages.filter(([language, count]) => count > 10);
@@ -214,5 +220,4 @@ export async function initAdvancedSearchPopup(allRows, rowsPerPage, currentLangu
         await infoClose.classList.remove('active');
         await infoClose.classList.add('hidden');
     });
-       
- } 
+}
