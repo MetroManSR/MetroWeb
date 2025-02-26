@@ -123,6 +123,9 @@ export async function initStatisticsPopup(allRows) {
     const balkeonMixedCount = allRows.filter(row => row.morph && row.morph.includes('Balkeon') && !row.morph.includes('Balkeon Original')).length;
     const onomatopoeiaCount = allRows.filter(row => row.morph && (row.morph.includes('onomatopoeia') || row.morph.includes('onomatopeya'))).length;
 
+    // Count languages with over 10 roots
+    const languagesWithOver10Roots = sortedLanguages.filter(([language, count]) => count > 10);
+
     // Translations for Statistics Popup
     const statisticsTitle = await getTranslatedText('statisticsTitle', currentLanguage);
     const totalWordsText = await getTranslatedText('totalWords', currentLanguage);
@@ -134,6 +137,7 @@ export async function initStatisticsPopup(allRows) {
     const closeStatsText = await getTranslatedText('close', currentLanguage);
     const balkeonOriginalWordsText = await getTranslatedText('balkeonOriginalWords', currentLanguage);
     const balkeonMixedWordsText = await getTranslatedText('balkeonMixedWords', currentLanguage);
+    const languagesWithOver10RootsText = await getTranslatedText('languagesWithOver10Roots', currentLanguage);
 
     const validPartOfSpeeches = [
         "noun", "verb", "adjective", "adverb", "conjunction",
@@ -185,6 +189,12 @@ export async function initStatisticsPopup(allRows) {
                 </tr>
             `).join('')}
         </table>
+        <h4>${languagesWithOver10RootsText}</h4>
+        <ul>
+            ${languagesWithOver10Roots.map(([language, count]) => `
+                <li>${language}: ${count}</li>
+            `).join('')}
+        </ul>
         <button id="dict-close-statistics-button" class="btn">${closeStatsText}</button>
     `;
     
@@ -206,4 +216,5 @@ export async function initStatisticsPopup(allRows) {
         await infoClose.classList.remove('active');
         await infoClose.classList.add('hidden');
     });
+                   
 }
