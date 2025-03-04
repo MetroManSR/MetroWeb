@@ -210,7 +210,7 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
                 universalPendingChanges.versionDisplay[this.value] = this.checked;
 
                 // Call processAllSettings to re-process the rows
-                processAllSettings(allRows, universalPendingChanges.rowsPerPage, currentPage, universalPendingChanges.sortOrder);
+              //  processAllSettings(allRows, universalPendingChanges.rowsPerPage, currentPage, universalPendingChanges.sortOrder);
             }
         });
     });
