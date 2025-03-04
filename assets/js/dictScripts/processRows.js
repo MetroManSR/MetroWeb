@@ -46,8 +46,6 @@ export function sortRows(rows, sortingManner) {
     return [...rows].sort(sortFunctions[sortingManner] || sortFunctions.titleup);
 } 
 
-let filteredRows = [];
-
 /**
  * Adds a row to the filteredRows array if it's not already present.
  * @param {Object} row - The row to add.
