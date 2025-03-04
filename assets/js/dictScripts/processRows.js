@@ -66,7 +66,6 @@ async function removeRowFromFilteredRows(rowId) {
     tempFilteredRows = tempFilteredRows.filter(row => row.id !== rowId);
 }
 
-// processAllSettings Function
 export async function processAllSettings(allRows = [], rowsPerPage = 20, currentPage = 1, sortingManner = 'titleup') {
     const params = universalPendingChanges || defaultPendingChanges;
     const language = document.querySelector('meta[name="language"]').content || 'en';
@@ -74,20 +73,38 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     const applySettingsButton = document.getElementById('dict-apply-settings-button');
     applySettingsButton.disabled = true;
 
-    const { searchTerm, exactMatch, searchIn, filters, ignoreDiacritics, startsWith, endsWith, versionDisplay, languageOriginFilter } = params;
+    // Destructure parameters for easier handling
+    const {
+        searchTerm,
+        exactMatch,
+        searchIn,
+        filters,
+        rowsPerPage: rowsPerPageParam,
+        sortOrder,
+        versionDisplay
+    } = params;
 
-    const normalize = (text) => ignoreDiacritics ? text.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : text;
+    const normalize = (text) => params.ignoreDiacritics 
+        ? text.normalize('NFD').replace(/[\u0300-\u036f]/g, '') 
+        : text;
 
-    const normalizedLanguageOriginFilter = Array.isArray(languageOriginFilter) && languageOriginFilter.length > 0
-        ? languageOriginFilter.map(language => normalize(language.toLowerCase()))
+    const normalizedLanguageOriginFilter = Array.isArray(params.languageOriginFilter) && params.languageOriginFilter.length > 0
+        ? params.languageOriginFilter.map(language => normalize(language.toLowerCase()))
         : [];
 
+    // Use rowsPerPage and sortOrder from pendingChanges
+    const perPage = rowsPerPageParam || rowsPerPage;
+    const sortingManner = sortOrder || sortingManner;
+
+    let tempFilteredRows = [];
     let preProcessRows = Array.isArray(allRows) ? [...allRows] : [];
     const foundTerms = {};
 
     // Apply search term filtering
     if (searchTerm && searchTerm.length > 0) {
-        const terms = Array.isArray(searchTerm) ? searchTerm.map(term => normalize(term.toLowerCase())) : [normalize(searchTerm.toLowerCase())];
+        const terms = Array.isArray(searchTerm) 
+            ? searchTerm.map(term => normalize(term.toLowerCase())) 
+            : [normalize(searchTerm.toLowerCase())];
         terms.forEach(term => foundTerms[term] = []);
 
         preProcessRows = preProcessRows.filter(row => {
@@ -100,23 +117,23 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
             terms.forEach(term => {
                 const titleMatch = searchIn.word && row.type === 'word' && (
                     (exactMatch && normalizedTitle === term) ||
-                    (startsWith && normalizedTitle.startsWith(term)) ||
-                    (endsWith && normalizedTitle.endsWith(term)) ||
-                    (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
+                    (params.startsWith && normalizedTitle.startsWith(term)) ||
+                    (params.endsWith && normalizedTitle.endsWith(term)) ||
+                    (!exactMatch && !params.startsWith && !params.endsWith && normalizedTitle.includes(term))
                 );
 
                 const rootMatch = searchIn.root && row.type === 'root' && (
                     (exactMatch && normalizedTitle === term) ||
-                    (startsWith && normalizedTitle.startsWith(term)) ||
-                    (endsWith && normalizedTitle.endsWith(term)) ||
-                    (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
+                    (params.startsWith && normalizedTitle.startsWith(term)) ||
+                    (params.endsWith && normalizedTitle.endsWith(term)) ||
+                    (!exactMatch && !params.startsWith && !params.endsWith && normalizedTitle.includes(term))
                 );
 
                 const definitionMatch = searchIn.definition && (
                     (exactMatch && normalizedMeta === term) ||
-                    (startsWith && normalizedMeta.startsWith(term)) ||
-                    (endsWith && normalizedMeta.endsWith(term)) ||
-                    (!exactMatch && !startsWith && !endsWith && normalizedMeta.includes(term))
+                    (params.startsWith && normalizedMeta.startsWith(term)) ||
+                    (params.endsWith && normalizedMeta.endsWith(term)) ||
+                    (!exactMatch && !params.startsWith && !params.endsWith && normalizedMeta.includes(term))
                 );
 
                 let etymologyMatch = false;
@@ -124,16 +141,16 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
                     if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
                         etymologyMatch = row.morph[0].originWords.some(item => (
                             (exactMatch && normalize(item).includes(term)) ||
-                            (startsWith && normalize(item).startsWith(term)) ||
-                            (endsWith && normalize(item).endsWith(term)) ||
-                            (!exactMatch && !startsWith && !endsWith && normalize(item).includes(term))
+                            (params.startsWith && normalize(item).startsWith(term)) ||
+                            (params.endsWith && normalize(item).endsWith(term)) ||
+                            (!exactMatch && !params.startsWith && !params.endsWith && normalize(item).includes(term))
                         ));
                     } else {
                         etymologyMatch = (
                             (exactMatch && normalizedMorph.includes(term)) ||
-                            (startsWith && normalizedMorph.some(item => item.startsWith(term))) ||
-                            (endsWith && normalizedMorph.some(item => item.endsWith(term))) ||
-                            (!exactMatch && !startsWith && !endsWith && normalizedMorph.some(item => item.includes(term)))
+                            (params.startsWith && normalizedMorph.some(item => item.startsWith(term))) ||
+                            (params.endsWith && normalizedMorph.some(item => item.endsWith(term))) ||
+                            (!exactMatch && !params.startsWith && !params.endsWith && normalizedMorph.some(item => item.includes(term)))
                         );
                     }
                 }
@@ -152,9 +169,20 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         });
     }
 
-    // Apply part of speech and type filtering
+    // Apply "Filter By" logic
+    const validFilterOptions = [
+        "word", "root", "noun", "verb", "adjective", "adverb",
+        "conjunction", "interjection", "preposition", "expression", "pronoun"
+    ];
+
     if (filters.length > 0) {
-        preProcessRows = preProcessRows.filter(row => filters.includes(row.partofspeech?.toLowerCase()));
+        preProcessRows = preProcessRows.filter(row => {
+            const rowType = row.type?.toLowerCase();
+            const rowPartOfSpeech = row.partofspeech?.toLowerCase();
+
+            // Check if the row matches any valid filter type or part of speech
+            return validFilterOptions.some(option => rowType === option || rowPartOfSpeech === option);
+        });
     }
 
     // Filter rows based on selected versionDisplay
@@ -207,16 +235,16 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     updateFilteredRows(tempFilteredRows);
 
     const totalRows = tempFilteredRows.length;
-    const totalPages = Math.ceil(totalRows / rowsPerPage);
+    const totalPages = Math.ceil(totalRows / perPage);
     currentPage = Math.min(currentPage, totalPages);
     UCurrentPage = currentPage;
 
     const renderContainer = document.getElementById('dict-dictionary');
     if (renderContainer) {
         renderContainer.innerHTML = '';
-        await renderBox(tempFilteredRows, searchTerm, exactMatch, searchIn, rowsPerPage, currentPage);
-        updatePagination(currentPage, rowsPerPage);
-        await updateFloatingText(searchTerm, filters, searchIn, language, [exactMatch, ignoreDiacritics, startsWith, endsWith]);
+        await renderBox(tempFilteredRows, searchTerm, exactMatch, searchIn, perPage, currentPage);
+        updatePagination(currentPage, perPage);
+        await updateFloatingText(searchTerm, filters, searchIn, language, [exactMatch, params.ignoreDiacritics, params.startsWith, params.endsWith]);
     } else {
         await captureError("Error: 'dict-dictionary' element not found in the DOM.");
     }
