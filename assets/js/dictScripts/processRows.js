@@ -47,11 +47,11 @@ export function sortRows(rows, sortingManner) {
 } 
 
 // Helper Functions
-async function addRowToFilteredRows(row) {
+async function addRowToFilteredRows(tempFilteredRows, row) {
     tempFilteredRows.push(row);
 }
 
-async function removeRowFromFilteredRows(rowId) {
+async function removeRowFromFilteredRows(tempFilteredRows, rowId) {
     tempFilteredRows = tempFilteredRows.filter(row => row.id !== rowId);
 }
 
