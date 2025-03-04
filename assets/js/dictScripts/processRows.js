@@ -66,35 +66,33 @@ async function removeRowFromFilteredRows(rowId) {
     tempFilteredRows = tempFilteredRows.filter(row => row.id !== rowId);
 }
 
-export async function processAllSettings(allRows = [], rowsPerPage = 20, currentPage = 1, sortingManner = 'titleup', params = {}) {
-    // Define and assign variables from params or fallback to defaultPendingChanges
-    console.log(params) 
-    
-    const searchTerm = params?.searchTerm ?? defaultPendingChanges.searchTerm ?? ''; // Search term entered by the user
-    
-    console.log(`Initial searchTerm: ${searchTerm}`);
-    
-    const exactMatch = params?.exactMatch ?? defaultPendingChanges.exactMatch ?? false; // Whether search must match exactly
-    const searchIn = params?.searchIn ?? defaultPendingChanges.searchIn ?? { // Specifies where to search (e.g., title, root, definition)
+export async function processAllSettings(allRows = [], rowsPerPage = 20, currentPage = 1, sortingManner = 'titleup') {
+    // Initialize pendingChanges with fallback
+    const pendingChanges = universalPendingChanges || defaultPendingChanges;
+
+    // Extract parameters with fallback
+    const searchTerm = pendingChanges.searchTerm ?? '';
+    const exactMatch = pendingChanges.exactMatch ?? false;
+    const searchIn = pendingChanges.searchIn ?? {
         word: true,
         root: true,
         definition: true,
         etymology: false
     };
-    const filters = params?.filters ?? defaultPendingChanges.filters ?? []; // Filters for part of speech or type
-    const rowsPerPageParam = params?.rowsPerPage ?? defaultPendingChanges.rowsPerPage ?? rowsPerPage; // Number of rows displayed per page
-    const sortOrder = params?.sortOrder ?? defaultPendingChanges.sortOrder ?? sortingManner; // Specifies how rows are sorted
-    const versionDisplay = params?.versionDisplay ?? defaultPendingChanges.versionDisplay ?? { // Controls which revisions are displayed
+    const filters = pendingChanges.filters ?? [];
+    const rowsPerPageParam = pendingChanges.rowsPerPage ?? rowsPerPage;
+    const sortOrder = pendingChanges.sortOrder ?? sortingManner;
+    const versionDisplay = pendingChanges.versionDisplay ?? {
         NR: true,
         OV22: true,
         NV24: true,
         NV25: true,
         V225: true
     };
-    const ignoreDiacritics = params?.ignoreDiacritics ?? defaultPendingChanges.ignoreDiacritics ?? false; // Whether to ignore diacritics
-    const startsWith = params?.startsWith ?? defaultPendingChanges.startsWith ?? false; // Whether search term should match start of text
-    const endsWith = params?.endsWith ?? defaultPendingChanges.endsWith ?? false; // Whether search term should match end of text
-    const languageOriginFilter = params?.languageOriginFilter ?? defaultPendingChanges.languageOriginFilter ?? []; // List of origin languages to filter by
+    const ignoreDiacritics = pendingChanges.ignoreDiacritics ?? false;
+    const startsWith = pendingChanges.startsWith ?? false;
+    const endsWith = pendingChanges.endsWith ?? false;
+    const languageOriginFilter = pendingChanges.languageOriginFilter ?? [];
 
     const language = document.querySelector('meta[name="language"]').content || 'en'; // Detects the current language from meta tags
 
