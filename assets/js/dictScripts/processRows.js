@@ -46,13 +46,6 @@ export function sortRows(rows, sortingManner) {
     return [...rows].sort(sortFunctions[sortingManner] || sortFunctions.titleup);
 }
 
-/**
- * Processes all settings and updates the UI.
- * @param {Array} allRows - The array of all rows.
- * @param {Number} rowsPerPage - The number of rows per page.
- * @param {Number} currentPage - The current page number.
- * @param {String} sortingManner - The sorting manner.
- */
 export async function processAllSettings(allRows = [], rowsPerPage = 20, currentPage = 1, sortingManner = 'titleup') {
     const params = universalPendingChanges || defaultPendingChanges;
     const language = document.querySelector('meta[name="language"]').content || 'en';
@@ -64,7 +57,6 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     const normalize = (text) => ignoreDiacritics ? text.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : text;
 
-    // Check if languageOriginFilter is defined and has entries, normalize if true
     const normalizedLanguageOriginFilter = Array.isArray(languageOriginFilter) && languageOriginFilter.length > 0
         ? languageOriginFilter.map(language => normalize(language.toLowerCase()))
         : [];
@@ -72,7 +64,6 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     let updatedRows = Array.isArray(allRows) ? [...allRows] : [];
     const foundTerms = {};
 
-    // Apply search term filtering first
     if (searchTerm && searchTerm.length > 0) {
         const terms = Array.isArray(searchTerm) ? searchTerm.map(term => normalize(term.toLowerCase())) : [normalize(searchTerm.toLowerCase())];
         terms.forEach(term => foundTerms[term] = []);
@@ -109,7 +100,6 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
                 let etymologyMatch = false;
                 if (searchIn.etymology) {
                     if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
-                        // New dictionary format (25V2)
                         etymologyMatch = row.morph[0].originWords.some(item => (
                             (exactMatch && normalize(item).includes(term)) ||
                             (startsWith && normalize(item).startsWith(term)) ||
@@ -117,7 +107,6 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
                             (!exactMatch && !startsWith && !endsWith && normalize(item).includes(term))
                         ));
                     } else {
-                        // Old dictionary format or word format
                         etymologyMatch = (
                             (exactMatch && normalizedMorph.includes(term)) ||
                             (startsWith && normalizedMorph.some(item => item.startsWith(term))) ||
@@ -136,42 +125,36 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
             return termFound;
         });
 
-        // Sort the found terms for each search term
         Object.keys(foundTerms).forEach(term => {
             foundTerms[term] = sortRows(foundTerms[term], sortingManner);
         });
     }
 
-    // Apply part of speech and type filtering
     if (filters.length > 0) {
         updatedRows = updatedRows.filter(row => filters.includes(row.partofspeech?.toLowerCase()));
     }
 
-    // Filter rows based on selected versionDisplay
-    if (versionDisplay) {
-        updatedRows = updatedRows.filter(row => versionDisplay[mapVersion(row.revision)] || false);
-    }
+    updatedRows = updatedRows.filter(row => {
+        const mappedVersion = mapVersion(row.revision);
+        const isDisplayed = versionDisplay[mappedVersion] || false;
+        console.log(`Row ID: ${row.id}, Revision: ${row.revision}, Displayed: ${isDisplayed}`);
+        return isDisplayed;
+    });
 
-    // Filter rows based on selected languageOriginFilter if any languages are selected
     if (normalizedLanguageOriginFilter.length > 0) {
-        console.log("Applying language origin filter:", normalizedLanguageOriginFilter);
         updatedRows = updatedRows.filter(row => {
             if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages) {
-                // New dictionary format (25V2)
                 const match = row.morph[0].originLanguages.some(language => {
                     const normalizedLanguage = normalize(language.toLowerCase().replace(/\b(old|antiguo|middle|medio|vulgar|medieval|alto|high)\b/gi, '').trim());
-                    const isMatch = normalizedLanguageOriginFilter.includes(normalizedLanguage);
-                    console.log(`Checking language: ${normalizedLanguage}, Match: ${isMatch}`);
-                    return isMatch;
+                    console.log(`Normalized Language: ${normalizedLanguage}, Match: ${normalizedLanguageOriginFilter.includes(normalizedLanguage)}`);
+                    return normalizedLanguageOriginFilter.includes(normalizedLanguage);
                 });
-                console.log(`Row ${row.id} match: ${match}`);
                 return match;
             }
             return false;
         });
     }
 
-    // Ensure unique rows
     const uniqueRows = [];
     updatedRows.forEach(row => {
         if (!uniqueRows.some(uniqueRow => uniqueRow.id === row.id)) {
@@ -180,13 +163,10 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     });
     updatedRows = uniqueRows;
 
-    // Sort rows
     updatedRows = sortRows(updatedRows, sortingManner);
 
-    // Update filteredRows to include morph dictionary processing
     updatedRows.forEach(row => {
         if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
-            // New dictionary format (25V2)
             row.morphHtml = row.morph[0].originWords.map((word, index) => {
                 const language = row.morph[0].originLanguages[index];
                 const romanized = row.morph[0].originRomanizations[index] ? `<sup style="color: gray;">${row.morph[0].originRomanizations[index]}</sup>` : '';
@@ -203,7 +183,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     const totalPages = Math.ceil(totalRows / rowsPerPage);
     currentPage = Math.min(currentPage, totalPages);
     UCurrentPage = currentPage;
-    
+
     const renderContainer = document.getElementById('dict-dictionary');
     if (renderContainer) {
         renderContainer.innerHTML = '';
@@ -214,7 +194,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         await captureError("Error: 'dict-dictionary' element not found in the DOM.");
     }
 
-    applySettingsButton.disabled = false; // Re-enable the button after the process is complete
+    applySettingsButton.disabled = false;
 }
 
 
