@@ -44,6 +44,26 @@ export function sortRows(rows, sortingManner) {
     };
 
     return [...rows].sort(sortFunctions[sortingManner] || sortFunctions.titleup);
+} 
+
+let filteredRows = [];
+
+/**
+ * Adds a row to the filteredRows array if it's not already present.
+ * @param {Object} row - The row to add.
+ */
+function addToFilteredRows(row) {
+    if (!filteredRows.some(existingRow => existingRow.id === row.id)) {
+        filteredRows.push(row);
+    }
+}
+
+/**
+ * Removes a row from the filteredRows array based on its ID.
+ * @param {String} rowId - The ID of the row to remove.
+ */
+function removeFromFilteredRows(rowId) {
+    filteredRows = filteredRows.filter(row => row.id !== rowId);
 }
 
 export async function processAllSettings(allRows = [], rowsPerPage = 20, currentPage = 1, sortingManner = 'titleup') {
@@ -61,111 +81,84 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         ? languageOriginFilter.map(language => normalize(language.toLowerCase()))
         : [];
 
-    let updatedRows = Array.isArray(allRows) ? [...allRows] : [];
-    const foundTerms = {};
+    // Step 1: Preprocessing rows before final filtering
+    const preProcessRows = Array.isArray(allRows) ? [...allRows] : [];
 
-    if (searchTerm && searchTerm.length > 0) {
-        const terms = Array.isArray(searchTerm) ? searchTerm.map(term => normalize(term.toLowerCase())) : [normalize(searchTerm.toLowerCase())];
-        terms.forEach(term => foundTerms[term] = []);
+    // Reset filteredRows
+    filteredRows = [];
 
-        updatedRows = updatedRows.filter(row => {
-            const normalizedTitle = normalize(row.title.toLowerCase());
-            const normalizedMeta = normalize(row.meta.toLowerCase());
-            const normalizedMorph = row.morph.map(morphItem => typeof morphItem === 'string' ? normalize(morphItem.toLowerCase()) : morphItem);
+    // Step 2: Apply all filters iteratively and modify filteredRows
+    preProcessRows.forEach(row => {
+        const normalizedTitle = normalize(row.title.toLowerCase());
+        const normalizedMeta = normalize(row.meta.toLowerCase());
 
-            let termFound = false;
+        // Search Term Filtering
+        if (searchTerm && searchTerm.length > 0) {
+            const terms = Array.isArray(searchTerm) ? searchTerm.map(term => normalize(term.toLowerCase())) : [normalize(searchTerm.toLowerCase())];
 
-            terms.forEach(term => {
-                const titleMatch = searchIn.word && row.type === 'word' && (
-                    (exactMatch && normalizedTitle === term) ||
-                    (startsWith && normalizedTitle.startsWith(term)) ||
-                    (endsWith && normalizedTitle.endsWith(term)) ||
-                    (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
+            const matchesTerm = terms.some(term => {
+                return (
+                    (searchIn.word && row.type === 'word' && (
+                        (exactMatch && normalizedTitle === term) ||
+                        (startsWith && normalizedTitle.startsWith(term)) ||
+                        (endsWith && normalizedTitle.endsWith(term)) ||
+                        (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
+                    )) ||
+                    (searchIn.definition && (
+                        (exactMatch && normalizedMeta === term) ||
+                        (startsWith && normalizedMeta.startsWith(term)) ||
+                        (endsWith && normalizedMeta.endsWith(term)) ||
+                        (!exactMatch && !startsWith && !endsWith && normalizedMeta.includes(term))
+                    ))
                 );
-
-                const rootMatch = searchIn.root && row.type === 'root' && (
-                    (exactMatch && normalizedTitle === term) ||
-                    (startsWith && normalizedTitle.startsWith(term)) ||
-                    (endsWith && normalizedTitle.endsWith(term)) ||
-                    (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
-                );
-
-                const definitionMatch = searchIn.definition && (
-                    (exactMatch && normalizedMeta === term) ||
-                    (startsWith && normalizedMeta.startsWith(term)) ||
-                    (endsWith && normalizedMeta.endsWith(term)) ||
-                    (!exactMatch && !startsWith && !endsWith && normalizedMeta.includes(term))
-                );
-
-                let etymologyMatch = false;
-                if (searchIn.etymology) {
-                    if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
-                        etymologyMatch = row.morph[0].originWords.some(item => (
-                            (exactMatch && normalize(item).includes(term)) ||
-                            (startsWith && normalize(item).startsWith(term)) ||
-                            (endsWith && normalize(item).endsWith(term)) ||
-                            (!exactMatch && !startsWith && !endsWith && normalize(item).includes(term))
-                        ));
-                    } else {
-                        etymologyMatch = (
-                            (exactMatch && normalizedMorph.includes(term)) ||
-                            (startsWith && normalizedMorph.some(item => item.startsWith(term))) ||
-                            (endsWith && normalizedMorph.some(item => item.endsWith(term))) ||
-                            (!exactMatch && !startsWith && !endsWith && normalizedMorph.some(item => item.includes(term)))
-                        );
-                    }
-                }
-
-                if (titleMatch || rootMatch || definitionMatch || etymologyMatch) {
-                    foundTerms[term].push(row);
-                    termFound = true;
-                }
             });
 
-            return termFound;
-        });
+            if (!matchesTerm) {
+                removeFromFilteredRows(row.id);
+                return;
+            }
+        }
 
-        Object.keys(foundTerms).forEach(term => {
-            foundTerms[term] = sortRows(foundTerms[term], sortingManner);
-        });
-    }
+        // Filters based on part of speech
+        if (filters.length > 0 && !filters.includes(row.partofspeech?.toLowerCase())) {
+            removeFromFilteredRows(row.id);
+            return;
+        }
 
-    if (filters.length > 0) {
-        updatedRows = updatedRows.filter(row => filters.includes(row.partofspeech?.toLowerCase()));
-    }
-
-    updatedRows = updatedRows.filter(row => {
+        // Version Display Filtering
         const mappedVersion = mapVersion(row.revision);
-        const isDisplayed = versionDisplay[mappedVersion] || false;
-        console.log(`Row ID: ${row.id}, Revision: ${row.revision}, Displayed: ${isDisplayed}`);
-        return isDisplayed;
-    });
+        if (!versionDisplay[mappedVersion]) {
+            removeFromFilteredRows(row.id);
+            return;
+        }
 
-    if (normalizedLanguageOriginFilter.length > 0) {
-        updatedRows = updatedRows.filter(row => {
+        // Language Origin Filtering
+        if (normalizedLanguageOriginFilter.length > 0) {
             if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages) {
-                const match = row.morph[0].originLanguages.some(language => {
+                const matchesLanguageOrigin = row.morph[0].originLanguages.some(language => {
                     const normalizedLanguage = normalize(language.toLowerCase().replace(/\b(old|antiguo|middle|medio|vulgar|medieval|alto|high)\b/gi, '').trim());
-                    console.log(`Normalized Language: ${normalizedLanguage}, Match: ${normalizedLanguageOriginFilter.includes(normalizedLanguage)}`);
                     return normalizedLanguageOriginFilter.includes(normalizedLanguage);
                 });
-                return match;
+
+                if (!matchesLanguageOrigin) {
+                    removeFromFilteredRows(row.id);
+                    return;
+                }
+            } else {
+                removeFromFilteredRows(row.id);
+                return;
             }
-            return false;
-        });
-    }
-
-    const uniqueRows = [];
-    updatedRows.forEach(row => {
-        if (!uniqueRows.some(uniqueRow => uniqueRow.id === row.id)) {
-            uniqueRows.push(row);
         }
+
+        // Add the row to filteredRows if it passes all filters
+        addToFilteredRows(row);
     });
-    updatedRows = uniqueRows;
 
-    updatedRows = sortRows(updatedRows, sortingManner);
+    // Step 3: Sort filteredRows
+    filteredRows = sortRows(filteredRows, sortingManner);
 
-    updatedRows.forEach(row => {
+    // Step 4: Prepare rows for rendering
+    filteredRows.forEach(row => {
         if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
             row.morphHtml = row.morph[0].originWords.map((word, index) => {
                 const language = row.morph[0].originLanguages[index];
@@ -177,9 +170,10 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         }
     });
 
-    updateFilteredRows(updatedRows);
+    // Step 5: Render results
+    updateFilteredRows(filteredRows);
 
-    const totalRows = updatedRows.length;
+    const totalRows = filteredRows.length;
     const totalPages = Math.ceil(totalRows / rowsPerPage);
     currentPage = Math.min(currentPage, totalPages);
     UCurrentPage = currentPage;
@@ -187,7 +181,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     const renderContainer = document.getElementById('dict-dictionary');
     if (renderContainer) {
         renderContainer.innerHTML = '';
-        await renderBox(updatedRows, searchTerm, exactMatch, searchIn, rowsPerPage, currentPage);
+        await renderBox(filteredRows, searchTerm, exactMatch, searchIn, rowsPerPage, currentPage);
         updatePagination(currentPage, rowsPerPage);
         await updateFloatingText(searchTerm, filters, searchIn, language, [exactMatch, ignoreDiacritics, startsWith, endsWith]);
     } else {
@@ -196,6 +190,8 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     applySettingsButton.disabled = false;
 }
+
+
 
 
 /**
