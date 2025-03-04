@@ -108,7 +108,11 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     const foundTerms = {}; // Object to store rows matching search terms
 
     // Step 1: Filter rows based on the search term
-    if (searchTerm.length > 0) {
+    if (!isNaN(searchTerm) && Number(searchTerm) < allRows.length) {
+        // If searchTerm is a number and less than the total number of rows, search by ID
+        console.log(`Searching by ID: ${searchTerm}`); // Debugging log
+        preProcessRows = preProcessRows.filter(row => row.id === Number(searchTerm));
+    } else if (searchTerm.length > 0) {
         const terms = Array.isArray(searchTerm) 
             ? searchTerm.map(term => normalize(term.toLowerCase())) 
             : [normalize(searchTerm.toLowerCase())];
