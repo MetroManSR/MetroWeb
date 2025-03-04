@@ -67,60 +67,63 @@ async function removeRowFromFilteredRows(rowId) {
 }
 
 export async function processAllSettings(allRows = [], rowsPerPage = 20, currentPage = 1, sortingManner = 'titleup', params = {}) {
-
-    const language = document.querySelector('meta[name="language"]').content || 'en';
-    
-    // Extract parameters as standalone variables with fallbacks to defaultPendingChanges
-    const searchTerm = params?.searchTerm ?? defaultPendingChanges.searchTerm ?? '';
-    const exactMatch = params?.exactMatch ?? defaultPendingChanges.exactMatch ?? false;
-    const searchIn = params?.searchIn ?? defaultPendingChanges.searchIn ?? {
+    // Define and assign variables from params or fallback to defaultPendingChanges
+    const searchTerm = params?.searchTerm ?? defaultPendingChanges.searchTerm ?? ''; // Search term entered by the user
+    const exactMatch = params?.exactMatch ?? defaultPendingChanges.exactMatch ?? false; // Whether search must match exactly
+    const searchIn = params?.searchIn ?? defaultPendingChanges.searchIn ?? { // Specifies where to search (e.g., title, root, definition)
         word: true,
         root: true,
         definition: true,
         etymology: false
     };
-    const filters = params?.filters ?? defaultPendingChanges.filters ?? [];
-    const rowsPerPageParam = params?.rowsPerPage ?? defaultPendingChanges.rowsPerPage ?? rowsPerPage;
-    const sortOrder = params?.sortOrder ?? defaultPendingChanges.sortOrder ?? sortingManner;
-    const versionDisplay = params?.versionDisplay ?? defaultPendingChanges.versionDisplay ?? {
+    const filters = params?.filters ?? defaultPendingChanges.filters ?? []; // Filters for part of speech or type
+    const rowsPerPageParam = params?.rowsPerPage ?? defaultPendingChanges.rowsPerPage ?? rowsPerPage; // Number of rows displayed per page
+    const sortOrder = params?.sortOrder ?? defaultPendingChanges.sortOrder ?? sortingManner; // Specifies how rows are sorted
+    const versionDisplay = params?.versionDisplay ?? defaultPendingChanges.versionDisplay ?? { // Controls which revisions are displayed
         NR: true,
         OV22: true,
         NV24: true,
         NV25: true,
         V225: true
     };
-    const ignoreDiacritics = params?.ignoreDiacritics ?? defaultPendingChanges.ignoreDiacritics ?? false;
-    const startsWith = params?.startsWith ?? defaultPendingChanges.startsWith ?? false;
-    const endsWith = params?.endsWith ?? defaultPendingChanges.endsWith ?? false;
-    const languageOriginFilter = params?.languageOriginFilter ?? defaultPendingChanges.languageOriginFilter ?? [];
+    const ignoreDiacritics = params?.ignoreDiacritics ?? defaultPendingChanges.ignoreDiacritics ?? false; // Whether to ignore diacritics
+    const startsWith = params?.startsWith ?? defaultPendingChanges.startsWith ?? false; // Whether search term should match start of text
+    const endsWith = params?.endsWith ?? defaultPendingChanges.endsWith ?? false; // Whether search term should match end of text
+    const languageOriginFilter = params?.languageOriginFilter ?? defaultPendingChanges.languageOriginFilter ?? []; // List of origin languages to filter by
 
+    const language = document.querySelector('meta[name="language"]').content || 'en'; // Detects the current language from meta tags
+
+    // Function to normalize text for consistent comparisons (handles diacritics)
     const normalize = (text) => ignoreDiacritics 
         ? text.normalize('NFD').replace(/[\u0300-\u036f]/g, '') 
         : text;
 
+    // Normalize the list of origin languages for filtering
     const normalizedLanguageOriginFilter = Array.isArray(languageOriginFilter) && languageOriginFilter.length > 0
         ? languageOriginFilter.map(language => normalize(language.toLowerCase()))
         : [];
 
-    let tempFilteredRows = [];
-    let preProcessRows = Array.isArray(allRows) ? [...allRows] : [];
-    const foundTerms = {};
+    let tempFilteredRows = []; // Temporary array to store filtered rows
+    let preProcessRows = Array.isArray(allRows) ? [...allRows] : []; // Create a copy of the input rows for processing
+    const foundTerms = {}; // Object to store rows matching search terms
 
-    // Apply search term filtering
+    // Step 1: Filter rows based on the search term
     if (searchTerm.length > 0) {
         const terms = Array.isArray(searchTerm) 
             ? searchTerm.map(term => normalize(term.toLowerCase())) 
             : [normalize(searchTerm.toLowerCase())];
-        terms.forEach(term => foundTerms[term] = []);
+        terms.forEach(term => foundTerms[term] = []); // Initialize storage for matches
 
         preProcessRows = preProcessRows.filter(row => {
+            // Normalize values for case-insensitive comparisons
             const normalizedTitle = normalize(row.title.toLowerCase());
             const normalizedMeta = normalize(row.meta.toLowerCase());
             const normalizedMorph = row.morph.map(morphItem => typeof morphItem === 'string' ? normalize(morphItem.toLowerCase()) : morphItem);
 
-            let termFound = false;
+            let termFound = false; // Tracks if a row matches the search term
 
             terms.forEach(term => {
+                // Check for matches in different parts of the row
                 const titleMatch = searchIn.word && row.type === 'word' && (
                     (exactMatch && normalizedTitle === term) ||
                     (startsWith && normalizedTitle.startsWith(term)) ||
@@ -142,7 +145,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
                     (!exactMatch && !startsWith && !endsWith && normalizedMeta.includes(term))
                 );
 
-                let etymologyMatch = false;
+                let etymologyMatch = false; // Check matches in origin data
                 if (searchIn.etymology) {
                     if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
                         etymologyMatch = row.morph[0].originWords.some(item => (
@@ -161,21 +164,23 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
                     }
                 }
 
+                // Mark the row as a match if any condition is true
                 if (titleMatch || rootMatch || definitionMatch || etymologyMatch) {
-                    foundTerms[term].push(row);
+                    foundTerms[term].push(row); // Store the matched row for the term
                     termFound = true;
                 }
             });
 
-            return termFound;
+            return termFound; // Only keep rows that matched the search term
         });
 
+        // Sort the matched terms based on the sorting manner
         Object.keys(foundTerms).forEach(term => {
             foundTerms[term] = sortRows(foundTerms[term], sortOrder);
         });
     }
 
-    // Apply "Filter By" logic
+    // Step 2: Apply filters based on the "Filter By" options
     const validFilterOptions = [
         "word", "root", "noun", "verb", "adjective", "adverb",
         "conjunction", "interjection", "preposition", "expression", "pronoun"
@@ -191,40 +196,37 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         });
     }
 
-    // Filter rows based on selected versionDisplay
+    // Step 3: Filter rows based on the selected versions
     preProcessRows = preProcessRows.filter(row => {
         const mappedVersion = mapVersion(row.revision);
         const isDisplayed = versionDisplay[mappedVersion] || false;
-        console.log(`Row ID: ${row.id}, Revision: ${row.revision}, Displayed: ${isDisplayed}`);
         return isDisplayed;
     });
 
-    // Apply language origin filter
+    // Step 4: Apply the language origin filter
     if (normalizedLanguageOriginFilter.length > 0) {
         preProcessRows = preProcessRows.filter(row => {
             if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages) {
-                const match = row.morph[0].originLanguages.some(language => {
+                return row.morph[0].originLanguages.some(language => {
                     const normalizedLanguage = normalize(language.toLowerCase().replace(/\b(old|antiguo|middle|medio|vulgar|medieval|alto|high)\b/gi, '').trim());
-                    console.log(`Normalized Language: ${normalizedLanguage}, Match: ${normalizedLanguageOriginFilter.includes(normalizedLanguage)}`);
                     return normalizedLanguageOriginFilter.includes(normalizedLanguage);
                 });
-                return match;
             }
             return false;
         });
     }
 
-    // Fill tempFilteredRows
+    // Step 5: Populate tempFilteredRows with the final rows
     for (const row of preProcessRows) {
         if (!tempFilteredRows.some(existingRow => existingRow.id === row.id)) {
             await addRowToFilteredRows(row);
         }
     }
 
-    // Sort rows
+    // Step 6: Sort the final rows
     tempFilteredRows = sortRows(tempFilteredRows, sortOrder);
 
-    // Process morph dictionary for rendering
+    // Step 7: Process morph data for rendering in the UI
     tempFilteredRows.forEach(row => {
         if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
             row.morphHtml = row.morph[0].originWords.map((word, index) => {
@@ -237,28 +239,30 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         }
     });
 
-    // Update UI with tempFilteredRows
-    updateFilteredRows(tempFilteredRows);
+    // Step 8: Update the UI with filtered rows and handle pagination
+    const totalRows = tempFilteredRows.length; // Calculate the total number of rows after filtering
+    const totalPages = Math.ceil(totalRows / rowsPerPageParam); // Calculate the total number of pages
+    currentPage = Math.min(currentPage, totalPages); // Ensure the current page is within range
+    UCurrentPage = currentPage; // Store the updated current page globally
 
-    const totalRows = tempFilteredRows.length;
-    const totalPages = Math.ceil(totalRows / rowsPerPageParam);
-    currentPage = Math.min(currentPage, totalPages);
-    UCurrentPage = currentPage;
-
+    // Find the container for rendering rows in the DOM
     const renderContainer = document.getElementById('dict-dictionary');
     if (renderContainer) {
-        renderContainer.innerHTML = '';
+        renderContainer.innerHTML = ''; // Clear previous content
+        // Render the rows for the current page
         await renderBox(tempFilteredRows, searchTerm, exactMatch, searchIn, rowsPerPageParam, currentPage);
+        // Update pagination UI
         updatePagination(currentPage, rowsPerPageParam);
+        // Update the floating text for visual feedback (e.g., displaying filters and search info)
         await updateFloatingText(searchTerm, filters, searchIn, language, [exactMatch, ignoreDiacritics, startsWith, endsWith]);
     } else {
+        // Log an error if the container is not found in the DOM
         await captureError("Error: 'dict-dictionary' element not found in the DOM.");
     }
 
-    applySettingsButton.disabled = false; // Re-enable the button after the process is complete
+    // Step 9: Re-enable the "Apply Settings" button to allow further interactions
+    applySettingsButton.disabled = false; // Enable the button after processing is complete
 }
-
-
 
 
 /**
