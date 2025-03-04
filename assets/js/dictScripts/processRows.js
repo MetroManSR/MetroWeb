@@ -261,6 +261,8 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     }
 
     // Step 9: Re-enable the "Apply Settings" button to allow further interactions
+    const applySettingsButton = document.getElementById('dict-apply-settings-button'); // Select the Apply Settings button from the DOM
+    
     applySettingsButton.disabled = false; // Enable the button after processing is complete
 }
 
