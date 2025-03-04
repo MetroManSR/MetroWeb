@@ -46,12 +46,23 @@ export function sortRows(rows, sortingManner) {
     return [...rows].sort(sortFunctions[sortingManner] || sortFunctions.titleup);
 } 
 
-// Helper Functions
-async function addRowToFilteredRows(tempFilteredRows, row) {
-    tempFilteredRows.push(row);
+let tempFilteredRows = []; // Declare outside of the function for global management
+
+/**
+ * Adds a row to tempFilteredRows if it doesn't already exist.
+ * @param {Object} row - The row to add.
+ */
+async function addRowToFilteredRows(row) {
+    if (!tempFilteredRows.some(existingRow => existingRow.id === row.id)) {
+        tempFilteredRows.push(row);
+    }
 }
 
-async function removeRowFromFilteredRows(tempFilteredRows, rowId) {
+/**
+ * Removes a row from tempFilteredRows if it exists.
+ * @param {String} rowId - The ID of the row to remove.
+ */
+async function removeRowFromFilteredRows(rowId) {
     tempFilteredRows = tempFilteredRows.filter(row => row.id !== rowId);
 }
 
@@ -71,7 +82,6 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         ? languageOriginFilter.map(language => normalize(language.toLowerCase()))
         : [];
 
-    let tempFilteredRows = [];
     let preProcessRows = Array.isArray(allRows) ? [...allRows] : [];
     const foundTerms = {};
 
@@ -172,7 +182,9 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
 
     // Fill tempFilteredRows
     for (const row of preProcessRows) {
-        await addRowToFilteredRows(row);
+        if (!tempFilteredRows.some(existingRow => existingRow.id === row.id)) {
+            await addRowToFilteredRows(row);
+        }
     }
 
     // Sort rows
@@ -191,7 +203,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         }
     });
 
-    // Update UI
+    // Update UI with tempFilteredRows
     updateFilteredRows(tempFilteredRows);
 
     const totalRows = tempFilteredRows.length;
@@ -210,8 +222,10 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     }
 
     applySettingsButton.disabled = false; // Re-enable the button after the process is complete
-                   
 }
+
+
+
 
 /**
  * Displays the specified page of results.
