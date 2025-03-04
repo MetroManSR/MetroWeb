@@ -67,6 +67,9 @@ async function removeRowFromFilteredRows(rowId) {
 }
 
 export async function processAllSettings(allRows = [], rowsPerPage = 20, currentPage = 1, sortingManner = 'titleup', params = {}) {
+
+    const language = document.querySelector('meta[name="language"]').content || 'en';
+    
     // Extract parameters as standalone variables with fallbacks to defaultPendingChanges
     const searchTerm = params?.searchTerm ?? defaultPendingChanges.searchTerm ?? '';
     const exactMatch = params?.exactMatch ?? defaultPendingChanges.exactMatch ?? false;
