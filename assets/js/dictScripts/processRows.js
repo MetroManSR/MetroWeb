@@ -66,42 +66,45 @@ async function removeRowFromFilteredRows(rowId) {
     tempFilteredRows = tempFilteredRows.filter(row => row.id !== rowId);
 }
 
-export async function processAllSettings(allRows = [], rowsPerPage = 20, currentPage = 1, sortingManner = 'titleup') {
-    const params = universalPendingChanges || defaultPendingChanges;
-    const language = document.querySelector('meta[name="language"]').content || 'en';
+export async function processAllSettings(allRows = [], rowsPerPage = 20, currentPage = 1, sortingManner = 'titleup', params = {}) {
+    // Extract parameters as standalone variables with fallbacks to defaultPendingChanges
+    const searchTerm = params?.searchTerm ?? defaultPendingChanges.searchTerm ?? '';
+    const exactMatch = params?.exactMatch ?? defaultPendingChanges.exactMatch ?? false;
+    const searchIn = params?.searchIn ?? defaultPendingChanges.searchIn ?? {
+        word: true,
+        root: true,
+        definition: true,
+        etymology: false
+    };
+    const filters = params?.filters ?? defaultPendingChanges.filters ?? [];
+    const rowsPerPageParam = params?.rowsPerPage ?? defaultPendingChanges.rowsPerPage ?? rowsPerPage;
+    const sortOrder = params?.sortOrder ?? defaultPendingChanges.sortOrder ?? sortingManner;
+    const versionDisplay = params?.versionDisplay ?? defaultPendingChanges.versionDisplay ?? {
+        NR: true,
+        OV22: true,
+        NV24: true,
+        NV25: true,
+        V225: true
+    };
+    const ignoreDiacritics = params?.ignoreDiacritics ?? defaultPendingChanges.ignoreDiacritics ?? false;
+    const startsWith = params?.startsWith ?? defaultPendingChanges.startsWith ?? false;
+    const endsWith = params?.endsWith ?? defaultPendingChanges.endsWith ?? false;
+    const languageOriginFilter = params?.languageOriginFilter ?? defaultPendingChanges.languageOriginFilter ?? [];
 
-    const applySettingsButton = document.getElementById('dict-apply-settings-button');
-    applySettingsButton.disabled = true;
-
-    // Destructure parameters for easier handling
-    const {
-        searchTerm,
-        exactMatch,
-        searchIn,
-        filters,
-        rowsPerPage: rowsPerPageParam,
-        sortOrder,
-        versionDisplay
-    } = params;
-
-    const normalize = (text) => params.ignoreDiacritics 
+    const normalize = (text) => ignoreDiacritics 
         ? text.normalize('NFD').replace(/[\u0300-\u036f]/g, '') 
         : text;
 
-    const normalizedLanguageOriginFilter = Array.isArray(params.languageOriginFilter) && params.languageOriginFilter.length > 0
-        ? params.languageOriginFilter.map(language => normalize(language.toLowerCase()))
+    const normalizedLanguageOriginFilter = Array.isArray(languageOriginFilter) && languageOriginFilter.length > 0
+        ? languageOriginFilter.map(language => normalize(language.toLowerCase()))
         : [];
-
-    // Use rowsPerPage and sortOrder from pendingChanges
-    const perPage = rowsPerPageParam || rowsPerPage;
-    const sortingManner = sortOrder || sortingManner;
 
     let tempFilteredRows = [];
     let preProcessRows = Array.isArray(allRows) ? [...allRows] : [];
     const foundTerms = {};
 
     // Apply search term filtering
-    if (searchTerm && searchTerm.length > 0) {
+    if (searchTerm.length > 0) {
         const terms = Array.isArray(searchTerm) 
             ? searchTerm.map(term => normalize(term.toLowerCase())) 
             : [normalize(searchTerm.toLowerCase())];
@@ -117,23 +120,23 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
             terms.forEach(term => {
                 const titleMatch = searchIn.word && row.type === 'word' && (
                     (exactMatch && normalizedTitle === term) ||
-                    (params.startsWith && normalizedTitle.startsWith(term)) ||
-                    (params.endsWith && normalizedTitle.endsWith(term)) ||
-                    (!exactMatch && !params.startsWith && !params.endsWith && normalizedTitle.includes(term))
+                    (startsWith && normalizedTitle.startsWith(term)) ||
+                    (endsWith && normalizedTitle.endsWith(term)) ||
+                    (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
                 );
 
                 const rootMatch = searchIn.root && row.type === 'root' && (
                     (exactMatch && normalizedTitle === term) ||
-                    (params.startsWith && normalizedTitle.startsWith(term)) ||
-                    (params.endsWith && normalizedTitle.endsWith(term)) ||
-                    (!exactMatch && !params.startsWith && !params.endsWith && normalizedTitle.includes(term))
+                    (startsWith && normalizedTitle.startsWith(term)) ||
+                    (endsWith && normalizedTitle.endsWith(term)) ||
+                    (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
                 );
 
                 const definitionMatch = searchIn.definition && (
                     (exactMatch && normalizedMeta === term) ||
-                    (params.startsWith && normalizedMeta.startsWith(term)) ||
-                    (params.endsWith && normalizedMeta.endsWith(term)) ||
-                    (!exactMatch && !params.startsWith && !params.endsWith && normalizedMeta.includes(term))
+                    (startsWith && normalizedMeta.startsWith(term)) ||
+                    (endsWith && normalizedMeta.endsWith(term)) ||
+                    (!exactMatch && !startsWith && !endsWith && normalizedMeta.includes(term))
                 );
 
                 let etymologyMatch = false;
@@ -141,16 +144,16 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
                     if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
                         etymologyMatch = row.morph[0].originWords.some(item => (
                             (exactMatch && normalize(item).includes(term)) ||
-                            (params.startsWith && normalize(item).startsWith(term)) ||
-                            (params.endsWith && normalize(item).endsWith(term)) ||
-                            (!exactMatch && !params.startsWith && !params.endsWith && normalize(item).includes(term))
+                            (startsWith && normalize(item).startsWith(term)) ||
+                            (endsWith && normalize(item).endsWith(term)) ||
+                            (!exactMatch && !startsWith && !endsWith && normalize(item).includes(term))
                         ));
                     } else {
                         etymologyMatch = (
                             (exactMatch && normalizedMorph.includes(term)) ||
-                            (params.startsWith && normalizedMorph.some(item => item.startsWith(term))) ||
-                            (params.endsWith && normalizedMorph.some(item => item.endsWith(term))) ||
-                            (!exactMatch && !params.startsWith && !params.endsWith && normalizedMorph.some(item => item.includes(term)))
+                            (startsWith && normalizedMorph.some(item => item.startsWith(term))) ||
+                            (endsWith && normalizedMorph.some(item => item.endsWith(term))) ||
+                            (!exactMatch && !startsWith && !endsWith && normalizedMorph.some(item => item.includes(term)))
                         );
                     }
                 }
@@ -165,7 +168,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
         });
 
         Object.keys(foundTerms).forEach(term => {
-            foundTerms[term] = sortRows(foundTerms[term], sortingManner);
+            foundTerms[term] = sortRows(foundTerms[term], sortOrder);
         });
     }
 
@@ -216,7 +219,7 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     }
 
     // Sort rows
-    tempFilteredRows = sortRows(tempFilteredRows, sortingManner);
+    tempFilteredRows = sortRows(tempFilteredRows, sortOrder);
 
     // Process morph dictionary for rendering
     tempFilteredRows.forEach(row => {
@@ -235,16 +238,16 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     updateFilteredRows(tempFilteredRows);
 
     const totalRows = tempFilteredRows.length;
-    const totalPages = Math.ceil(totalRows / perPage);
+    const totalPages = Math.ceil(totalRows / rowsPerPageParam);
     currentPage = Math.min(currentPage, totalPages);
     UCurrentPage = currentPage;
 
     const renderContainer = document.getElementById('dict-dictionary');
     if (renderContainer) {
         renderContainer.innerHTML = '';
-        await renderBox(tempFilteredRows, searchTerm, exactMatch, searchIn, perPage, currentPage);
-        updatePagination(currentPage, perPage);
-        await updateFloatingText(searchTerm, filters, searchIn, language, [exactMatch, params.ignoreDiacritics, params.startsWith, params.endsWith]);
+        await renderBox(tempFilteredRows, searchTerm, exactMatch, searchIn, rowsPerPageParam, currentPage);
+        updatePagination(currentPage, rowsPerPageParam);
+        await updateFloatingText(searchTerm, filters, searchIn, language, [exactMatch, ignoreDiacritics, startsWith, endsWith]);
     } else {
         await captureError("Error: 'dict-dictionary' element not found in the DOM.");
     }
