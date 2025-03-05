@@ -226,7 +226,7 @@ export async function initializeFormEventListeners(allRows, rowsPerPage) {
             currentPage = 1;
 
             // Call processAllSettings to re-process the rows with the new language filter
-            processAllSettings(allRows, universalPendingChanges.rowsPerPage, currentPage, universalPendingChanges.sortOrder);
+            await processAllSettings(allRows, universalPendingChanges.rowsPerPage, currentPage, universalPendingChanges.sortOrder);
         });
     }
 
