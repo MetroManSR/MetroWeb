@@ -66,6 +66,18 @@ async function removeRowFromFilteredRows(rowId) {
     tempFilteredRows = tempFilteredRows.filter(row => row.id !== rowId);
 }
 
+// Step 5: Populate filteredRows sequentially with the final rows
+async function populateFilteredRows(preProcessRows) {
+    for (const row of preProcessRows) {
+        // Check if the row is already in filteredRows
+        if (!filteredRows.some(existingRow => existingRow.id === row.id)) {
+            await addRowToFilteredRows(row); // Sequentially add each row while awaiting its completion
+        }
+    }
+}
+
+
+
 export async function processAllSettings(allRows = [], rowsPerPage = 20, currentPage = 1, sortingManner = 'titleup') {
     // Initialize pendingChanges with fallback
     const pendingChanges = universalPendingChanges || defaultPendingChanges;
@@ -229,20 +241,9 @@ if (titleMatch || rootMatch || definitionMatch || etymologyMatch) {
     }
 
 
+    // Step:5 Call the async function
 
-     // Step 5: Populate tempFilteredRows sequentially with the final rows
-
-            for (const row of preProcessRows) {
-    
-                // Check if the row is already in tempFilteredRows
-    
-                if (!tempFilteredRows.some(existingRow => existingRow.id === row.id)) {
-       
-                    await addRowToFilteredRows(row); // Sequentially add each row while awaiting its completion
-  
-                }
-}
-        
+    await populateFilteredRows(preProcessRows);         
             
     // Step 6: Sort the final rows
     tempFilteredRows = sortRows(tempFilteredRows, sortOrder);
