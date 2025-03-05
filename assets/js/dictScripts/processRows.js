@@ -110,83 +110,88 @@ export async function processAllSettings(allRows = [], rowsPerPage = 20, current
     let preProcessRows = Array.isArray(allRows) ? [...allRows] : []; // Create a copy of the input rows for processing
     const foundTerms = {}; // Object to store rows matching search terms
 
-    // Step 1: Filter rows based on the search term
-    if (!isNaN(searchTerm) && Number(searchTerm) < allRows.length) {
-        // If searchTerm is a number and less than the total number of rows, search by ID
-        console.log(`Searching by ID: ${searchTerm}`); // Debugging log
-        preProcessRows = preProcessRows.filter(row => row.id === Number(searchTerm));
-    } else if (searchTerm.length > 0) {
-        const terms = Array.isArray(searchTerm) 
-            ? searchTerm.map(term => normalize(term.toLowerCase())) 
-            : [normalize(searchTerm.toLowerCase())];
-        terms.forEach(term => foundTerms[term] = []); // Initialize storage for matches
+    // Step 1: Check if searchTerm is a number and filter by ID within the range of word-type rows
+if (!isNaN(searchTerm) && Number.isInteger(Number(searchTerm))) {
+    const numericSearchTerm = Number(searchTerm); // Convert searchTerm to a number
 
-        preProcessRows = preProcessRows.filter(row => {
-            // Normalize values for case-insensitive comparisons
-            const normalizedTitle = normalize(row.title.toLowerCase());
-            const normalizedMeta = normalize(row.meta.toLowerCase());
-            const normalizedMorph = row.morph.map(morphItem => typeof morphItem === 'string' ? normalize(morphItem.toLowerCase()) : morphItem);
+    // Find the maximum ID among rows of type 'word'
+    const maxWordId = Math.max(...allRows.filter(row => row.type === 'word').map(row => row.id));
 
-            let termFound = false; // Tracks if a row matches the search term
-
-            terms.forEach(term => {
-                // Check for matches in different parts of the row
-                const titleMatch = searchIn.word && row.type === 'word' && (
-                    (exactMatch && normalizedTitle === term) ||
-                    (startsWith && normalizedTitle.startsWith(term)) ||
-                    (endsWith && normalizedTitle.endsWith(term)) ||
-                    (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
-                );
-
-                const rootMatch = searchIn.root && row.type === 'root' && (
-                    (exactMatch && normalizedTitle === term) ||
-                    (startsWith && normalizedTitle.startsWith(term)) ||
-                    (endsWith && normalizedTitle.endsWith(term)) ||
-                    (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
-                );
-
-                const definitionMatch = searchIn.definition && (
-                    (exactMatch && normalizedMeta === term) ||
-                    (startsWith && normalizedMeta.startsWith(term)) ||
-                    (endsWith && normalizedMeta.endsWith(term)) ||
-                    (!exactMatch && !startsWith && !endsWith && normalizedMeta.includes(term))
-                );
-
-                let etymologyMatch = false; // Check matches in origin data
-                if (searchIn.etymology) {
-                    if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
-                        etymologyMatch = row.morph[0].originWords.some(item => (
-                            (exactMatch && normalize(item).includes(term)) ||
-                            (startsWith && normalize(item).startsWith(term)) ||
-                            (endsWith && normalize(item).endsWith(term)) ||
-                            (!exactMatch && !startsWith && !endsWith && normalize(item).includes(term))
-                        ));
-                    } else {
-                        etymologyMatch = (
-                            (exactMatch && normalizedMorph.includes(term)) ||
-                            (startsWith && normalizedMorph.some(item => item.startsWith(term))) ||
-                            (endsWith && normalizedMorph.some(item => item.endsWith(term))) ||
-                            (!exactMatch && !startsWith && !endsWith && normalizedMorph.some(item => item.includes(term)))
-                        );
-                    }
-                }
-
-                // Mark the row as a match if any condition is true
-                if (titleMatch || rootMatch || definitionMatch || etymologyMatch) {
-                    foundTerms[term].push(row); // Store the matched row for the term
-                    termFound = true;
-                }
-            });
-
-            return termFound; // Only keep rows that matched the search term
-        });
-
-        // Sort the matched terms based on the sorting manner
-        Object.keys(foundTerms).forEach(term => {
-            foundTerms[term] = sortRows(foundTerms[term], sortOrder);
-        });
+    if (numericSearchTerm <= maxWordId) {
+        console.log(`Searching by ID: ${numericSearchTerm}`);
+        preProcessRows = preProcessRows.filter(row => row.id === numericSearchTerm && row.type === 'word');
+    } else {
+        console.log(`Search ID ${numericSearchTerm} exceeds maximum 'word' ID (${maxWordId}).`);
+        preProcessRows = []; // No matches if the ID exceeds the maximum
     }
+} else if (searchTerm.length > 0) {
+    // Proceed with standard search if searchTerm is not a valid ID
+    const terms = Array.isArray(searchTerm) 
+        ? searchTerm.map(term => normalize(term.toLowerCase())) 
+        : [normalize(searchTerm.toLowerCase())];
+    terms.forEach(term => foundTerms[term] = []); // Initialize storage for matches
 
+    preProcessRows = preProcessRows.filter(row => {
+        const normalizedTitle = normalize(row.title.toLowerCase());
+        const normalizedMeta = normalize(row.meta.toLowerCase());
+        const normalizedMorph = row.morph.map(morphItem => typeof morphItem === 'string' ? normalize(morphItem.toLowerCase()) : morphItem);
+
+        let termFound = false;
+
+        terms.forEach(term => {
+            const titleMatch = searchIn.word && row.type === 'word' && (
+                (exactMatch && normalizedTitle === term) ||
+                (startsWith && normalizedTitle.startsWith(term)) ||
+                (endsWith && normalizedTitle.endsWith(term)) ||
+                (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
+            );
+
+            const rootMatch = searchIn.root && row.type === 'root' && (
+                (exactMatch && normalizedTitle === term) ||
+                (startsWith && normalizedTitle.startsWith(term)) ||
+                (endsWith && normalizedTitle.endsWith(term)) ||
+                (!exactMatch && !startsWith && !endsWith && normalizedTitle.includes(term))
+            );
+
+            const definitionMatch = searchIn.definition && (
+                (exactMatch && normalizedMeta === term) ||
+                (startsWith && normalizedMeta.startsWith(term)) ||
+                (endsWith && normalizedMeta.endsWith(term)) ||
+                (!exactMatch && !startsWith && !endsWith && normalizedMeta.includes(term))
+            );
+
+            let etymologyMatch = false;
+            if (searchIn.etymology) {
+                if (row.revision === '25V2' && row.morph[0] && row.morph[0].originLanguages && row.morph[0].originWords) {
+                    etymologyMatch = row.morph[0].originWords.some(item => (
+                        (exactMatch && normalize(item).includes(term)) ||
+                        (startsWith && normalize(item).startsWith(term)) ||
+                        (endsWith && normalize(item).endsWith(term)) ||
+                        (!exactMatch && !startsWith && !endsWith && normalize(item).includes(term))
+                    ));
+                } else {
+                    etymologyMatch = (
+                        (exactMatch && normalizedMorph.includes(term)) ||
+                        (startsWith && normalizedMorph.some(item => item.startsWith(term))) ||
+                        (endsWith && normalizedMorph.some(item => item.endsWith(term))) ||
+                        (!exactMatch && !startsWith && !endsWith && normalizedMorph.some(item => item.includes(term)))
+                    );
+                }
+            }
+
+            if (titleMatch || rootMatch || definitionMatch || etymologyMatch) {
+                foundTerms[term].push(row);
+                termFound = true;
+            }
+        });
+
+        return termFound;
+    });
+
+    Object.keys(foundTerms).forEach(term => {
+        foundTerms[term] = sortRows(foundTerms[term], sortOrder);
+    });
+}
     // Step 2: Apply filters based on the "Filter By" options
     const validFilterOptions = [
         "word", "root", "noun", "verb", "adjective", "adverb",
