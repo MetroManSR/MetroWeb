@@ -228,17 +228,22 @@ if (titleMatch || rootMatch || definitionMatch || etymologyMatch) {
         });
     }
 
-    // Step 5: Populate tempFilteredRows with the final rows
-            
-    await Promise.all(preProcessRows.map(async (row) => {   
-                
-        if (!tempFilteredRows.some(existingRow => existingRow.id === row.id)) {
-        
-            await addRowToFilteredRows(row); // Ensure row addition is handled asynchronously
-   
-        }
 
-    }));
+
+     // Step 5: Populate tempFilteredRows sequentially with the final rows
+
+            for (const row of preProcessRows) {
+    
+                // Check if the row is already in tempFilteredRows
+    
+                if (!tempFilteredRows.some(existingRow => existingRow.id === row.id)) {
+       
+                    await addRowToFilteredRows(row); // Sequentially add each row while awaiting its completion
+  
+                }
+}
+        
+            
     // Step 6: Sort the final rows
     tempFilteredRows = sortRows(tempFilteredRows, sortOrder);
 
