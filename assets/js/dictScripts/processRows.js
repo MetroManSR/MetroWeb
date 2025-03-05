@@ -229,12 +229,16 @@ if (titleMatch || rootMatch || definitionMatch || etymologyMatch) {
     }
 
     // Step 5: Populate tempFilteredRows with the final rows
-    for (const row of preProcessRows) {
+            
+    await Promise.all(preProcessRows.map(async (row) => {   
+                
         if (!tempFilteredRows.some(existingRow => existingRow.id === row.id)) {
-            await addRowToFilteredRows(row);
+        
+            await addRowToFilteredRows(row); // Ensure row addition is handled asynchronously
+   
         }
-    }
 
+    }));
     // Step 6: Sort the final rows
     tempFilteredRows = sortRows(tempFilteredRows, sortOrder);
 
