@@ -75,7 +75,7 @@ Core vowels (pronounced as in Esperanto):
 ---
 
 ## Affricates  
-Modern Balkeon uses single letters for these sounds:  
+Modern Balkeon may use single letters for these sounds:  
 - **C** = traditional "CH" ([t͡ʃ])  
 - **X** = traditional "SH" ([ʃ])  
 
@@ -110,12 +110,12 @@ Modern Balkeon uses single letters for these sounds:
     <tr>
       <td>Vowel</td>
       <td>Add `-r`</td>
-      <td>café → "cafer"</td>
+      <td>café → "kafer"</td>
     </tr>
     <tr>
-      <td>`-u` + vowel</td>
-      <td>Use `-w`/-b</td>
-      <td>tau → "tawb"</td>
+      <td>`-u -o` + vowel</td>
+      <td>Use `-b`</td>
+      <td>Neo → "Neob"</td>
     </tr>
   </tbody>
 </table>
