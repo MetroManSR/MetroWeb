@@ -12,73 +12,100 @@ Pronouncing Balkeon is straightforward—words are read as they are written, wit
 ## Letters
 
 ### Vowels  
-Balkeon has 5 core vowels, all pronounced as in Esperanto:  
-`a, e, i, o, u`.  
+Core vowels (pronounced as in Esperanto):  
+`a, e, i, o, u`  
 
 #### Special Vowels:  
 1. **Schwa (`ə`)**  
-   - A silent "wildcard" vowel used *only in speech* to break difficult consonant clusters.  
-   - *Example:* "Tutfaum" → "Tut**ə**faum" (if needed for clarity).  
+   - Silent vowel used *only in speech* to break difficult clusters  
+   - *Example:* "Tutfaum" → "Tut**ə**faum"  
 
 2. **Ö**  
-   - Represents contractions or alternate spellings of `eo`.  
-   - *Example:* "Yubeon" (finger) → "yubön" (variation).  
+   - Represents `eo` contractions  
+   - *Example:* "Yubeon" → "yubön"  
 
 ---
 
-### Consonants  
-Balkeon uses 18 consonants:  
-`B, C, D, F, G, H, K, L, M, N, P, R, S, T, W, X, Y, Z`.  
+### Consonants
 
-#### Modern Consonant Replacements  
+#### Normal Consonants (15):
+`B, D, F, G, H, K, L, M, N, P, R, S, T, Y`  
+- All pronounced as their IPA equivalents  
+- *Y* = Spanish "ll/y" sound ([ʝ])  
 
-| Letter | IPA    | Replaces | Example          | Notes                     |
-|--------|--------|----------|------------------|---------------------------|
-| C      | [t͡ʃ]  | CH       | *Cuceon* (soil)  | Preferred over "CH".      |
-| X      | [ʃ]    | SH       | *Xildeon* (shield)| Stylistic alternative.    |
-| Z      | [t͡s]  | TS       | *Plazeon* (place)| Rare; informal use.       |
-| W      | [w]    | Vowel + U| *Aureon* → *Awreon* (gold)| Used after vowels (`au`, `eu`). |
-| Y      | [ʝ]    | —        | *Takayidu* (expensive)| Spanish "ll/y" sound.     |
+#### Special Consonants (3):
+
+<table>
+  <thead>
+    <tr>
+      <th>Letter</th>
+      <th>Sound</th>
+      <th>Replaces</th>
+      <th>Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>C</td>
+      <td>[t͡ʃ] ("ch")</td>
+      <td>CH</td>
+      <td><em>Cuceon</em> (soil)</td>
+    </tr>
+    <tr>
+      <td>X</td>
+      <td>[ʃ] ("sh")</td>
+      <td>SH</td>
+      <td><em>Xildeon</em> (shield)</td>
+    </tr>
+    <tr>
+      <td>W</td>
+      <td>[w]</td>
+      <td>Vowel+U</td>
+      <td><em>Aureon</em>→<em>Awreon</em> (gold)</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
 ## Affricates  
-Only two are recognized:  
-- `CH` ([t͡ʃ]): Replaced by `C` in modern usage.  
-- `SH` ([ʃ]): Replaced by `X`.  
+Modern Balkeon uses single letters for these sounds:  
+- **C** = traditional "CH" ([t͡ʃ])  
+- **X** = traditional "SH" ([ʃ])  
 
 ---
 
-## Phonotactics (Word Formation Rules)  
+## Phonotactics  
 
 ### Core Restrictions  
-1. **No triphthongs**: Use `-r-` to separate vowel clusters.  
-   - *Example:* "miaa" → "miara".  
+1. **No triphthongs** → Use `-r-` separator  
+   - *Bad:* "miaa"  
+   - *Good:* "miara"  
 
-2. **Forbidden initial clusters**:  
-   - Words cannot start with `s-` or `l-` followed by certain consonants (`b, d, h, k, p, t, y`).  
-   - *Solution:* Add `e-` (e.g., "espokeon").  
+2. **Forbidden initials** → Add `e-` prefix  
+   - *Bad:* "spokeon"  
+   - *Good:* "espokeon"  
 
-3. **Similar consonants**: Cancel one in clusters like `kh` or `bp`.  
+3. **Clustered consonants** → Simplify  
+   - *Bad:* "kh", "bp"  
+   - *Good:* "k", "p"  
 
 ### Loanword Adaptation  
-- **Ends in a vowel?** Add `-r` for suffixes:  
-  - *Example:* "café" → "cafer".  
-- **Ends in `-u` + vowel?** Use `-b` or `-w`:  
-  - *Example:* "tau" → "tawb".  
-
-### Plurals  
-See [Plurals](../../grammar/words/#plurals) for specific rules.  
+| Original Ending | Balkeon Adaptation | Example |
+|----------------|--------------------|---------|
+| Vowel | Add `-r` | café → "cafer" |
+| `-u` + vowel | Use `-w`/-b | tau → "tawb" |
 
 ---
 
-## Quick Reference Table  
+## Quick Reference  
 
-| Sound          | Letter(s) | IPA    | Example Word    |
-|----------------|-----------|--------|-----------------|
-| "CH" (chocolate)| C         | [t͡ʃ]  | *cokolateon*    |
-| "SH" (State)   | X         | [ʃ]    | *extateon*      |
-| "W" (How?)     | W         | [w]    | *Kawm?*         |
-| "Y" (yes)      | Y         | [ʝ]    | *yek*           |
+<table>
+  <tr><th>Sound</th><th>Letter</th><th>Example</th></tr>
+  <tr><td>[t͡ʃ]</td><td>C</td><td><em>cokolateon</em></td></tr>
+  <tr><td>[ʃ]</td><td>X</td><td><em>extateon</em></td></tr>
+  <tr><td>[w]</td><td>W</td><td><em>Kawm?</em></td></tr>
+  <tr><td>[ʝ]</td><td>Y</td><td><em>yek</em></td></tr>
+</table>
 
-> *Note:* The schwa (`ə`) is never written—it’s a spoken aid only.
+> *Note:* Schwa (`ə`) exists only in speech, never in writing.
