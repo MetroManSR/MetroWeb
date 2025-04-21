@@ -1,9 +1,3 @@
----
-layout: default
-title: "Balkeon Phonology"
-language: en
----
-
 📂 <button class="button-16" role="button" onclick="location.href='../../index'">Balkeon</button>/<button class="button-16" role="button" onclick="location.href='../index'">Docs</button>
 
 # Phonology in Balkeon
@@ -17,11 +11,11 @@ Pronouncing Balkeon is straightforward—words are read as they are written, wit
 
 ## Letters
 
-### Vowels
+### Vowels  
 Balkeon has 5 core vowels, all pronounced as in Esperanto:  
 `a, e, i, o, u`.  
 
-#### Special Vowels:
+#### Special Vowels:  
 1. **Schwa (`ə`)**  
    - A silent "wildcard" vowel used *only in speech* to break difficult consonant clusters.  
    - *Example:* "Tutfaum" → "Tut**ə**faum" (if needed for clarity).  
@@ -32,31 +26,32 @@ Balkeon has 5 core vowels, all pronounced as in Esperanto:
 
 ---
 
-### Consonants
+### Consonants  
 Balkeon uses 18 consonants:  
 `B, C, D, F, G, H, K, L, M, N, P, R, S, T, W, X, Y, Z`.  
 
-#### Modern Consonant Replacements
-| Letter | IPA    | Replaces | Example       | Notes                     |
-|--------|--------|----------|---------------|---------------------------|
-| C      | [t͡ʃ]  | CH       | *Cuceon* (soil) | Preferred over "CH".      |
-| X      | [ʃ]    | SH       | *Xildeon* (shield)   | Stylistic alternative.    |
-| Z      | [t͡s]  | TS       | *Plazeon* (place) | Rare; informal use.    |
-| W      | [w]    | Vowel + U | *Aureon* → *Awreon* (gold) | Used after vowels (`au`, `eu`). |
-| Y      | [ʝ]    | —        | *Takayidu* (expensive) | Spanish "ll/y" sound.     |
+#### Modern Consonant Replacements  
+
+| Letter | IPA    | Replaces | Example          | Notes                     |
+|--------|--------|----------|------------------|---------------------------|
+| C      | [t͡ʃ]  | CH       | *Cuceon* (soil)  | Preferred over "CH".      |
+| X      | [ʃ]    | SH       | *Xildeon* (shield)| Stylistic alternative.    |
+| Z      | [t͡s]  | TS       | *Plazeon* (place)| Rare; informal use.       |
+| W      | [w]    | Vowel + U| *Aureon* → *Awreon* (gold)| Used after vowels (`au`, `eu`). |
+| Y      | [ʝ]    | —        | *Takayidu* (expensive)| Spanish "ll/y" sound.     |
 
 ---
 
-## Affricates
+## Affricates  
 Only two are recognized:  
 - `CH` ([t͡ʃ]): Replaced by `C` in modern usage.  
 - `SH` ([ʃ]): Replaced by `X`.  
 
 ---
 
-# Phonotactics (Word Formation Rules)
+## Phonotactics (Word Formation Rules)  
 
-### Core Restrictions
+### Core Restrictions  
 1. **No triphthongs**: Use `-r-` to separate vowel clusters.  
    - *Example:* "miaa" → "miara".  
 
@@ -66,25 +61,24 @@ Only two are recognized:
 
 3. **Similar consonants**: Cancel one in clusters like `kh` or `bp`.  
 
-### Loanword Adaptation
+### Loanword Adaptation  
 - **Ends in a vowel?** Add `-r` for suffixes:  
   - *Example:* "café" → "cafer".  
 - **Ends in `-u` + vowel?** Use `-b` or `-w`:  
   - *Example:* "tau" → "tawb".  
 
-### Plurals
+### Plurals  
 See [Plurals](../../grammar/words/#plurals) for specific rules.  
 
 ---
 
-## Quick Reference Table
-| Sound       | Letter(s) | IPA    | Example Word |
-|-------------|-----------|--------|--------------|
-| "CH" (chocolate)| C         | [t͡ʃ]  | *cokolateon*       |
-| "SH" (State) | X         | [ʃ]    | *extateon*        |
-| "W" (How?) | W         | [w]    |*Kawm?*       |
-| "Y" (yes)   | Y         | [ʝ]    | *yek*       |
+## Quick Reference Table  
+
+| Sound          | Letter(s) | IPA    | Example Word    |
+|----------------|-----------|--------|-----------------|
+| "CH" (chocolate)| C         | [t͡ʃ]  | *cokolateon*    |
+| "SH" (State)   | X         | [ʃ]    | *extateon*      |
+| "W" (How?)     | W         | [w]    | *Kawm?*         |
+| "Y" (yes)      | Y         | [ʝ]    | *yek*           |
 
 > *Note:* The schwa (`ə`) is never written—it’s a spoken aid only.
-
----
