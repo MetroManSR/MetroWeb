@@ -4,7 +4,7 @@ title: "Comunidad Metro de Santiago"
 language: es
 ---
 
- # **Bienvenido/a a la Comunidad No Oficial del Metro de Santiago**  
+# **Bienvenido/a a la Comunidad No Oficial del Metro de Santiago**  
 
 Un espacio para pasajeros frecuentes y fans del metro de Santiago. Aquí encontrarás actualizaciones, discusiones y recursos sobre la red de transporte y trenes urbanos.  
 
@@ -22,10 +22,10 @@ Somos una comunidad **independiente** sin vínculo oficial con la empresa.
 **Si representas a Metro S.A. y necesitas contactar al desarrollador del bot**, escribe a `metromanrrss`.  
 
 ### **🔗 Únete a la Conversación**  
-¡Conéctate con otros amantes del metro! Usa este enlace para acceder al servidor de Discord:  
-👉 [https://discord.gg/z7AfQZZaGD](https://discord.gg/z7AfQZZaGD)  
-
----  
+¡Conéctate con otros amantes del metro! Usa estos enlaces:  
+- Discord: [https://discord.gg/z7AfQZZaGD](https://discord.gg/z7AfQZZaGD)  
+- WhatsApp: [https://chat.whatsapp.com/CP7reOBykhsB1kEickwjEs](https://chat.whatsapp.com/CP7reOBykhsB1kEickwjEs)  
+- Reddit: [https://www.reddit.com/r/metrosantiago/s/S9wvlFkjjF](https://www.reddit.com/r/metrosantiago/s/S9wvlFkjjF)  
 
 ### **🌐 Enlaces Oficiales del Metro de Santiago**  
 - [Sitio web](https://www.metro.cl)  
@@ -34,3 +34,5 @@ Somos una comunidad **independiente** sin vínculo oficial con la empresa.
 - [Twitter/X](https://twitter.com/metrodesantiago)  
 
 **¡Te esperamos para compartir y aprender juntos!** 🚇  
+```
+
