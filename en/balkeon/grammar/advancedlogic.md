@@ -1,6 +1,7 @@
 
 ---
 layout: default
+
 title: "Balkeon Advanced Logic"
 language: en
 ---
@@ -23,7 +24,7 @@ language: en
 
 ### 1. Sentence Structure
 ```
-[Quantifier] [Subject] [Operator] [Predicate] [Object]
+[Quantifier] [Subject] [Predicate] [Object] [Operator]
 ```
 
 ### 2. Everyday Usage Patterns
@@ -37,7 +38,7 @@ language: en
   <tr>
     <td><strong>Simple Statements</strong></td>
     <td>
-      <code>aye placir nek</code><br>
+      <code>Aye placir nek</code><br>
       <code>Yu tanhapesir</code>
     </td>
     <td>
