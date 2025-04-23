@@ -5,6 +5,7 @@ title: "Balkeon Advanced Logic"
 language: en
 ---
 
+
 # Balkeon: A Logically Precise Spoken Language
 
 ## Core Principles
