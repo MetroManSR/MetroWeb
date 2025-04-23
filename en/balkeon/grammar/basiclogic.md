@@ -5,23 +5,30 @@ language: en
 --- 
 
 # Basic Logic
+
 ## Negation and opposites
+
 ### Nek
+
 Turns yes into no, and no into yes.
 Examples:
     nek + yuben = not young
     nek + hapi = not happy
 ### Tan
+
 Gives the semantic opposite.
 Examples:
     tan + yuben = old
     tan + hapi = sad
     
 ## Quantifiers
+
 - Tut = every
 - Part = at least one
 - Half = exactly 50%
+- 
 ### Usage
+
 Add a quantifier to the start of a word to create meaning.
 Examples:
     tut + manon = wholly man
@@ -30,6 +37,7 @@ Examples:
     manon os tuteon = the whole of a man
     
 ## Combination
+
 Use only one or two logic words at a time:
 - Tan tut = "no one"
 - Tan part = "at least one doesn't"
