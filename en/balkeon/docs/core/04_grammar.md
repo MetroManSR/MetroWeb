@@ -47,15 +47,17 @@ Example:
 ### Components
 
 S  = Subject (e.g., `aye` "I")
-V  = Verb (e.g., `dabir` "give")
+V  = Verb (e.g., `aenir` "give")
 DO = Direct Object (e.g., `silseon` "chairs")
 IO = Indirect Object (requires `-stan`, e.g., `ensenatseonstan` "to school")
 AD = Adverb (e.g., `fruin` "soon")
 
+Others: MV = Main Verb, AV = Auxiliary Verb, MP = Modificational Particle
+
 ### Auxiliary Verbs
 
-Formal:   MV + AV (e.g., "dabir aenian" "to give")
-Informal: MV + MP + AV-root (e.g., "dab aen")
+Less Usual:   MV + AV (e.g., "dabir aenirian" "to give")
+Recommended: MV + MP + AV-root (e.g., "aenir dab")
 
 ## ✨ Special Features
 
