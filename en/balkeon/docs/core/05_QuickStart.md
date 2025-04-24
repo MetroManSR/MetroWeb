@@ -51,7 +51,7 @@ A structured, gender- and animacy-sensitive pronoun system with pluralization ru
 
 ### In Infinitive Presentation (replace irian with ir for present tense) 
 
-- To be (sirian), to have (habirian), to do (agdirian), to go (gonirian), to come (kamirian), to see (biririan/birian), to hear (eskirian), to speak (blakirian), to know (sapirian), to want (bolirian), to need (nesirian), to like (plachirian), to love (amirian), to eat (namnirian), to drink (beabirian), to live (pibirian), to die (sespibirian), to give (aenirian), to take (tanaenirian), to make (sakirian).
+- To be (sirian), to have (habirian), to do (agdirian), to go (gonirian), to come (kamirian), to see (biririan/birian), to hear (eskirian), to speak (blakirian), to know (sapirian), to want (bolirian), to need (nesirian), to like (plachirian), to love (amirian), to eat (namnirian), to drink (beabirian), to live (pibirian), to die (sespibirian), to give (aenirian), to take (tanaenirian), to make (sakirian), to get (meaning obtain) (anirian), to give (aenirian)
 
 ## Question Words
 
