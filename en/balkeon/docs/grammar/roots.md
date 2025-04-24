@@ -21,7 +21,7 @@ language: en
 ### Static Roots
 **Primary Use**: Take gender markers to form nouns
 - `kan` + `-eon` = `kaneon` (dog as entity)
-- `kan` + `-an` = `kanan` (female dog)
+- `kan` + `-ean` = `kanean` (female dog)
 
 **Alternate Use**: Take tense markers to form existential verbs
 - `kan` + `-ir` = `kanir` ("to dog" = to exist as a dog)
