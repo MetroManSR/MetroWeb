@@ -1,3 +1,9 @@
+---
+layout: default
+title: "Balkeon Words"
+language: en
+---
+
 # Balkeon Word Formation
 
 ## Core Structure
