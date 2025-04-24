@@ -9,7 +9,7 @@ language: en
 
 ### Nouns & Adjectives
 
-[Root](Adj)(Plural)[Gender](Case)
+`[Root](Adj)(Plural)[Gender](Case)`
 - Adj: `-id-` (e.g., `neobidu` "new")
 - Plurals: `-s-` (default), `-us-` (after CH/SH/consonant clusters)
 - Gender: 
@@ -19,7 +19,7 @@ language: en
 
 ### Verbs
 
-[Root](Adj)(Stative)(Tense/Mood)
+`[Root](Adj)(Stative)(Tense/Mood)`
 - Tenses:
   Past:    Simple `-ip`,  Continuous `-ingip`,  Perfect `-ipo`
   Present: Simple `-ir`,  Continuous `-ingir`,  Perfect `-iro`
@@ -29,7 +29,7 @@ language: en
 
 ### Adverbs
 
-[Root](-in/-un)
+`[Root](-in/-un)`
 - `-in`: Modifying explicit verb
 - `-un`: Standalone use
 
