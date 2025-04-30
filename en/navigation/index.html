@@ -1,244 +1,459 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CORS-Free Terrain Map</title>
+    <title>Unlimited OSM+SRTM Terrain Map</title>
     <style>
-        body { font-family: monospace; background: #111; color: #eee; }
-        #map { 
+        body {
+            font-family: 'Courier New', monospace;
+            background: #121212;
+            color: #e0e0e0;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        #map-container {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        #map {
             font-size: 8px;
             line-height: 8px;
             letter-spacing: 1px;
-            background: #222;
-            padding: 10px;
             white-space: pre;
             overflow: auto;
-            max-height: 70vh;
+            max-height: 500px;
+            padding: 10px;
+            background: #222;
+            border-radius: 4px;
         }
-        .water { color: #55f; }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        button {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #444;
+        }
+        button:active {
+            background: #555;
+        }
+        .nav-btn {
+            font-size: 16px;
+            padding: 10px;
+        }
+        #coords {
+            font-family: monospace;
+            background: #252525;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+        #status {
+            color: #aaa;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        /* Terrain Colors */
+        .water { color: #5af; }
         .sand { color: #db5; }
-        .grass { color: #5a5; }
+        .grass { color: #5c5; }
         .forest { color: #0a0; }
-        .mountain { color: #aaa; }
-        .snow { color: #fff; }
-        .road { color: #fc5; }
-        .urban { color: #f55; }
+        .rock { color: #aaa; }
+        .snow { color: #fff; text-shadow: 0 0 2px #fff; }
+        .road { color: #fd5; }
+        .urban { color: #f88; }
         .unknown { color: #777; }
-        .loading { color: #aaa; }
+        .loading { color: #666; }
     </style>
 </head>
 <body>
-    <h1>Terrain Map (CORS-Free)</h1>
-    <div>
-        <button id="north">↑</button><br>
-        <button id="west">←</button>
+    <h1>Unlimited Terrain Map</h1>
+    
+    <div id="coords">Latitude: 48.8566, Longitude: 2.3522</div>
+    
+    <div class="controls">
+        <div></div>
+        <button class="nav-btn" id="moveNorth">↑</button>
+        <div></div>
+        <button class="nav-btn" id="moveWest">←</button>
         <button id="recenter">◎</button>
-        <button id="east">→</button><br>
-        <button id="south">↓</button>
+        <button class="nav-btn" id="moveEast">→</button>
+        <div></div>
+        <button class="nav-btn" id="moveSouth">↓</button>
+        <div></div>
     </div>
-    <div id="map">Loading...</div>
+    
+    <div id="map-container">
+        <div id="map" class="loading">Loading terrain data...</div>
+    </div>
+    
     <div id="status">Initializing...</div>
-    <div id="coords">Lat: 0, Lon: 0</div>
 
     <script>
-        // ===== Configuration =====
-        const MAP_SIZE = 40;
-        const MOVE_DISTANCE = 0.002; // ~200m
+        // ================ CONFIGURATION ================
+        const MAP_SIZE = 50; // Characters wide/tall
+        const CELL_RESOLUTION = 0.0002; // Degrees per cell (~20m at equator)
+        const MOVE_DISTANCE = 0.001; // Degrees per movement (~100m)
+        
+        // ================ STATE MANAGEMENT ================
         let currentLat = 48.8566; // Paris
         let currentLon = 2.3522;
-        
-        // ===== CORS Proxies =====
-        const PROXIES = [
-            "https://corsproxy.io/?",
-            "https://api.allorigins.win/raw?url=",
-            "https://thingproxy.freeboard.io/fetch/"
-        ];
-        
-        // ===== Terrain Definitions =====
-        const TERRAIN = {
-            WATER: { char: '≈', class: 'water', elev: [null, 10] },
-            SAND: { char: '░', class: 'sand', elev: [10, 50] },
-            GRASS: { char: '·', class: 'grass', elev: [50, 200] },
-            FOREST: { char: '♣', class: 'forest', elev: [200, 1000] },
-            MOUNTAIN: { char: '△', class: 'mountain', elev: [1000, 3000] },
-            SNOW: { char: '❄', class: 'snow', elev: [3000, null] },
-            ROAD: { char: '═', class: 'road' },
-            URBAN: { char: '█', class: 'urban' }
+        let isLoading = false;
+        let srtmCache = {};
+        let osmCache = {};
+
+        // ================ TERRAIN MAPPING ================
+        const TERRAIN_TYPES = {
+            WATER: { char: '≈', class: 'water', priority: 1 },
+            SAND: { char: '░', class: 'sand', priority: 2 },
+            GRASS: { char: '·', class: 'grass', priority: 3 },
+            FOREST: { char: '♣', class: 'forest', priority: 4 },
+            ROCK: { char: '○', class: 'rock', priority: 5 },
+            SNOW: { char: '❄', class: 'snow', priority: 6 },
+            ROAD: { char: '═', class: 'road', priority: 7 },
+            URBAN: { char: '█', class: 'urban', priority: 8 },
+            UNKNOWN: { char: '?', class: 'unknown', priority: 0 }
         };
 
-        // ===== Main Functions =====
+        // ================ CORE FUNCTIONS ================
         async function generateMap() {
-            document.getElementById('map').className = 'loading';
-            document.getElementById('map').textContent = 'Loading terrain...';
-            updateStatus('Fetching data...');
+            if (isLoading) return;
+            isLoading = true;
+            
+            const startTime = performance.now();
+            updateStatus("Loading terrain data...");
             updateCoords();
+            document.getElementById('map').className = 'loading';
+            document.getElementById('map').textContent = 'Loading...';
             
             try {
-                // Try all data sources with fallbacks
+                // Try both data sources with fallbacks
                 const [osmData, elevationData] = await Promise.all([
-                    fetchOSMData().catch(e => {
-                        console.warn("OSM failed:", e);
-                        return null;
-                    }),
-                    fetchElevationData().catch(e => {
-                        console.warn("Elevation failed:", e);
-                        return null;
-                    })
+                    fetchOSMData().catch(handleOSMFailure),
+                    fetchElevationData().catch(handleElevationFailure)
                 ]);
                 
                 renderMap(osmData, elevationData);
-                updateStatus('Map ready');
                 
-            } catch (e) {
-                console.error("Map generation failed:", e);
-                document.getElementById('map').textContent = 'Error loading map';
-                updateStatus('Failed to load map');
+                const loadTime = performance.now() - startTime;
+                updateStatus(`Map generated in ${loadTime.toFixed(0)}ms | ` +
+                           `${osmData ? "OSM ✓" : "OSM ✗"} | ` +
+                           `${elevationData ? "Elevation ✓" : "Elevation ✗"}`);
+                
+            } catch (error) {
+                console.error("Map generation failed:", error);
+                updateStatus("Failed to generate map");
+                document.getElementById('map').textContent = "Error: Could not load map data";
+            } finally {
+                isLoading = false;
             }
         }
 
-        // ===== Data Fetching =====
+        // ================ DATA FETCHING ================
         async function fetchOSMData() {
-            const zoom = 16;
-            const tileSize = 256;
+            const zoom = 16; // Detailed zoom level
             const scale = Math.pow(2, zoom);
             
+            // Convert to tile coordinates
             const x = Math.floor((currentLon + 180) / 360 * scale);
             const y = Math.floor((1 - Math.log(Math.tan(currentLat * Math.PI / 180) + 
                           1 / Math.cos(currentLat * Math.PI / 180)) / Math.PI / 2 * scale);
             
-            // Try all proxies until one works
-            for (const proxy of PROXIES) {
-                try {
-                    const url = `${proxy}https://tile.openstreetmap.org/${zoom}/${x}/${y}.png`;
-                    const img = await loadImage(url);
-                    return processOSMTile(img);
-                } catch (e) {
-                    console.warn(`Proxy ${proxy} failed, trying next...`);
+            const cacheKey = `${zoom}_${x}_${y}`;
+            if (osmCache[cacheKey]) return osmCache[cacheKey];
+            
+            try {
+                // Use CORS proxy for OSM tiles
+                const proxyUrl = `https://corsproxy.io/?https://tile.openstreetmap.org/${zoom}/${x}/${y}.png`;
+                const img = await loadImageWithTimeout(proxyUrl, 5000);
+                
+                const canvas = new OffscreenCanvas(MAP_SIZE, MAP_SIZE);
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, MAP_SIZE, MAP_SIZE);
+                const pixelData = ctx.getImageData(0, 0, MAP_SIZE, MAP_SIZE).data;
+                
+                const result = [];
+                for (let i = 0; i < pixelData.length; i += 4) {
+                    const [r, g, b] = pixelData.slice(i, i + 3);
+                    
+                    // Color detection for OSM features
+                    if (b > r + 30 && b > g + 30) result.push('water');
+                    else if (r > 200 && g > 180 && b < 150) result.push('road');
+                    else if (r > g + 50 && r > b + 50) result.push('urban');
+                    else if (g > r + 30 && g > b + 30) result.push('forest');
+                    else result.push(null);
                 }
+                
+                osmCache[cacheKey] = result;
+                return result;
+            } catch (error) {
+                throw new Error(`OSM tiles failed: ${error.message}`);
             }
-            throw new Error("All OSM proxies failed");
         }
 
         async function fetchElevationData() {
+            // Generate grid of points
             const points = [];
             for (let y = 0; y < MAP_SIZE; y++) {
                 for (let x = 0; x < MAP_SIZE; x++) {
-                    points.push(`${currentLat + y*0.0001},${currentLon + x*0.0001}`);
+                    points.push({
+                        lat: currentLat + y * CELL_RESOLUTION,
+                        lon: currentLon + x * CELL_RESOLUTION
+                    });
                 }
             }
             
-            // Try all proxies for OpenTopoData
-            for (const proxy of PROXIES) {
-                try {
-                    const url = `${proxy}https://api.opentopodata.org/v1/srtm30m?locations=${points.join('|')}`;
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    return data.results.map(r => r.elevation);
-                } catch (e) {
-                    console.warn(`Elevation proxy ${proxy} failed, trying next...`);
+            // Use SRTM tiles directly from AWS
+            const elevations = new Array(MAP_SIZE * MAP_SIZE);
+            let loadedCount = 0;
+            
+            for (let i = 0; i < points.length; i++) {
+                const {lat, lon} = points[i];
+                const tileLat = Math.floor(lat);
+                const tileLon = Math.floor(lon);
+                const tileKey = `${tileLat}_${tileLon}`;
+                
+                // Load tile if not cached
+                if (!srtmCache[tileKey]) {
+                    try {
+                        const url = `https://s3.amazonaws.com/elevation-tiles-prod/geotiff/${Math.abs(tileLat)}${tileLat >= 0 ? 'N' : 'S'}${Math.abs(tileLon)}${tileLon >= 0 ? 'E' : 'W'}.tif`;
+                        const response = await fetch(url);
+                        const arrayBuffer = await response.arrayBuffer();
+                        const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer);
+                        const image = await tiff.getImage();
+                        const rasters = await image.readRasters();
+                        
+                        srtmCache[tileKey] = {
+                            width: image.getWidth(),
+                            height: image.getHeight(),
+                            data: rasters[0]
+                        };
+                    } catch (e) {
+                        console.warn(`Failed to load SRTM tile ${tileKey}:`, e);
+                        elevations[i] = null;
+                        continue;
+                    }
+                }
+                
+                // Get elevation from tile
+                const tile = srtmCache[tileKey];
+                const x = Math.floor((lon - tileLon) * tile.width);
+                const y = Math.floor((tileLat + 1 - lat) * tile.height);
+                const idx = y * tile.width + x;
+                
+                elevations[i] = tile.data[idx];
+                loadedCount++;
+                
+                // Update progress periodically
+                if (loadedCount % 50 === 0) {
+                    updateStatus(`Loading elevation... ${loadedCount}/${points.length}`);
+                    await new Promise(resolve => setTimeout(resolve, 0));
                 }
             }
             
-            // Final fallback - generate random elevations
-            console.warn("Using random elevation fallback");
-            return Array(MAP_SIZE*MAP_SIZE).fill().map(() => 
-                Math.floor(Math.random() * 4000) - 500 // -500 to 3500m
-            );
+            return elevations;
         }
 
-        // ===== Rendering =====
+        // ================ RENDERING ================
         function renderMap(osmData, elevationData) {
-            let map = '';
+            let mapOutput = '';
             
             for (let y = 0; y < MAP_SIZE; y++) {
                 for (let x = 0; x < MAP_SIZE; x++) {
                     const idx = y * MAP_SIZE + x;
-                    const elev = elevationData?.[idx];
-                    const osm = osmData?.[idx];
+                    const elev = elevationData?.[idx] ?? 0;
+                    const osmFeature = osmData?.[idx];
                     
-                    const terrain = determineTerrain(osm, elev);
-                    map += `<span class="${terrain.class}">${terrain.char}</span>`;
+                    const terrain = determineTerrain(osmFeature, elev);
+                    mapOutput += `<span class="${terrain.class}">${terrain.char}</span>`;
                 }
-                map += '\n';
+                mapOutput += '\n';
             }
             
-            document.getElementById('map').innerHTML = map;
+            document.getElementById('map').innerHTML = mapOutput;
             document.getElementById('map').className = '';
         }
 
-        function determineTerrain(osmType, elevation) {
-            // Priority 1: OSM features
-            if (osmType === 'road') return TERRAIN.ROAD;
-            if (osmType === 'urban') return TERRAIN.URBAN;
-            if (osmType === 'water') return TERRAIN.WATER;
+        function determineTerrain(osmFeature, elevation) {
+            // First check OSM features
+            if (osmFeature === 'water') return TERRAIN_TYPES.WATER;
+            if (osmFeature === 'road') return TERRAIN_TYPES.ROAD;
+            if (osmFeature === 'urban') return TERRAIN_TYPES.URBAN;
+            if (osmFeature === 'forest') return TERRAIN_TYPES.FOREST;
             
-            // Priority 2: Elevation-based
-            for (const [key, value] of Object.entries(TERRAIN)) {
-                if (value.elev) {
-                    const [min, max] = value.elev;
-                    if ((min === null || elevation >= min) && 
-                        (max === null || elevation < max)) {
-                        return value;
-                    }
-                }
-            }
-            
-            return { char: '?', class: 'unknown' };
+            // Fall back to elevation-based terrain
+            if (elevation === null) return TERRAIN_TYPES.UNKNOWN;
+            if (elevation < 10) return TERRAIN_TYPES.WATER;
+            if (elevation < 50) return TERRAIN_TYPES.SAND;
+            if (elevation < 200) return TERRAIN_TYPES.GRASS;
+            if (elevation < 1000) return TERRAIN_TYPES.FOREST;
+            if (elevation < 3000) return TERRAIN_TYPES.ROCK;
+            return TERRAIN_TYPES.SNOW;
         }
 
-        // ===== Utilities =====
-        function loadImage(url) {
+        // ================ UTILITIES ================
+        async function loadImageWithTimeout(url, timeout) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
-                img.onload = () => resolve(img);
-                img.onerror = reject;
+                const timer = setTimeout(() => {
+                    reject(new Error(`Image load timed out after ${timeout}ms`));
+                }, timeout);
+                
+                img.onload = () => {
+                    clearTimeout(timer);
+                    resolve(img);
+                };
+                img.onerror = () => {
+                    clearTimeout(timer);
+                    reject(new Error("Failed to load image"));
+                };
+                img.crossOrigin = "Anonymous";
                 img.src = url;
             });
         }
 
-        function processOSMTile(img) {
-            const canvas = new OffscreenCanvas(MAP_SIZE, MAP_SIZE);
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, MAP_SIZE, MAP_SIZE);
-            const pixels = ctx.getImageData(0, 0, MAP_SIZE, MAP_SIZE).data;
-            
-            const result = [];
-            for (let i = 0; i < pixels.length; i += 4) {
-                const r = pixels[i], g = pixels[i+1], b = pixels[i+2];
-                
-                if (b > r + 20 && b > g + 20) result.push('water');
-                else if (r > 200 && g > 180 && b < 150) result.push('road');
-                else if (r > g + 40 && r > b + 40) result.push('urban');
-                else result.push(null);
-            }
-            return result;
+        function handleOSMFailure(error) {
+            console.warn("OSM data unavailable:", error.message);
+            return null;
+        }
+
+        function handleElevationFailure(error) {
+            console.warn("Elevation data unavailable:", error.message);
+            return null;
         }
 
         function moveMap(dLat, dLon) {
-            currentLat = +(currentLat + dLat).toFixed(6);
-            currentLon = +(currentLon + dLon).toFixed(6);
+            currentLat = parseFloat((currentLat + dLat).toFixed(6));
+            currentLon = parseFloat((currentLon + dLon).toFixed(6));
+            
+            // Ensure valid coordinate ranges
+            currentLat = Math.max(-90, Math.min(90, currentLat));
+            currentLon = Math.max(-180, Math.min(180, currentLon));
+            
             generateMap();
         }
 
         function updateCoords() {
             document.getElementById('coords').textContent = 
-                `Lat: ${currentLat.toFixed(4)}, Lon: ${currentLon.toFixed(4)}`;
+                `Latitude: ${currentLat.toFixed(4)}, Longitude: ${currentLon.toFixed(4)}`;
         }
 
         function updateStatus(msg) {
             document.getElementById('status').textContent = msg;
         }
 
-        // ===== Initialization =====
-        document.getElementById('north').addEventListener('click', () => moveMap(-MOVE_DISTANCE, 0));
-        document.getElementById('south').addEventListener('click', () => moveMap(MOVE_DISTANCE, 0));
-        document.getElementById('west').addEventListener('click', () => moveMap(0, -MOVE_DISTANCE));
-        document.getElementById('east').addEventListener('click', () => moveMap(0, MOVE_DISTANCE));
-        document.getElementById('recenter').addEventListener('click', () => {
+        function recenter() {
             currentLat = 48.8566;
             currentLon = 2.3522;
             generateMap();
-        });
+        }
 
+        // ================ GeoTIFF Parser (Simplified) ================
+        const GeoTIFF = {
+            fromArrayBuffer: async function(arrayBuffer) {
+                const view = new DataView(arrayBuffer);
+                const littleEndian = view.getUint16(0, true) === 0x4949;
+                const ifdOffset = view.getUint32(4, littleEndian);
+                
+                return {
+                    getImage: async function() {
+                        const numEntries = view.getUint16(ifdOffset, littleEndian);
+                        let offset = ifdOffset + 2;
+                        
+                        // Simplified - just read width, height and strip offsets
+                        let width, height, stripOffsets, stripByteCounts;
+                        
+                        for (let i = 0; i < numEntries; i++) {
+                            const tag = view.getUint16(offset, littleEndian);
+                            const type = view.getUint16(offset + 2, littleEndian);
+                            const count = view.getUint32(offset + 4, littleEndian);
+                            let valueOffset = offset + 8;
+                            
+                            if (getTypeSize(type) * count > 4) {
+                                valueOffset = view.getUint32(valueOffset, littleEndian);
+                            }
+                            
+                            switch (tag) {
+                                case 256: width = readValue(type, count, valueOffset); break;
+                                case 257: height = readValue(type, count, valueOffset); break;
+                                case 273: stripOffsets = readValue(type, count, valueOffset); break;
+                                case 279: stripByteCounts = readValue(type, count, valueOffset); break;
+                            }
+                            
+                            offset += 12;
+                        }
+                        
+                        return {
+                            getWidth: () => width,
+                            getHeight: () => height,
+                            readRasters: async function() {
+                                const data = new Int16Array(width * height);
+                                let pos = 0;
+                                
+                                for (let i = 0; i < stripOffsets.length; i++) {
+                                    const stripOffset = stripOffsets[i];
+                                    const stripLength = stripByteCounts[i];
+                                    
+                                    for (let j = 0; j < stripLength/2; j++) {
+                                        data[pos++] = view.getInt16(stripOffset + j*2, littleEndian);
+                                    }
+                                }
+                                
+                                return [data];
+                            }
+                        };
+                    }
+                };
+                
+                function readValue(type, count, offset) {
+                    const size = getTypeSize(type);
+                    const values = [];
+                    
+                    for (let i = 0; i < count; i++) {
+                        switch (type) {
+                            case 3: values.push(view.getUint16(offset, littleEndian)); break;
+                            case 4: values.push(view.getUint32(offset, littleEndian)); break;
+                            default: values.push(0);
+                        }
+                        offset += size;
+                    }
+                    
+                    return count === 1 ? values[0] : values;
+                }
+                
+                function getTypeSize(type) {
+                    return type === 3 ? 2 : 4; // Only handle SHORT and LONG
+                }
+            }
+        };
+
+        // ================ INITIALIZATION ================
+        document.getElementById('moveNorth').addEventListener('click', () => moveMap(-MOVE_DISTANCE, 0));
+        document.getElementById('moveSouth').addEventListener('click', () => moveMap(MOVE_DISTANCE, 0));
+        document.getElementById('moveWest').addEventListener('click', () => moveMap(0, -MOVE_DISTANCE));
+        document.getElementById('moveEast').addEventListener('click', () => moveMap(0, MOVE_DISTANCE));
+        document.getElementById('recenter').addEventListener('click', recenter);
+
+        // Start loading
         generateMap();
     </script>
 </body>
