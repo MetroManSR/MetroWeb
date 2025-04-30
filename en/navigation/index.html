@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>10km Interactive Terrain Map with OSM</title>
+    <title>Live ASCII Terrain Map with OSM</title>
     <style>
         body {
             font-family: 'Courier New', monospace;
@@ -55,13 +55,6 @@
         button:hover {
             background: #444;
         }
-        button:active {
-            background: #555;
-        }
-        .nav-btn {
-            font-size: 16px;
-            padding: 10px;
-        }
         #coords, #location-info, #elevation-info {
             font-family: monospace;
             background: #252525;
@@ -70,44 +63,14 @@
             margin-bottom: 10px;
             display: inline-block;
         }
-        #status {
-            color: #aaa;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        .coord-input {
-            margin: 10px 0;
-        }
-        .coord-input input {
-            background: #252525;
-            color: white;
-            border: 1px solid #333;
-            padding: 8px;
-            border-radius: 4px;
-            width: 120px;
-            margin: 0 5px;
-        }
-        .coord-input button {
-            margin-left: 10px;
-        }
-        /* Elevation Colors */
-        .elev-0 { color: #1a2a5a; }    /* Deep water */
-        .elev-1 { color: #2a3a6a; }    /* Shallow water */
-        .elev-2 { color: #3a4a7a; }    /* Shore */
-        .elev-3 { color: #4a5a8a; }    /* Beach */
-        .elev-4 { color: #5a6a9a; }    /* Lowland */
-        .elev-5 { color: #6a7aaa; }    /* Plains */
-        .elev-6 { color: #7a8aba; }    /* Hills */
-        .elev-7 { color: #8a9aca; }    /* Mountains */
-        .elev-8 { color: #9aaada; }    /* High mountains */
-        .elev-9 { color: #aabaef; }    /* Snow */
-        /* OSM Feature Characters */
-        .water { color: inherit; }
-        .road { color: inherit; }
-        .building { color: inherit; }
-        .park { color: inherit; }
-        .forest { color: inherit; }
-        .unknown { color: #777; }
+        /* Terrain Colors */
+        .water { color: #5af; }
+        .ground { color: #ba9; }
+        .building { color: #f88; }
+        .road { color: #fd5; }
+        .major-road { color: #fa0; }
+        .park { color: #5c5; }
+        .forest { color: #3a5; }
         .tooltip {
             position: absolute;
             background: rgba(0, 0, 0, 0.8);
@@ -118,6 +81,12 @@
             z-index: 100;
             font-size: 12px;
             white-space: nowrap;
+        }
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
         }
         .loading-spinner {
             border: 4px solid rgba(255, 255, 255, 0.3);
@@ -132,246 +101,211 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-        }
-        .loading-text {
-            color: white;
-            font-size: 16px;
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
-    <h1>10km Interactive Terrain Map with OSM</h1>
+    <h1>Live ASCII Terrain Map with OSM</h1>
     
     <div id="coords">Latitude: 40.7128, Longitude: -74.0060</div>
-    <div id="location-info">New York, US | Using: Global Dataset</div>
-    <div id="elevation-info">Click on the map to see elevation and features</div>
-    
-    <div class="coord-input">
-        <input type="text" id="latInput" placeholder="Latitude" value="40.7128">
-        <input type="text" id="lonInput" placeholder="Longitude" value="-74.0060">
-        <button id="goToCoords">Go</button>
-    </div>
+    <div id="location-info">New York, US</div>
+    <div id="elevation-info">Click on the map to see details</div>
     
     <div class="controls">
         <div></div>
-        <button class="nav-btn" id="moveNorth">↑</button>
+        <button id="moveNorth">↑</button>
         <div></div>
-        <button class="nav-btn" id="moveWest">←</button>
+        <button id="moveWest">←</button>
         <button id="recenter">◎</button>
-        <button class="nav-btn" id="moveEast">→</button>
+        <button id="moveEast">→</button>
         <div></div>
-        <button class="nav-btn" id="moveSouth">↓</button>
+        <button id="moveSouth">↓</button>
         <div></div>
     </div>
     
     <div id="map-container">
-        <div id="loading-overlay" class="loading-overlay" style="display: none;">
-            <div>
-                <div class="loading-spinner"></div>
-                <div class="loading-text">Loading new area...</div>
-            </div>
-        </div>
         <div id="map" class="loading">
             <div class="loading-spinner"></div>
-            <div>Initializing terrain engine...</div>
+            <div>Loading terrain data...</div>
         </div>
         <div class="tooltip" id="tooltip" style="display: none;"></div>
     </div>
-    
-    <div id="status">Detecting elevation source...</div>
 
     <script>
         // ================ CONFIGURATION ================
-        const MAP_SIZE = 100; // 100x100 characters (10km x 10km)
-        const CELL_SIZE_METERS = 100; // 100m per character (10000m/100=100m)
-        const MOVE_DISTANCE = 0.009; // Degrees per movement (~1km)
-        const MAX_DISTANCE = 0.045; // ~5km from center (10x10km total)
-        const CHUNK_SIZE = 20; // Load 20x20 cells at a time
-        const VIEWPORT_PADDING = 20; // Cells to keep loaded around viewport
+        const MAP_SIZE = 100; // 100x100 grid
+        const CELL_SIZE_METERS = 100; // 100m per cell
+        const MOVE_DISTANCE = 0.009; // ~1km movement
+        const LOAD_CHUNK_SIZE = 20; // Load 20x20 cells at a time
+        const ELEVATION_API_URL = 'https://api.open-elevation.com/api/v1/lookup';
+        const OSM_API_URL = 'https://overpass-api.de/api/interpreter';
         
         // ================ STATE MANAGEMENT ================
         let currentLat = 40.7128; // New York
         let currentLon = -74.0060;
         let isLoading = false;
-        let isMovementLocked = false;
-        let currentDataSource = { name: "Global Dataset", resolution: 90 };
-        let elevationCache = new Map();
-        let currentElevationGrid = Array(MAP_SIZE).fill().map(() => Array(MAP_SIZE).fill(null));
+        let elevationData = Array(MAP_SIZE).fill().map(() => Array(MAP_SIZE).fill(0));
         let osmFeatures = [];
-        let renderedCells = new Set();
-        let viewport = {
-            minX: 0,
-            maxX: MAP_SIZE - 1,
-            minY: 0,
-            maxY: MAP_SIZE - 1
-        };
+        let renderedMap = Array(MAP_SIZE).fill().map(() => Array(MAP_SIZE).fill(' '));
 
-        // ================ ELEVATION DATA FUNCTIONS ================
-        async function getElevation(lat, lon) {
-            const cacheKey = `${lat.toFixed(5)},${lon.toFixed(5)}`;
-            
-            if (elevationCache.has(cacheKey)) {
-                return elevationCache.get(cacheKey);
-            }
-            
-            const zoom = 10;
-            const latRad = lat * Math.PI / 180;
-            const n = Math.pow(2, zoom);
-            const tileX = Math.floor((lon + 180) / 360 * n);
-            const tileY = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);
-            
-            const tileCacheKey = `tile-${zoom}-${tileX}-${tileY}`;
+        // ================ ELEVATION DATA ================
+        async function fetchElevationData() {
+            isLoading = true;
+            document.getElementById('map').className = 'loading';
             
             try {
-                if (!elevationCache.has(tileCacheKey)) {
-                    const response = await fetch(`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${zoom}/${tileX}/${tileY}.png`);
-                    if (!response.ok) throw new Error("Failed to fetch elevation tile");
-                    const blob = await response.blob();
-                    const img = await createImageBitmap(blob);
-                    
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 256;
-                    canvas.height = 256;
-                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                    ctx.drawImage(img, 0, 0);
-                    
-                    elevationCache.set(tileCacheKey, canvas);
-                }
+                // Calculate the bounds of our map area
+                const metersPerDegreeLat = 111320;
+                const metersPerDegreeLon = 111320 * Math.cos(currentLat * Math.PI/180);
                 
-                const canvas = elevationCache.get(tileCacheKey);
-                const ctx = canvas.getContext('2d');
+                // First fetch OSM data for the area
+                await fetchOSMData();
                 
-                const pixelX = Math.floor(((lon + 180) / 360 * n - tileX) * 256);
-                const pixelY = Math.floor(((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n - tileY) * 256);
-                
-                const pixelData = ctx.getImageData(pixelX, pixelY, 1, 1).data;
-                const elevation = (pixelData[0] * 256 + pixelData[1] + pixelData[2] / 256) - 32768;
-                
-                elevationCache.set(cacheKey, elevation);
-                return elevation;
-            } catch (e) {
-                console.error("Error getting elevation:", e);
-                return 0;
-            }
-        }
-
-        // ================ OSM DATA FUNCTIONS ================
-        async function fetchOSMFeatures(lat, lon) {
-            const radius = 0.045; // ~5km radius
-            const bbox = `${lon - radius},${lat - radius},${lon + radius},${lat + radius}`;
-            
-            try {
-                const response = await fetch(`https://overpass-api.de/api/interpreter?data=[out:xml];(node(${bbox});way(${bbox});relation(${bbox}););out;>;out skel qt;`);
-                if (!response.ok) throw new Error("Failed to fetch OSM data");
-                const xml = await response.text();
-                return parseOSMXML(xml);
-            } catch (e) {
-                console.error("Error fetching OSM data:", e);
-                return [];
-            }
-        }
-
-        function parseOSMXML(xml) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(xml, "text/xml");
-            const features = [];
-            const nodeMap = new Map();
-            
-            // First pass: collect all nodes
-            const nodes = doc.getElementsByTagName('node');
-            for (const node of nodes) {
-                const id = node.getAttribute('id');
-                const lat = parseFloat(node.getAttribute('lat'));
-                const lon = parseFloat(node.getAttribute('lon'));
-                
-                const tags = {};
-                const tagElements = node.getElementsByTagName('tag');
-                for (let i = 0; i < tagElements.length; i++) {
-                    const tag = tagElements[i];
-                    tags[tag.getAttribute('k')] = tag.getAttribute('v');
-                }
-                
-                nodeMap.set(id, { lat, lon, tags });
-            }
-            
-            // Second pass: process ways
-            const ways = doc.getElementsByTagName('way');
-            for (let i = 0; i < ways.length; i++) {
-                const way = ways[i];
-                const id = way.getAttribute('id');
-                const nodes = [];
-                
-                const ndElements = way.getElementsByTagName('nd');
-                for (let j = 0; j < ndElements.length; j++) {
-                    const nd = ndElements[j];
-                    const ref = nd.getAttribute('ref');
-                    if (nodeMap.has(ref)) {
-                        nodes.push(nodeMap.get(ref));
+                // Prepare elevation points to fetch
+                const locations = [];
+                for (let y = 0; y < MAP_SIZE; y++) {
+                    for (let x = 0; x < MAP_SIZE; x++) {
+                        const lat = currentLat + (y - MAP_SIZE/2) * (CELL_SIZE_METERS / metersPerDegreeLat);
+                        const lon = currentLon + (x - MAP_SIZE/2) * (CELL_SIZE_METERS / metersPerDegreeLon);
+                        locations.push({ latitude: lat, longitude: lon, x, y });
                     }
                 }
                 
-                const tags = {};
-                const tagElements = way.getElementsByTagName('tag');
-                for (let j = 0; j < tagElements.length; j++) {
-                    const tag = tagElements[j];
-                    tags[tag.getAttribute('k')] = tag.getAttribute('v');
+                // Fetch elevation in batches
+                for (let i = 0; i < locations.length; i += 100) {
+                    const batch = locations.slice(i, i + 100);
+                    const elevations = await getElevations(batch);
+                    
+                    // Store elevations
+                    elevations.forEach((elev, index) => {
+                        const {x, y} = batch[index];
+                        elevationData[y][x] = elev;
+                    });
+                    
+                    // Render progress
+                    if (i % 500 === 0) {
+                        renderMap();
+                        await new Promise(resolve => setTimeout(resolve, 0));
+                    }
                 }
                 
-                if (nodes.length > 0) {
-                    features.push({
-                        type: 'way',
-                        id,
-                        nodes,
-                        tags
-                    });
+                // Final render with all data
+                renderMap();
+                updateStatus("Map ready");
+            } catch (error) {
+                console.error("Error loading map:", error);
+                updateStatus("Error loading map");
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        async function getElevations(locations) {
+            try {
+                const response = await fetch(ELEVATION_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        locations: locations.map(loc => ({ 
+                            latitude: loc.latitude, 
+                            longitude: loc.longitude 
+                        }))
+                    })
+                });
+                
+                if (!response.ok) throw new Error("Elevation API failed");
+                const data = await response.json();
+                return data.results.map(r => r.elevation);
+            } catch (e) {
+                console.error("Using fallback elevation data:", e);
+                // Fallback to random elevations if API fails
+                return locations.map(() => Math.random() * 100);
+            }
+        }
+
+        // ================ OSM DATA ================
+        async function fetchOSMData() {
+            try {
+                const radius = 0.045; // ~5km radius
+                const bbox = `${currentLon - radius},${currentLat - radius},${currentLon + radius},${currentLat + radius}`;
+                
+                const query = `
+                    [out:json];
+                    (
+                        way[building](${bbox});
+                        way[highway](${bbox});
+                        way[landuse=forest](${bbox});
+                        way[leisure=park](${bbox});
+                        way[natural=water](${bbox});
+                    );
+                    out geom;
+                `;
+                
+                const response = await fetch(`${OSM_API_URL}?data=${encodeURIComponent(query)}`);
+                if (!response.ok) throw new Error("Failed to fetch OSM data");
+                osmFeatures = (await response.json()).elements;
+            } catch (e) {
+                console.error("Error fetching OSM data:", e);
+                osmFeatures = [];
+            }
+        }
+
+        // ================ RENDERING ================
+        function renderMap() {
+            let mapOutput = '';
+            const centerElev = elevationData[Math.floor(MAP_SIZE/2)][Math.floor(MAP_SIZE/2)];
+            
+            // Convert OSM features to grid coordinates
+            const osmGrid = createOSMFeatureGrid();
+            
+            for (let y = 0; y < MAP_SIZE; y++) {
+                for (let x = 0; x < MAP_SIZE; x++) {
+                    const elev = elevationData[y][x];
+                    
+                    // Check OSM features first
+                    if (osmGrid[y] && osmGrid[y][x]) {
+                        const feature = osmGrid[y][x];
+                        if (feature.type === 'water') {
+                            mapOutput += `<span class="water">≈</span>`;
+                        } else if (feature.type === 'road') {
+                            mapOutput += `<span class="road">·</span>`;
+                        } else if (feature.type === 'major-road') {
+                            mapOutput += `<span class="major-road">#</span>`;
+                        } else if (feature.type === 'building') {
+                            mapOutput += `<span class="building">█</span>`;
+                        } else if (feature.type === 'park') {
+                            mapOutput += `<span class="park">♣</span>`;
+                        } else if (feature.type === 'forest') {
+                            mapOutput += `<span class="forest">♠</span>`;
+                        } else {
+                            mapOutput += getElevationCell(elev, centerElev, x, y);
+                        }
+                    } else {
+                        mapOutput += getElevationCell(elev, centerElev, x, y);
+                    }
                 }
+                mapOutput += '\n';
             }
             
-            return features;
+            document.getElementById('map').innerHTML = mapOutput;
+            document.getElementById('map').className = '';
         }
 
-        // ================ MAP RENDERING FUNCTIONS ================
-        function getElevationClass(elevation) {
-            // Normalize elevation to 0-9 range for our color classes
-            if (elevation < 10) return 'elev-0';  // Deep water
-            if (elevation < 50) return 'elev-1';  // Shallow water
-            if (elevation < 100) return 'elev-2'; // Shore
-            if (elevation < 200) return 'elev-3'; // Beach/Lowland
-            if (elevation < 300) return 'elev-4'; // Lowland
-            if (elevation < 500) return 'elev-5'; // Plains
-            if (elevation < 1000) return 'elev-6'; // Hills
-            if (elevation < 2000) return 'elev-7'; // Mountains
-            if (elevation < 3000) return 'elev-8'; // High mountains
-            return 'elev-9';                      // Snow
-        }
-
-        function getOSMCharacter(feature) {
-            if (!feature) return '·'; // Default ground character
+        function getElevationCell(elev, centerElev, x, y) {
+            const relElev = elev - centerElev;
             
-            if (feature.type === 'water') return '≈';
-            if (feature.type === 'road') {
-                if (feature.tags?.highway === 'motorway') return '═';
-                if (feature.tags?.highway === 'trunk') return '≡';
-                if (feature.tags?.highway === 'primary') return '╬';
-                return '·';
+            if (elev < 10) {
+                return `<span class="water" data-x="${x}" data-y="${y}">≈</span>`;
+            } else if (Math.abs(relElev) < 5) {
+                return `<span class="ground" data-x="${x}" data-y="${y}">·</span>`;
+            } else if (relElev > 20) {
+                return `<span class="building" data-x="${x}" data-y="${y}">▲</span>`;
+            } else if (relElev < -5) {
+                return `<span class="water" data-x="${x}" data-y="${y}">≈</span>`;
+            } else {
+                return `<span class="ground" data-x="${x}" data-y="${y}">·</span>`;
             }
-            if (feature.type === 'building') return '▣';
-            if (feature.type === 'park') return '♣';
-            if (feature.type === 'forest') return '♠';
-            
-            return '·'; // Default
         }
 
         function createOSMFeatureGrid() {
@@ -379,41 +313,27 @@
             const metersPerDegreeLat = 111320;
             const metersPerDegreeLon = 111320 * Math.cos(currentLat * Math.PI/180);
             
-            for (const feature of osmFeatures) {
-                if (feature.type === 'way') {
-                    const coords = feature.nodes.map(node => ({
-                        x: MAP_SIZE/2 + (node.lon - currentLon) * metersPerDegreeLon / CELL_SIZE_METERS,
-                        y: MAP_SIZE/2 - (node.lat - currentLat) * metersPerDegreeLat / CELL_SIZE_METERS
-                    }));
-                    
-                    if (feature.tags.highway) {
-                        drawLineOnGrid(grid, coords, { 
-                            type: 'road',
-                            tags: feature.tags 
-                        });
-                    } else if (feature.tags.building) {
-                        drawPolygonOnGrid(grid, coords, { 
-                            type: 'building',
-                            tags: feature.tags 
-                        });
-                    } else if (feature.tags.leisure === 'park' || feature.tags.landuse === 'grass') {
-                        drawPolygonOnGrid(grid, coords, { 
-                            type: 'park',
-                            tags: feature.tags 
-                        });
-                    } else if (feature.tags.natural === 'water') {
-                        drawPolygonOnGrid(grid, coords, { 
-                            type: 'water',
-                            tags: feature.tags 
-                        });
-                    } else if (feature.tags.natural === 'wood' || feature.tags.landuse === 'forest') {
-                        drawPolygonOnGrid(grid, coords, { 
-                            type: 'forest',
-                            tags: feature.tags 
-                        });
-                    }
+            osmFeatures.forEach(feature => {
+                if (!feature.geometry) return;
+                
+                const coords = feature.geometry.map(coord => ({
+                    x: MAP_SIZE/2 + (coord.lon - currentLon) * metersPerDegreeLon / CELL_SIZE_METERS,
+                    y: MAP_SIZE/2 - (coord.lat - currentLat) * metersPerDegreeLat / CELL_SIZE_METERS
+                }));
+                
+                if (feature.tags?.building) {
+                    drawPolygonOnGrid(grid, coords, { type: 'building' });
+                } else if (feature.tags?.highway) {
+                    const isMajor = ['motorway', 'trunk', 'primary'].includes(feature.tags.highway);
+                    drawLineOnGrid(grid, coords, { type: isMajor ? 'major-road' : 'road' });
+                } else if (feature.tags?.natural === 'water') {
+                    drawPolygonOnGrid(grid, coords, { type: 'water' });
+                } else if (feature.tags?.leisure === 'park' || feature.tags?.landuse === 'grass') {
+                    drawPolygonOnGrid(grid, coords, { type: 'park' });
+                } else if (feature.tags?.natural === 'wood' || feature.tags?.landuse === 'forest') {
+                    drawPolygonOnGrid(grid, coords, { type: 'forest' });
                 }
-            }
+            });
             
             return grid;
         }
@@ -428,18 +348,19 @@
 
         function drawPolygonOnGrid(grid, coords, feature) {
             if (coords.length < 3) return;
-            coords.push(coords[0]);
             
+            // Draw outline
             drawLineOnGrid(grid, coords, feature);
             
+            // Fill polygon
             const minY = Math.max(0, Math.floor(Math.min(...coords.map(c => c.y))));
             const maxY = Math.min(MAP_SIZE-1, Math.ceil(Math.max(...coords.map(c => c.y))));
             
             for (let y = minY; y <= maxY; y++) {
                 const intersections = [];
-                for (let i = 0; i < coords.length - 1; i++) {
+                for (let i = 0; i < coords.length; i++) {
                     const from = coords[i];
-                    const to = coords[i + 1];
+                    const to = coords[(i + 1) % coords.length];
                     
                     if ((from.y <= y && to.y > y) || (to.y <= y && from.y > y)) {
                         const x = from.x + (to.x - from.x) * (y - from.y) / (to.y - from.y);
@@ -453,7 +374,7 @@
                     const endX = Math.min(MAP_SIZE-1, Math.ceil(intersections[i + 1] || intersections[i]));
                     
                     for (let x = startX; x <= endX; x++) {
-                        if (!grid[y][x] || grid[y][x].type !== 'road') {
+                        if (!grid[y][x]) {
                             grid[y][x] = feature;
                         }
                     }
@@ -487,181 +408,12 @@
             }
         }
 
-        // ================ CHUNKED LOADING SYSTEM ================
-        async function loadChunk(chunkX, chunkY) {
-            const startX = chunkX * CHUNK_SIZE;
-            const startY = chunkY * CHUNK_SIZE;
-            const endX = Math.min(startX + CHUNK_SIZE, MAP_SIZE);
-            const endY = Math.min(startY + CHUNK_SIZE, MAP_SIZE);
-            
-            const metersPerDegreeLat = 111320;
-            const metersPerDegreeLon = 111320 * Math.cos(currentLat * Math.PI/180);
-            
-            for (let y = startY; y < endY; y++) {
-                for (let x = startX; x < endX; x++) {
-                    if (currentElevationGrid[y][x] !== null) continue;
-                    
-                    const lat = currentLat + (y - MAP_SIZE/2) * (CELL_SIZE_METERS / metersPerDegreeLat);
-                    const lon = currentLon + (x - MAP_SIZE/2) * (CELL_SIZE_METERS / metersPerDegreeLon);
-                    
-                    // Check if within 5km of center
-                    const distLat = Math.abs(lat - currentLat) * metersPerDegreeLat;
-                    const distLon = Math.abs(lon - currentLon) * metersPerDegreeLon;
-                    
-                    if (distLat > 5000 || distLon > 5000) {
-                        currentElevationGrid[y][x] = 0;
-                        continue;
-                    }
-                    
-                    currentElevationGrid[y][x] = await getElevation(lat, lon);
-                    
-                    // Throttle requests
-                    if ((y * MAP_SIZE + x) % 5 === 0) {
-                        await new Promise(resolve => setTimeout(resolve, 0));
-                    }
-                }
-            }
-            
-            // Render this chunk
-            renderChunk(startX, endX, startY, endY);
-        }
-
-        function renderChunk(startX, endX, startY, endY) {
-            const osmGrid = createOSMFeatureGrid();
-            let mapOutput = document.getElementById('map').innerHTML;
-            
-            for (let y = startY; y < endY; y++) {
-                for (let x = startX; x < endX; x++) {
-                    const elev = currentElevationGrid[y][x];
-                    if (elev === null) continue;
-                    
-                    const cellKey = `${x},${y}`;
-                    if (renderedCells.has(cellKey)) continue;
-                    
-                    renderedCells.add(cellKey);
-                    
-                    if (elev === 0) {
-                        mapOutput += ' ';
-                        continue;
-                    }
-                    
-                    const elevationClass = getElevationClass(elev);
-                    const feature = osmGrid[y] && osmGrid[y][x];
-                    const featureChar = getOSMCharacter(feature);
-                    
-                    // Insert at correct position
-                    const pos = getTextPosition(x, y);
-                    if (pos >= 0 && pos < mapOutput.length) {
-                        mapOutput = mapOutput.substring(0, pos) + 
-                                    `<span class="${elevationClass}" data-x="${x}" data-y="${y}">${featureChar}</span>` + 
-                                    mapOutput.substring(pos + 1);
-                    }
-                }
-            }
-            
-            document.getElementById('map').innerHTML = mapOutput;
-        }
-
-        function getTextPosition(x, y) {
-            // Each line has MAP_SIZE chars + 1 newline
-            return y * (MAP_SIZE + 1) + x;
-        }
-
-        // ================ VIEWPORT MANAGEMENT ================
-        function updateViewport() {
-            const mapElement = document.getElementById('map');
-            const scrollLeft = mapElement.scrollLeft;
-            const scrollTop = mapElement.scrollTop;
-            const clientWidth = mapElement.clientWidth;
-            const clientHeight = mapElement.clientHeight;
-            
-            // Convert scroll position to cell coordinates
-            const cellWidth = 6; // approx. 6px per character
-            const cellHeight = 6;
-            
-            const newMinX = Math.max(0, Math.floor(scrollLeft / cellWidth) - VIEWPORT_PADDING);
-            const newMaxX = Math.min(MAP_SIZE - 1, Math.ceil((scrollLeft + clientWidth) / cellWidth) + VIEWPORT_PADDING);
-            const newMinY = Math.max(0, Math.floor(scrollTop / cellHeight) - VIEWPORT_PADDING);
-            const newMaxY = Math.min(MAP_SIZE - 1, Math.ceil((scrollTop + clientHeight) / cellHeight) + VIEWPORT_PADDING);
-            
-            if (newMinX !== viewport.minX || newMaxX !== viewport.maxX ||
-                newMinY !== viewport.minY || newMaxY !== viewport.maxY) {
-                
-                viewport = {
-                    minX: newMinX,
-                    maxX: newMaxX,
-                    minY: newMinY,
-                    maxY: newMaxY
-                };
-                
-                scheduleChunkLoading();
-            }
-        }
-
-        function scheduleChunkLoading() {
-            if (isLoading || isMovementLocked) return;
-            
-            // Calculate which chunks intersect with viewport
-            const chunkCols = Math.ceil(MAP_SIZE / CHUNK_SIZE);
-            const chunkRows = Math.ceil(MAP_SIZE / CHUNK_SIZE);
-            
-            const startChunkX = Math.floor(viewport.minX / CHUNK_SIZE);
-            const endChunkX = Math.floor(viewport.maxX / CHUNK_SIZE);
-            const startChunkY = Math.floor(viewport.minY / CHUNK_SIZE);
-            const endChunkY = Math.floor(viewport.maxY / CHUNK_SIZE);
-            
-            // Load chunks progressively
-            loadChunksInView(startChunkX, endChunkX, startChunkY, endChunkY);
-        }
-
-        async function loadChunksInView(startX, endX, startY, endY) {
-            isMovementLocked = true;
-            document.getElementById('loading-overlay').style.display = 'flex';
-            
-            try {
-                // First load OSM data if we haven't already
-                if (osmFeatures.length === 0) {
-                    osmFeatures = await fetchOSMFeatures(currentLat, currentLon);
-                }
-                
-                for (let chunkY = startY; chunkY <= endY; chunkY++) {
-                    for (let chunkX = startX; chunkX <= endX; chunkX++) {
-                        // Check if chunk is already loaded
-                        let chunkLoaded = true;
-                        const chunkStartX = chunkX * CHUNK_SIZE;
-                        const chunkStartY = chunkY * CHUNK_SIZE;
-                        const chunkEndX = Math.min(chunkStartX + CHUNK_SIZE, MAP_SIZE);
-                        const chunkEndY = Math.min(chunkStartY + CHUNK_SIZE, MAP_SIZE);
-                        
-                        for (let y = chunkStartY; y < chunkEndY; y++) {
-                            for (let x = chunkStartX; x < chunkEndX; x++) {
-                                if (currentElevationGrid[y][x] === null) {
-                                    chunkLoaded = false;
-                                    break;
-                                }
-                            }
-                            if (!chunkLoaded) break;
-                        }
-                        
-                        if (!chunkLoaded) {
-                            await loadChunk(chunkX, chunkY);
-                        }
-                    }
-                }
-            } finally {
-                isMovementLocked = false;
-                document.getElementById('loading-overlay').style.display = 'none';
-            }
-        }
-
-        // ================ INTERACTIVITY FUNCTIONS ================
+        // ================ INTERACTIVITY ================
         function setupMapClickHandler() {
             const mapElement = document.getElementById('map');
             const tooltip = document.getElementById('tooltip');
             
             mapElement.addEventListener('click', (e) => {
-                if (!currentElevationGrid) return;
-                
                 let target = e.target;
                 while (target && !target.hasAttribute('data-x')) {
                     target = target.parentElement;
@@ -671,12 +423,7 @@
                 if (target && target.hasAttribute('data-x')) {
                     const x = parseInt(target.getAttribute('data-x'));
                     const y = parseInt(target.getAttribute('data-y'));
-                    const elevation = currentElevationGrid[y][x];
-                    
-                    if (elevation === 0) {
-                        document.getElementById('elevation-info').textContent = "Clicked location is out of bounds";
-                        return;
-                    }
+                    const elev = elevationData[y][x];
                     
                     const metersPerDegreeLat = 111320;
                     const metersPerDegreeLon = 111320 * Math.cos(currentLat * Math.PI/180);
@@ -687,28 +434,15 @@
                     const osmGrid = createOSMFeatureGrid();
                     if (osmGrid[y] && osmGrid[y][x]) {
                         const feature = osmGrid[y][x];
-                        if (feature.type === 'road') featureInfo = ` (Road: ${feature.tags?.highway || 'road'})`;
-                        else if (feature.type === 'building') featureInfo = " (Building)";
-                        else if (feature.type === 'park') featureInfo = " (Park/Grassland)";
-                        else if (feature.type === 'water') featureInfo = " (Water)";
-                        else if (feature.type === 'forest') featureInfo = " (Forest)";
+                        featureInfo = ` (${feature.type})`;
                     }
                     
                     document.getElementById('elevation-info').textContent = 
-                        `Elevation: ${elevation.toFixed(1)}m${featureInfo} | Coordinates: ${lat.toFixed(6)}, ${lon.toFixed(6)}`;
-                    
-                    tooltip.style.display = 'block';
-                    tooltip.textContent = `${elevation.toFixed(1)}m${featureInfo}`;
-                    tooltip.style.left = `${e.clientX + 10}px`;
-                    tooltip.style.top = `${e.clientY + 10}px`;
-                    
-                    setTimeout(() => tooltip.style.display = 'none', 2000);
+                        `Elevation: ${elev.toFixed(1)}m${featureInfo} | Coordinates: ${lat.toFixed(6)}, ${lon.toFixed(6)}`;
                 }
             });
             
             mapElement.addEventListener('mousemove', (e) => {
-                if (!currentElevationGrid) return;
-                
                 let target = e.target;
                 while (target && !target.hasAttribute('data-x')) {
                     target = target.parentElement;
@@ -718,27 +452,19 @@
                 if (target && target.hasAttribute('data-x')) {
                     const x = parseInt(target.getAttribute('data-x'));
                     const y = parseInt(target.getAttribute('data-y'));
-                    const elevation = currentElevationGrid[y][x];
+                    const elev = elevationData[y][x];
                     
-                    if (elevation !== 0) {
-                        let featureInfo = "";
-                        const osmGrid = createOSMFeatureGrid();
-                        if (osmGrid[y] && osmGrid[y][x]) {
-                            const feature = osmGrid[y][x];
-                            if (feature.type === 'road') featureInfo = ` (Road: ${feature.tags?.highway || 'road'})`;
-                            else if (feature.type === 'building') featureInfo = " (Building)";
-                            else if (feature.type === 'park') featureInfo = " (Park/Grassland)";
-                            else if (feature.type === 'water') featureInfo = " (Water)";
-                            else if (feature.type === 'forest') featureInfo = " (Forest)";
-                        }
-                        
-                        tooltip.style.display = 'block';
-                        tooltip.textContent = `${elevation.toFixed(1)}m${featureInfo}`;
-                        tooltip.style.left = `${e.clientX + 10}px`;
-                        tooltip.style.top = `${e.clientY + 10}px`;
-                    } else {
-                        tooltip.style.display = 'none';
+                    let featureInfo = "";
+                    const osmGrid = createOSMFeatureGrid();
+                    if (osmGrid[y] && osmGrid[y][x]) {
+                        const feature = osmGrid[y][x];
+                        featureInfo = ` (${feature.type})`;
                     }
+                    
+                    tooltip.style.display = 'block';
+                    tooltip.textContent = `${elev.toFixed(1)}m${featureInfo}`;
+                    tooltip.style.left = `${e.clientX + 10}px`;
+                    tooltip.style.top = `${e.clientY + 10}px`;
                 } else {
                     tooltip.style.display = 'none';
                 }
@@ -749,111 +475,43 @@
             });
         }
 
-        // ================ UTILITY FUNCTIONS ================
+        // ================ NAVIGATION ================
         function moveMap(dLat, dLon) {
-            if (isMovementLocked) return;
+            if (isLoading) return;
             
             currentLat = +(currentLat + dLat).toFixed(6);
             currentLon = +(currentLon + dLon).toFixed(6);
             
-            // Reset grid and rendering state
-            currentElevationGrid = Array(MAP_SIZE).fill().map(() => Array(MAP_SIZE).fill(null));
-            renderedCells = new Set();
-            osmFeatures = [];
-            
             updateCoords();
-            updateLocationInfo();
-            
-            // Reinitialize the map
-            initializeMap();
-        }
-
-        function updateCoords() {
-            document.getElementById('coords').textContent = 
-                `Latitude: ${currentLat.toFixed(4)}, Longitude: ${currentLon.toFixed(4)}`;
-        }
-
-        async function updateLocationInfo() {
-            try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${currentLat}&lon=${currentLon}&zoom=16`);
-                const data = await response.json();
-                const city = data.address?.city || data.address?.town || data.address?.village || "Unknown";
-                const country = data.address?.country || "Unknown";
-                document.getElementById('location-info').textContent = `${city}, ${country} | Using: ${currentDataSource.name} + OSM`;
-            } catch (e) {
-                document.getElementById('location-info').textContent = `Using: ${currentDataSource.name} + OSM`;
-            }
-        }
-
-        function updateStatus(msg) {
-            document.getElementById('status').textContent = msg;
+            fetchElevationData();
         }
 
         function recenter() {
             currentLat = 40.7128;
             currentLon = -74.0060;
-            elevationCache.clear();
-            currentElevationGrid = Array(MAP_SIZE).fill().map(() => Array(MAP_SIZE).fill(null));
-            renderedCells = new Set();
-            osmFeatures = [];
-            initializeMap();
+            updateCoords();
+            fetchElevationData();
         }
 
-        function goToCoordinates() {
-            const lat = parseFloat(document.getElementById('latInput').value);
-            const lon = parseFloat(document.getElementById('lonInput').value);
-            
-            if (isNaN(lat) || isNaN(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
-                alert("Please enter valid coordinates\nLatitude: -90 to 90\nLongitude: -180 to 180");
-                return;
-            }
-            
-            currentLat = lat;
-            currentLon = lon;
-            elevationCache.clear();
-            currentElevationGrid = Array(MAP_SIZE).fill().map(() => Array(MAP_SIZE).fill(null));
-            renderedCells = new Set();
-            osmFeatures = [];
-            initializeMap();
+        // ================ UTILITY FUNCTIONS ================
+        function updateCoords() {
+            document.getElementById('coords').textContent = 
+                `Latitude: ${currentLat.toFixed(4)}, Longitude: ${currentLon.toFixed(4)}`;
+        }
+
+        function updateStatus(msg) {
+            console.log(msg);
         }
 
         // ================ INITIALIZATION ================
-        function initializeMap() {
-            // Create empty map grid
-            let initialMap = '';
-            for (let y = 0; y < MAP_SIZE; y++) {
-                for (let x = 0; x < MAP_SIZE; x++) {
-                    initialMap += ' ';
-                }
-                initialMap += '\n';
-            }
-            document.getElementById('map').innerHTML = initialMap;
-            
-            // Load initial viewport
-            updateViewport();
-            
-            // Set up scroll listener
-            document.getElementById('map').addEventListener('scroll', () => {
-                updateViewport();
-            });
-            
-            // Initial load
-            scheduleChunkLoading();
-        }
+        document.getElementById('moveNorth').addEventListener('click', () => moveMap(-MOVE_DISTANCE, 0));
+        document.getElementById('moveSouth').addEventListener('click', () => moveMap(MOVE_DISTANCE, 0));
+        document.getElementById('moveWest').addEventListener('click', () => moveMap(0, -MOVE_DISTANCE));
+        document.getElementById('moveEast').addEventListener('click', () => moveMap(0, MOVE_DISTANCE));
+        document.getElementById('recenter').addEventListener('click', recenter);
 
-        // Initialize the map when page loads
-        window.addEventListener('load', () => {
-            initializeMap();
-            setupMapClickHandler();
-            
-            // Set up navigation controls
-            document.getElementById('moveNorth').addEventListener('click', () => moveMap(-MOVE_DISTANCE, 0));
-            document.getElementById('moveSouth').addEventListener('click', () => moveMap(MOVE_DISTANCE, 0));
-            document.getElementById('moveWest').addEventListener('click', () => moveMap(0, -MOVE_DISTANCE));
-            document.getElementById('moveEast').addEventListener('click', () => moveMap(0, MOVE_DISTANCE));
-            document.getElementById('recenter').addEventListener('click', recenter);
-            document.getElementById('goToCoords').addEventListener('click', goToCoordinates);
-        });
+        setupMapClickHandler();
+        fetchElevationData();
     </script>
 </body>
 </html>
