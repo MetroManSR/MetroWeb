@@ -1,29 +1,240 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASCII Terrain Generator</title>
+    <title>Resilient OSM+NASA ASCII Map</title>
     <style>
-        body { font-family: monospace; text-align: center; }
-        textarea { width: 80%; height: 300px; font-size: 14px; }
-        .input-group { margin: 20px 0; }
+        body { font-family: monospace; text-align: center; background: #111; color: white; }
+        #map { 
+            font-size: 8px;
+            line-height: 8px;
+            letter-spacing: 1px;
+            padding: 10px;
+            display: inline-block;
+            background: #222;
+            border-radius: 4px;
+        }
+        /* OSM Colors */
+        .road { color: #ff6; }
+        .water { color: #6af; }
+        .building { color: #f88; }
+        .green { color: #6f6; }
+        
+        /* Elevation Colors */
+        .elev-0 { color: #4466ff; }    /* Deep water */
+        .elev-1 { color: #5599ff; }    /* Shallow water */
+        .elev-2 { color: #77bb33; }    /* Lowlands */
+        .elev-3 { color: #ccaa44; }    /* Hills */
+        .elev-4 { color: #bb8855; }    /* Mountains */
+        .elev-5 { color: #ffffff; }    /* High peaks */
     </style>
 </head>
 <body>
-    <h1>ASCII Terrain Generator</h1>
-    <p>Enter coordinates to generate a terrain map.</p>
-    
-    <div class="input-group">
-        <input type="text" id="latitude" placeholder="Latitude">
-        <input type="text" id="longitude" placeholder="Longitude">
-    </div>
-    
+    <h1>Resilient Terrain Map</h1>
+    <div id="map" title="Loading..."></div>
+    <p>
+        <button onclick="moveMap(-0.001, 0)">←</button>
+        <button onclick="moveMap(0.001, 0)">→</button>
+        <button onclick="moveMap(0, -0.001)">↑</button>
+        <button onclick="moveMap(0, 0.001)">↓</button>
+    </p>
+    <p id="coords">Lat: 0, Lon: 0</p>
+    <p id="status"></p>
 
-    <button id="generateBtn">Generate Terrain</button>
-    <br>
-    <textarea id="terrainOutput" readonly></textarea>
+    <script>
+        // Configuration
+        const MAP_SIZE = 40;
+        const CELL_RESOLUTION = 0.0002; // ~20m per cell
+        let currentLat = 48.8566;
+        let currentLon = 2.3522;
+        let lastRenderTime = 0;
 
-    <script src="script.js"></script>
+        // Main rendering function
+        async function generateMap() {
+            const startTime = performance.now();
+            updateStatus("Loading data...");
+            updateCoords();
+            
+            try {
+                // Try both data sources simultaneously with timeout
+                const [osmData, elevationData] = await Promise.all([
+                    getOSMData().catch(e => {
+                        console.warn("OSM failed, using elevation only", e);
+                        return null;
+                    }),
+                    getElevationData().catch(e => {
+                        console.warn("Elevation failed, using OSM only", e);
+                        return null;
+                    })
+                ]);
+
+                // Render with whatever data we have
+                renderMap(osmData, elevationData);
+                
+                const loadTime = (performance.now() - startTime).toFixed(1);
+                updateStatus(`Loaded in ${loadTime}ms | ${osmData ? "OSM ✓" : "OSM ✗"} | ${elevationData ? "Elev ✓" : "Elev ✗"}`);
+                
+            } catch (e) {
+                console.error("Map generation failed:", e);
+                updateStatus("Error loading map");
+            }
+        }
+
+        // Data fetch functions
+        async function getElevationData() {
+            const points = [];
+            for (let y = 0; y < MAP_SIZE; y++) {
+                for (let x = 0; x < MAP_SIZE; x++) {
+                    points.push({
+                        lat: currentLat + y * CELL_RESOLUTION,
+                        lon: currentLon + x * CELL_RESOLUTION
+                    });
+                }
+            }
+            
+            // Try OpenTopoData first
+            try {
+                const response = await fetchWithTimeout(
+                    `https://api.opentopodata.org/v1/srtm30m?locations=${
+                        points.map(p => `${p.lat},${p.lon}`).join('|')
+                    }`,
+                    3000
+                );
+                const data = await response.json();
+                return data.results.map(r => r.elevation);
+            } catch (e) {
+                console.warn("OpenTopoData failed, trying AWS...");
+                // Fallback to AWS elevation tiles
+                return await getAWSElevation(points);
+            }
+        }
+
+        async function getOSMData() {
+            const zoom = 16;
+            const scale = Math.pow(2, zoom);
+            const x = Math.floor((currentLon + 180) / 360 * scale);
+            const y = Math.floor((1 - Math.log(Math.tan(currentLat * Math.PI / 180) + 
+                          1 / Math.cos(currentLat * Math.PI / 180)) / Math.PI / 2 * scale);
+            
+            try {
+                const img = await loadImageWithTimeout(
+                    `https://tile.openstreetmap.org/${zoom}/${x}/${y}.png`,
+                    3000
+                );
+                
+                const canvas = new OffscreenCanvas(MAP_SIZE, MAP_SIZE);
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, MAP_SIZE, MAP_SIZE);
+                const pixelData = ctx.getImageData(0, 0, MAP_SIZE, MAP_SIZE).data;
+                
+                const result = [];
+                for (let i = 0; i < pixelData.length; i += 4) {
+                    const [r, g, b] = pixelData.slice(i, i + 3);
+                    
+                    if (r > 200 && g > 180 && b < 150) result.push('road');
+                    else if (b > r + 30 && b > g + 30) result.push('water');
+                    else if (r > g + 50 && r > b + 50) result.push('building');
+                    else if (g > r + 30 && g > b + 30) result.push('green');
+                    else result.push(null);
+                }
+                return result;
+            } catch (e) {
+                throw new Error("OSM tiles unavailable");
+            }
+        }
+
+        // Rendering logic
+        function renderMap(osmData, elevationData) {
+            let asciiMap = '';
+            const now = Date.now();
+            
+            // Throttle rendering to max 10fps
+            if (now - lastRenderTime < 100) return;
+            lastRenderTime = now;
+            
+            for (let y = 0; y < MAP_SIZE; y++) {
+                for (let x = 0; x < MAP_SIZE; x++) {
+                    const idx = y * MAP_SIZE + x;
+                    const elev = elevationData?.[idx] ?? 0;
+                    const osmType = osmData?.[idx];
+                    
+                    // Determine character and class
+                    const { char, cls } = getCellRepresentation(osmType, elev);
+                    asciiMap += `<span class="${cls}">${char}</span>`;
+                }
+                asciiMap += '<br>';
+            }
+            
+            document.getElementById('map').innerHTML = asciiMap;
+            document.getElementById('map').title = `Lat: ${currentLat.toFixed(4)}, Lon: ${currentLon.toFixed(4)}`;
+        }
+
+        function getCellRepresentation(osmType, elevation) {
+            // Priority 1: OSM features
+            if (osmType === 'road') return { char: '═', cls: 'road' };
+            if (osmType === 'water') return { char: '≈', cls: 'water' };
+            if (osmType === 'building') return { char: '█', cls: 'building' };
+            if (osmType === 'green') return { char: '♣', cls: 'green' };
+            
+            // Priority 2: Elevation-based
+            const elevLevel = Math.min(5, Math.max(0, Math.floor(elevation / 500)));
+            return {
+                char: getElevationChar(elevation),
+                cls: `elev-${elevLevel}`
+            };
+        }
+
+        function getElevationChar(elevation) {
+            if (elevation < 10) return '≈';  // Water
+            if (elevation < 200) return '.';  // Flat
+            if (elevation < 500) return ',';  // Gentle
+            if (elevation < 1000) return 'o'; // Hills
+            if (elevation < 2000) return '^'; // Mountains
+            return '▲';                      // High peaks
+        }
+
+        // Helper functions
+        async function fetchWithTimeout(url, timeout) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+            const response = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            return response;
+        }
+
+        function loadImageWithTimeout(url, timeout) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                const timeoutId = setTimeout(() => {
+                    img.onload = null;
+                    reject(new Error("Image load timeout"));
+                }, timeout);
+                img.onload = () => {
+                    clearTimeout(timeoutId);
+                    resolve(img);
+                };
+                img.onerror = reject;
+                img.src = url;
+            });
+        }
+
+        function moveMap(dLat, dLon) {
+            currentLat += dLat;
+            currentLon += dLon;
+            generateMap();
+        }
+
+        function updateCoords() {
+            document.getElementById('coords').textContent = 
+                `Lat: ${currentLat.toFixed(4)}, Lon: ${currentLon.toFixed(4)}`;
+        }
+
+        function updateStatus(msg) {
+            document.getElementById('status').textContent = msg;
+        }
+
+        // Initialize
+        generateMap();
+    </script>
 </body>
 </html>
