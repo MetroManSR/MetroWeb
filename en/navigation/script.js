@@ -1,49 +1,33 @@
 async function getElevations() {
-    const latInput = document.getElementById('latitude').value;
-    const lonInput = document.getElementById('longitude').value;
+    const lat = document.getElementById('latitude').value;
+    const lon = document.getElementById('longitude').value;
     
-    // Validate inputs
-    if (!latInput || !lonInput) {
-        alert("Please enter both latitude and longitude");
-        return;
-    }
-
-    // Replace commas with periods for decimal numbers
-    const lat = latInput.replace(',', '.');
-    const lon = lonInput.replace(',', '.');
-
     try {
-        const response = await fetch(`/en/navigation/api/elevation?lat=${lat}&lon=${lon}`);
+        // Directly call OpenTopoData's SRTM endpoint
+        const response = await fetch(`https://api.opentopodata.org/v1/srtm30m?locations=${lat},${lon}`);
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error('API request failed');
         
         const data = await response.json();
-        visualizeElevation([data.results[0].elevation]);
+        const elevation = data.results[0].elevation;
+        visualizeElevation([elevation]);
     } catch (error) {
-        console.error('Fetch error:', error);
-        document.getElementById('terrainOutput').value = "Error fetching elevation data";
+        console.error("Error:", error);
+        document.getElementById('terrainOutput').value = "Error fetching elevation";
     }
 }
 
 function visualizeElevation(elevations) {
-    let visualization = elevations.map(elev => {
+    const symbols = elevations.map(elev => {
         if (elev < 200) return ".";
         else if (elev < 1000) return "o";
         else return "▲";
     }).join("");
-
-    document.getElementById('terrainOutput').value = `ASCII Terrain Map:\n\n${visualization}\n\nElevations: ${elevations.join(', ')} meters`;
+    
+    document.getElementById('terrainOutput').value = symbols;
 }
 
-// Handle button click
-// Wait for DOM to load before attaching event listeners
+// Initialize after DOM loads
 document.addEventListener('DOMContentLoaded', () => {
-    const generateBtn = document.getElementById('generateBtn');
-    if (generateBtn) {
-        generateBtn.addEventListener('click', getElevations);
-    } else {
-        console.error('Generate button not found!');
-    }
+    document.getElementById('generateBtn')?.addEventListener('click', getElevations);
 });
