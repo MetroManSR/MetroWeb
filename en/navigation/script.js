@@ -1,12 +1,3 @@
-async function handleGenerate() {
-    try {
-        await getElevations();
-    } catch (error) {
-        console.error("Error:", error);
-        document.getElementById('terrainOutput').value = "Error generating terrain map";
-    }
-}
-
 async function getElevations() {
     const latInput = document.getElementById('latitude').value;
     const lonInput = document.getElementById('longitude').value;
@@ -23,20 +14,21 @@ async function getElevations() {
     ];
 
     let elevationData = [];
+    const terrainOutput = document.getElementById('terrainOutput');
+    terrainOutput.value = "Loading elevation data...";
 
-    for (const loc of locations) {
-        try {
-            const response = await fetch(`https://api.opentopodata.org/v1/srtm30m?locations=${loc.lat},${loc.lon}`);
+    try {
+        for (const loc of locations) {
+            const response = await fetch(`/api/elevation?lat=${loc.lat}&lon=${loc.lon}`);
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             elevationData.push(data.results[0].elevation);
-        } catch (error) {
-            console.error('Error fetching elevation:', error);
-            elevationData.push(0); // Default value if fetch fails
         }
+        visualizeElevation(elevationData);
+    } catch (error) {
+        console.error('Error:', error);
+        terrainOutput.value = "Failed to load elevation data. Please try again later.";
     }
-
-    visualizeElevation(elevationData);
 }
 
 function visualizeElevation(elevations) {
@@ -46,5 +38,8 @@ function visualizeElevation(elevations) {
         else return "▲";
     }).join("");
 
-    document.getElementById('terrainOutput').value = "ASCII Terrain Map:\n" + visualization;
+    document.getElementById('terrainOutput').value = `ASCII Terrain Map:\n\n${visualization}\n\nElevations: ${elevations.join(', ')} meters`;
 }
+
+// Handle button click
+document.getElementById('generateBtn').addEventListener('click', getElevations);
