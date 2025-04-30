@@ -297,7 +297,9 @@
                 const lon = parseFloat(node.getAttribute('lon'));
                 
                 const tags = {};
-                for (const tag of node.getElementsByTagName('tag')) {
+                const tagElements = node.getElementsByTagName('tag');
+                for (let i = 0; i < tagElements.length; i++) {
+                    const tag = tagElements[i];
                     tags[tag.getAttribute('k')] = tag.getAttribute('v');
                 }
                 
@@ -306,11 +308,14 @@
             
             // Second pass: process ways
             const ways = doc.getElementsByTagName('way');
-            for (const way of ways) {
+            for (let i = 0; i < ways.length; i++) {
+                const way = ways[i];
                 const id = way.getAttribute('id');
                 const nodes = [];
                 
-                for (const nd of way.getElementsByTagName('nd')) {
+                const ndElements = way.getElementsByTagName('nd');
+                for (let j = 0; j < ndElements.length; j++) {
+                    const nd = ndElements[j];
                     const ref = nd.getAttribute('ref');
                     if (nodeMap.has(ref)) {
                         nodes.push(nodeMap.get(ref));
@@ -318,7 +323,9 @@
                 }
                 
                 const tags = {};
-                for (const tag of way.getElementsByTagName('tag')) {
+                const tagElements = way.getElementsByTagName('tag');
+                for (let j = 0; j < tagElements.length; j++) {
+                    const tag = tagElements[j];
                     tags[tag.getAttribute('k')] = tag.getAttribute('v');
                 }
                 
@@ -411,7 +418,74 @@
             return grid;
         }
 
-        // [Previous drawing functions remain the same: drawLineOnGrid, drawPolygonOnGrid, drawBresenhamLine]
+        function drawLineOnGrid(grid, coords, feature) {
+            for (let i = 0; i < coords.length - 1; i++) {
+                const from = coords[i];
+                const to = coords[i + 1];
+                drawBresenhamLine(grid, from, to, feature);
+            }
+        }
+
+        function drawPolygonOnGrid(grid, coords, feature) {
+            if (coords.length < 3) return;
+            coords.push(coords[0]);
+            
+            drawLineOnGrid(grid, coords, feature);
+            
+            const minY = Math.max(0, Math.floor(Math.min(...coords.map(c => c.y))));
+            const maxY = Math.min(MAP_SIZE-1, Math.ceil(Math.max(...coords.map(c => c.y))));
+            
+            for (let y = minY; y <= maxY; y++) {
+                const intersections = [];
+                for (let i = 0; i < coords.length - 1; i++) {
+                    const from = coords[i];
+                    const to = coords[i + 1];
+                    
+                    if ((from.y <= y && to.y > y) || (to.y <= y && from.y > y)) {
+                        const x = from.x + (to.x - from.x) * (y - from.y) / (to.y - from.y);
+                        intersections.push(x);
+                    }
+                }
+                
+                intersections.sort((a, b) => a - b);
+                for (let i = 0; i < intersections.length; i += 2) {
+                    const startX = Math.max(0, Math.floor(intersections[i]));
+                    const endX = Math.min(MAP_SIZE-1, Math.ceil(intersections[i + 1] || intersections[i]));
+                    
+                    for (let x = startX; x <= endX; x++) {
+                        if (!grid[y][x] || grid[y][x].type !== 'road') {
+                            grid[y][x] = feature;
+                        }
+                    }
+                }
+            }
+        }
+
+        function drawBresenhamLine(grid, from, to, feature) {
+            let x0 = Math.round(from.x);
+            let y0 = Math.round(from.y);
+            const x1 = Math.round(to.x);
+            const y1 = Math.round(to.y);
+            
+            const dx = Math.abs(x1 - x0);
+            const dy = Math.abs(y1 - y0);
+            const sx = (x0 < x1) ? 1 : -1;
+            const sy = (y0 < y1) ? 1 : -1;
+            let err = dx - dy;
+            
+            while (true) {
+                if (y0 >= 0 && y0 < MAP_SIZE && x0 >= 0 && x0 < MAP_SIZE) {
+                    if (!grid[y0][x0] || grid[y0][x0].type !== 'road') {
+                        grid[y0][x0] = feature;
+                    }
+                }
+                
+                if (x0 === x1 && y0 === y1) break;
+                const e2 = 2 * err;
+                if (e2 > -dy) { err -= dy; x0 += sx; }
+                if (e2 < dx) { err += dx; y0 += sy; }
+            }
+        }
 
         // ================ CHUNKED LOADING SYSTEM ================
         async function loadChunk(chunkX, chunkY) {
@@ -477,9 +551,11 @@
                     
                     // Insert at correct position
                     const pos = getTextPosition(x, y);
-                    mapOutput = mapOutput.substring(0, pos) + 
-                                `<span class="${elevationClass}" data-x="${x}" data-y="${y}">${featureChar}</span>` + 
-                                mapOutput.substring(pos + 1);
+                    if (pos >= 0 && pos < mapOutput.length) {
+                        mapOutput = mapOutput.substring(0, pos) + 
+                                    `<span class="${elevationClass}" data-x="${x}" data-y="${y}">${featureChar}</span>` + 
+                                    mapOutput.substring(pos + 1);
+                    }
                 }
             }
             
