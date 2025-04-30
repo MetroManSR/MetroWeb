@@ -8,14 +8,21 @@ const app = express();
 app.use('/en/navigation', express.static(path.join(__dirname, 'en', 'navigation')));
 
 // API endpoint under /en/navigation/
+// Ensure this route matches your frontend call
 app.get('/en/navigation/api/elevation', async (req, res) => {
     const { lat, lon } = req.query;
+    
+    // Replace commas with periods for decimal numbers
+    const cleanLat = lat.replace(',', '.');
+    const cleanLon = lon.replace(',', '.');
+    
     try {
         const response = await axios.get(
-            `https://api.opentopodata.org/v1/srtm30m?locations=${lat},${lon}`
+            `https://api.opentopodata.org/v1/srtm30m?locations=${cleanLat},${cleanLon}`
         );
         res.json(response.data);
     } catch (error) {
+        console.error('API Error:', error);
         res.status(500).json({ error: "Failed to fetch elevation data" });
     }
 });
