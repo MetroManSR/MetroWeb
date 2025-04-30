@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Smart City Terrain Map (2x2km)</title>
+    <title>Interactive Terrain Map (2x2km)</title>
     <style>
         body {
             font-family: 'Courier New', monospace;
@@ -18,6 +18,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             margin-bottom: 20px;
             display: inline-block;
+            position: relative;
         }
         #map {
             font-size: 8px;
@@ -29,6 +30,7 @@
             padding: 10px;
             background: #222;
             border-radius: 4px;
+            cursor: crosshair;
         }
         .controls {
             display: grid;
@@ -59,7 +61,7 @@
             font-size: 16px;
             padding: 10px;
         }
-        #coords, #location-info {
+        #coords, #location-info, #elevation-info {
             font-family: monospace;
             background: #252525;
             padding: 8px;
@@ -95,13 +97,25 @@
         .park { color: #5c5; }
         .lidar { color: #8cf; }
         .unknown { color: #777; }
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            pointer-events: none;
+            z-index: 100;
+            font-size: 12px;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
-    <h1>2x2km City Terrain Map</h1>
+    <h1>Interactive 2x2km Terrain Map</h1>
     
     <div id="coords">Latitude: 40.7128, Longitude: -74.0060</div>
     <div id="location-info">New York, US | Using: Global Dataset</div>
+    <div id="elevation-info">Click on the map to see elevation</div>
     
     <div class="coord-input">
         <input type="text" id="latInput" placeholder="Latitude" value="40.7128">
@@ -123,6 +137,7 @@
     
     <div id="map-container">
         <div id="map" class="loading">Initializing terrain engine...</div>
+        <div class="tooltip" id="tooltip" style="display: none;"></div>
     </div>
     
     <div id="status">Detecting elevation source...</div>
@@ -140,6 +155,7 @@
         let isLoading = false;
         let currentDataSource = { name: "Global Dataset", resolution: 90 };
         let elevationCache = new Map();
+        let currentElevationGrid = null;
 
         // ================ ELEVATION DATASETS ================
         const elevationDatasets = [
@@ -176,7 +192,7 @@
                             const canvas = document.createElement('canvas');
                             canvas.width = 256;
                             canvas.height = 256;
-                            const ctx = canvas.getContext('2d');
+                            const ctx = canvas.getContext('2d', { willReadFrequently: true }); // Performance optimization
                             ctx.drawImage(img, 0, 0);
                             
                             // Store the image data in cache
@@ -241,8 +257,8 @@
             document.getElementById('map').textContent = 'Rendering terrain...';
             
             try {
-                const grid = await generateElevationGrid();
-                renderMap(grid);
+                currentElevationGrid = await generateElevationGrid();
+                renderMap(currentElevationGrid);
                 updateStatus(`Ready | ${currentDataSource.name} | 2x2km area`);
                 updateLocationInfo();
             } catch (error) {
@@ -321,13 +337,93 @@
                         cls = 'ground';
                     }
                     
-                    mapOutput += `<span class="${cls}">${char}</span>`;
+                    mapOutput += `<span class="${cls}" data-x="${x}" data-y="${y}">${char}</span>`;
                 }
                 mapOutput += '\n';
             }
             
             document.getElementById('map').innerHTML = mapOutput;
             document.getElementById('map').className = '';
+        }
+
+        // ================ CLICK HANDLER FOR ELEVATION ================
+        function setupMapClickHandler() {
+            const mapElement = document.getElementById('map');
+            const tooltip = document.getElementById('tooltip');
+            
+            mapElement.addEventListener('click', (e) => {
+                if (!currentElevationGrid) return;
+                
+                // Find the clicked character element
+                let target = e.target;
+                while (target && !target.hasAttribute('data-x')) {
+                    target = target.parentElement;
+                    if (target === mapElement) return;
+                }
+                
+                if (target && target.hasAttribute('data-x')) {
+                    const x = parseInt(target.getAttribute('data-x'));
+                    const y = parseInt(target.getAttribute('data-y'));
+                    const elevation = currentElevationGrid[y][x];
+                    
+                    if (elevation === 0) {
+                        document.getElementById('elevation-info').textContent = "Clicked location is out of bounds";
+                        return;
+                    }
+                    
+                    // Calculate actual coordinates
+                    const metersPerDegreeLat = 111320;
+                    const metersPerDegreeLon = 111320 * Math.cos(currentLat * Math.PI/180);
+                    const lat = currentLat + (y - MAP_SIZE/2) * (CELL_SIZE_METERS / metersPerDegreeLat);
+                    const lon = currentLon + (x - MAP_SIZE/2) * (CELL_SIZE_METERS / metersPerDegreeLon);
+                    
+                    document.getElementById('elevation-info').textContent = 
+                        `Elevation: ${elevation.toFixed(1)} meters | Coordinates: ${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+                    
+                    // Show tooltip at click position
+                    tooltip.style.display = 'block';
+                    tooltip.textContent = `${elevation.toFixed(1)}m`;
+                    tooltip.style.left = `${e.clientX + 10}px`;
+                    tooltip.style.top = `${e.clientY + 10}px`;
+                    
+                    // Hide tooltip after 2 seconds
+                    setTimeout(() => {
+                        tooltip.style.display = 'none';
+                    }, 2000);
+                }
+            });
+            
+            // Also show elevation on hover
+            mapElement.addEventListener('mousemove', (e) => {
+                if (!currentElevationGrid) return;
+                
+                let target = e.target;
+                while (target && !target.hasAttribute('data-x')) {
+                    target = target.parentElement;
+                    if (target === mapElement) return;
+                }
+                
+                if (target && target.hasAttribute('data-x')) {
+                    const x = parseInt(target.getAttribute('data-x'));
+                    const y = parseInt(target.getAttribute('data-y'));
+                    const elevation = currentElevationGrid[y][x];
+                    
+                    if (elevation !== 0) {
+                        tooltip.style.display = 'block';
+                        tooltip.textContent = `${elevation.toFixed(1)}m`;
+                        tooltip.style.left = `${e.clientX + 10}px`;
+                        tooltip.style.top = `${e.clientY + 10}px`;
+                    } else {
+                        tooltip.style.display = 'none';
+                    }
+                } else {
+                    tooltip.style.display = 'none';
+                }
+            });
+            
+            mapElement.addEventListener('mouseout', () => {
+                tooltip.style.display = 'none';
+            });
         }
 
         // ================ UTILITIES ================
@@ -391,6 +487,9 @@
         document.getElementById('moveEast').addEventListener('click', () => moveMap(0, MOVE_DISTANCE));
         document.getElementById('recenter').addEventListener('click', recenter);
         document.getElementById('goToCoords').addEventListener('click', goToCoordinates);
+
+        // Setup click handler for elevation display
+        setupMapClickHandler();
 
         // Start loading
         generateMap();
