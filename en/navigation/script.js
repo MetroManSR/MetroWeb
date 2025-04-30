@@ -1,15 +1,28 @@
 async function getElevations() {
-    const lat = document.getElementById('latitude').value;
-    const lon = document.getElementById('longitude').value;
+    const latInput = document.getElementById('latitude').value;
+    const lonInput = document.getElementById('longitude').value;
+    
+    // Validate inputs
+    if (!latInput || !lonInput) {
+        alert("Please enter both latitude and longitude");
+        return;
+    }
+
+    // Replace commas with periods for decimal numbers
+    const lat = latInput.replace(',', '.');
+    const lon = lonInput.replace(',', '.');
 
     try {
-        // Use absolute path to avoid routing issues
         const response = await fetch(`/en/navigation/api/elevation?lat=${lat}&lon=${lon}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
-        const elevation = data.results[0].elevation;
-        document.getElementById('terrainOutput').value = `Elevation: ${elevation}m`;
+        visualizeElevation([data.results[0].elevation]);
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Fetch error:', error);
         document.getElementById('terrainOutput').value = "Error fetching elevation data";
     }
 }
