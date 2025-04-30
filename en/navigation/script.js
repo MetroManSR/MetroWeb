@@ -38,4 +38,12 @@ function visualizeElevation(elevations) {
 }
 
 // Handle button click
-document.getElementById('generateBtn').addEventListener('click', getElevations);
+// Wait for DOM to load before attaching event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    const generateBtn = document.getElementById('generateBtn');
+    if (generateBtn) {
+        generateBtn.addEventListener('click', getElevations);
+    } else {
+        console.error('Generate button not found!');
+    }
+});
