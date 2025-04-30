@@ -1,29 +1,28 @@
-// server.js
 const express = require('express');
-const axios = require('axios');
-const cors = require('cors');
 const path = require('path');
+const axios = require('axios');
 
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static files from /en/navigation/
+app.use('/en/navigation', express.static(path.join(__dirname, 'en', 'navigation')));
 
-// Proxy endpoint
-app.get('/api/elevation', async (req, res) => {
+// API endpoint under /en/navigation/
+app.get('/en/navigation/api/elevation', async (req, res) => {
+    const { lat, lon } = req.query;
     try {
-        const { lat, lon } = req.query;
-        const response = await axios.get(`https://api.opentopodata.org/v1/srtm30m?locations=${lat},${lon}`);
+        const response = await axios.get(
+            `https://api.opentopodata.org/v1/srtm30m?locations=${lat},${lon}`
+        );
         res.json(response.data);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: "Failed to fetch elevation data" });
     }
 });
 
-// Serve frontend
+// Handle all other routes (optional)
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'en', 'navigation', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
