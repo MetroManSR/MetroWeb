@@ -223,7 +223,7 @@
             
             // Convert to tile coordinates
             const x = Math.floor((currentLon + 180) / 360 * scale);
-            const y = Math.floor((1 - Math.log(Math.tan(currentLat * Math.PI / 180) + 
+            const y = Math.floor(1 - Math.log(Math.tan(currentLat * Math.PI / 180) + 
                           1 / Math.cos(currentLat * Math.PI / 180)) / Math.PI / 2 * scale);
             
             try {
