@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Unlimited OSM+SRTM Terrain Map</title>
+    <title>Reliable OSM+SRTM Terrain Map</title>
     <style>
         body {
             font-family: 'Courier New', monospace;
@@ -86,7 +86,7 @@
     </style>
 </head>
 <body>
-    <h1>Unlimited Terrain Map</h1>
+    <h1>Reliable Terrain Map</h1>
     
     <div id="coords">Latitude: 48.8566, Longitude: 2.3522</div>
     
@@ -110,7 +110,7 @@
 
     <script>
         // ================ CONFIGURATION ================
-        const MAP_SIZE = 50; // Characters wide/tall
+        const MAP_SIZE = 40; // 40x40 characters
         const CELL_RESOLUTION = 0.0002; // Degrees per cell (~20m at equator)
         const MOVE_DISTANCE = 0.001; // Degrees per movement (~100m)
         
@@ -175,7 +175,7 @@
             
             // Convert to tile coordinates
             const x = Math.floor((currentLon + 180) / 360 * scale);
-            const y = Math.floor(1 - Math.log(Math.tan(currentLat * Math.PI / 180) + 
+            const y = Math.floor((1 - Math.log(Math.tan(currentLat * Math.PI / 180) + 
                           1 / Math.cos(currentLat * Math.PI / 180)) / Math.PI / 2 * scale);
             
             const cacheKey = `${zoom}_${x}_${y}`;
@@ -222,8 +222,8 @@
                 }
             }
             
-            // Use SRTM tiles directly from AWS
-            const elevations = new Array(MAP_SIZE * MAP_SIZE);
+            // Use SRTM tiles with multiple fallback sources
+            const elevations = new Array(MAP_SIZE * MAP_SIZE).fill(null);
             let loadedCount = 0;
             
             for (let i = 0; i < points.length; i++) {
@@ -232,35 +232,26 @@
                 const tileLon = Math.floor(lon);
                 const tileKey = `${tileLat}_${tileLon}`;
                 
-                // Load tile if not cached
-                if (!srtmCache[tileKey]) {
-                    try {
-                        const url = `https://s3.amazonaws.com/elevation-tiles-prod/geotiff/${Math.abs(tileLat)}${tileLat >= 0 ? 'N' : 'S'}${Math.abs(tileLon)}${tileLon >= 0 ? 'E' : 'W'}.tif`;
-                        const response = await fetch(url);
-                        const arrayBuffer = await response.arrayBuffer();
-                        const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer);
-                        const image = await tiff.getImage();
-                        const rasters = await image.readRasters();
-                        
-                        srtmCache[tileKey] = {
-                            width: image.getWidth(),
-                            height: image.getHeight(),
-                            data: rasters[0]
-                        };
-                    } catch (e) {
-                        console.warn(`Failed to load SRTM tile ${tileKey}:`, e);
-                        elevations[i] = null;
-                        continue;
+                // Try to get elevation from cache or load new tile
+                try {
+                    if (!srtmCache[tileKey]) {
+                        await loadSRTMTile(tileLat, tileLon);
                     }
+                    
+                    if (srtmCache[tileKey]) {
+                        const tile = srtmCache[tileKey];
+                        const x = Math.floor((lon - tileLon) * tile.width);
+                        const y = Math.floor((tileLat + 1 - lat) * tile.height);
+                        const idx = y * tile.width + x;
+                        
+                        if (idx >= 0 && idx < tile.data.length) {
+                            elevations[i] = tile.data[idx];
+                        }
+                    }
+                } catch (e) {
+                    console.warn(`Error processing point ${i}:`, e);
                 }
                 
-                // Get elevation from tile
-                const tile = srtmCache[tileKey];
-                const x = Math.floor((lon - tileLon) * tile.width);
-                const y = Math.floor((tileLat + 1 - lat) * tile.height);
-                const idx = y * tile.width + x;
-                
-                elevations[i] = tile.data[idx];
                 loadedCount++;
                 
                 // Update progress periodically
@@ -271,6 +262,40 @@
             }
             
             return elevations;
+        }
+
+        async function loadSRTMTile(tileLat, tileLon) {
+            const tileKey = `${tileLat}_${tileLon}`;
+            if (srtmCache[tileKey]) return;
+            
+            // Try multiple SRTM sources
+            const sources = [
+                `https://s3.amazonaws.com/elevation-tiles-prod/geotiff/${Math.abs(tileLat)}${tileLat >= 0 ? 'N' : 'S'}${Math.abs(tileLon)}${tileLon >= 0 ? 'E' : 'W'}.tif`,
+                `https://opentopography.s3.sdsc.edu/raster/SRTM_GL1/SRTM_GL1_srtm/${Math.abs(tileLat)}${tileLat >= 0 ? 'N' : 'S'}${Math.abs(tileLon)}${tileLon >= 0 ? 'E' : 'W'}.hgt.zip`
+            ];
+            
+            for (const source of sources) {
+                try {
+                    const response = await fetch(source);
+                    if (!response.ok) continue;
+                    
+                    const arrayBuffer = await response.arrayBuffer();
+                    const tiff = await parseGeoTIFF(arrayBuffer);
+                    const image = await tiff.getImage();
+                    const rasters = await image.readRasters();
+                    
+                    srtmCache[tileKey] = {
+                        width: image.getWidth(),
+                        height: image.getHeight(),
+                        data: rasters[0]
+                    };
+                    return;
+                } catch (e) {
+                    console.warn(`Failed to load SRTM from ${source}:`, e);
+                }
+            }
+            
+            throw new Error(`All SRTM sources failed for tile ${tileKey}`);
         }
 
         // ================ RENDERING ================
@@ -367,84 +392,90 @@
             generateMap();
         }
 
-        // ================ GeoTIFF Parser (Simplified) ================
-        const GeoTIFF = {
-            fromArrayBuffer: async function(arrayBuffer) {
-                const view = new DataView(arrayBuffer);
-                const littleEndian = view.getUint16(0, true) === 0x4949;
-                const ifdOffset = view.getUint32(4, littleEndian);
-                
-                return {
-                    getImage: async function() {
-                        const numEntries = view.getUint16(ifdOffset, littleEndian);
-                        let offset = ifdOffset + 2;
+        // ================ GeoTIFF Parser ================
+        async function parseGeoTIFF(arrayBuffer) {
+            const view = new DataView(arrayBuffer);
+            
+            // Check byte order
+            const littleEndian = view.getUint16(0, true) === 0x4949;
+            
+            // Read IFD offset
+            const ifdOffset = view.getUint32(4, littleEndian);
+            
+            return {
+                getImage: async function() {
+                    const numEntries = view.getUint16(ifdOffset, littleEndian);
+                    let offset = ifdOffset + 2;
+                    
+                    let width, height, stripOffsets, stripByteCounts;
+                    
+                    for (let i = 0; i < numEntries; i++) {
+                        const tag = view.getUint16(offset, littleEndian);
+                        const type = view.getUint16(offset + 2, littleEndian);
+                        const count = view.getUint32(offset + 4, littleEndian);
+                        let valueOffset = offset + 8;
                         
-                        // Simplified - just read width, height and strip offsets
-                        let width, height, stripOffsets, stripByteCounts;
-                        
-                        for (let i = 0; i < numEntries; i++) {
-                            const tag = view.getUint16(offset, littleEndian);
-                            const type = view.getUint16(offset + 2, littleEndian);
-                            const count = view.getUint32(offset + 4, littleEndian);
-                            let valueOffset = offset + 8;
-                            
-                            if (getTypeSize(type) * count > 4) {
-                                valueOffset = view.getUint32(valueOffset, littleEndian);
-                            }
-                            
-                            switch (tag) {
-                                case 256: width = readValue(type, count, valueOffset); break;
-                                case 257: height = readValue(type, count, valueOffset); break;
-                                case 273: stripOffsets = readValue(type, count, valueOffset); break;
-                                case 279: stripByteCounts = readValue(type, count, valueOffset); break;
-                            }
-                            
-                            offset += 12;
+                        if (getTypeSize(type) * count > 4) {
+                            valueOffset = view.getUint32(valueOffset, littleEndian);
                         }
                         
-                        return {
-                            getWidth: () => width,
-                            getHeight: () => height,
-                            readRasters: async function() {
-                                const data = new Int16Array(width * height);
-                                let pos = 0;
+                        switch (tag) {
+                            case 256: width = readValue(type, count, valueOffset); break;
+                            case 257: height = readValue(type, count, valueOffset); break;
+                            case 273: stripOffsets = readValue(type, count, valueOffset); break;
+                            case 279: stripByteCounts = readValue(type, count, valueOffset); break;
+                        }
+                        
+                        offset += 12;
+                    }
+                    
+                    return {
+                        getWidth: () => width,
+                        getHeight: () => height,
+                        readRasters: async function() {
+                            const data = new Int16Array(width * height);
+                            let pos = 0;
+                            
+                            for (let i = 0; i < stripOffsets.length; i++) {
+                                const stripOffset = stripOffsets[i];
+                                const stripLength = stripByteCounts[i];
                                 
-                                for (let i = 0; i < stripOffsets.length; i++) {
-                                    const stripOffset = stripOffsets[i];
-                                    const stripLength = stripByteCounts[i];
-                                    
-                                    for (let j = 0; j < stripLength/2; j++) {
-                                        data[pos++] = view.getInt16(stripOffset + j*2, littleEndian);
+                                for (let j = 0; j < stripLength/2; j++) {
+                                    const byteOffset = stripOffset + j*2;
+                                    if (byteOffset + 2 <= view.byteLength) {
+                                        data[pos++] = view.getInt16(byteOffset, littleEndian);
+                                    } else {
+                                        data[pos++] = 0; // Safe default for out of bounds
                                     }
                                 }
-                                
-                                return [data];
                             }
-                        };
-                    }
-                };
-                
-                function readValue(type, count, offset) {
-                    const size = getTypeSize(type);
-                    const values = [];
-                    
-                    for (let i = 0; i < count; i++) {
-                        switch (type) {
-                            case 3: values.push(view.getUint16(offset, littleEndian)); break;
-                            case 4: values.push(view.getUint32(offset, littleEndian)); break;
-                            default: values.push(0);
+                            
+                            return [data];
                         }
-                        offset += size;
+                    };
+                }
+            };
+            
+            function readValue(type, count, offset) {
+                const size = getTypeSize(type);
+                const values = [];
+                
+                for (let i = 0; i < count; i++) {
+                    switch (type) {
+                        case 3: values.push(view.getUint16(offset, littleEndian)); break;
+                        case 4: values.push(view.getUint32(offset, littleEndian)); break;
+                        default: values.push(0);
                     }
-                    
-                    return count === 1 ? values[0] : values;
+                    offset += size;
                 }
                 
-                function getTypeSize(type) {
-                    return type === 3 ? 2 : 4; // Only handle SHORT and LONG
-                }
+                return count === 1 ? values[0] : values;
             }
-        };
+            
+            function getTypeSize(type) {
+                return type === 3 ? 2 : 4; // Only handle SHORT and LONG
+            }
+        }
 
         // ================ INITIALIZATION ================
         document.getElementById('moveNorth').addEventListener('click', () => moveMap(-MOVE_DISTANCE, 0));
