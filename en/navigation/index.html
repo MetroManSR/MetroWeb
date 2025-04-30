@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Interactive Terrain Map (2x2km)</title>
+    <title>10km Interactive Terrain Map with OSM</title>
     <style>
         body {
             font-family: 'Courier New', monospace;
@@ -21,12 +21,13 @@
             position: relative;
         }
         #map {
-            font-size: 8px;
-            line-height: 8px;
-            letter-spacing: 1px;
+            font-size: 6px;
+            line-height: 6px;
+            letter-spacing: 0.5px;
             white-space: pre;
             overflow: auto;
-            max-height: 500px;
+            max-height: 600px;
+            max-width: 900px;
             padding: 10px;
             background: #222;
             border-radius: 4px;
@@ -95,6 +96,7 @@
         .building { color: #f88; }
         .road { color: #fd5; }
         .park { color: #5c5; }
+        .forest { color: #3a5; }
         .lidar { color: #8cf; }
         .unknown { color: #777; }
         .tooltip {
@@ -108,14 +110,27 @@
             font-size: 12px;
             white-space: nowrap;
         }
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #fff;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-    <h1>Interactive 2x2km Terrain Map</h1>
+    <h1>10km Interactive Terrain Map with OSM</h1>
     
     <div id="coords">Latitude: 40.7128, Longitude: -74.0060</div>
     <div id="location-info">New York, US | Using: Global Dataset</div>
-    <div id="elevation-info">Click on the map to see elevation</div>
+    <div id="elevation-info">Click on the map to see elevation and features</div>
     
     <div class="coord-input">
         <input type="text" id="latInput" placeholder="Latitude" value="40.7128">
@@ -136,7 +151,10 @@
     </div>
     
     <div id="map-container">
-        <div id="map" class="loading">Initializing terrain engine...</div>
+        <div id="map" class="loading">
+            <div class="loading-spinner"></div>
+            <div>Initializing terrain engine...</div>
+        </div>
         <div class="tooltip" id="tooltip" style="display: none;"></div>
     </div>
     
@@ -144,10 +162,10 @@
 
     <script>
         // ================ CONFIGURATION ================
-        const MAP_SIZE = 40; // 40x40 characters
-        const CELL_SIZE_METERS = 50; // 50m per character (2000m/40=50m)
-        const MOVE_DISTANCE = 0.0045; // Degrees per movement (~500m)
-        const MAX_DISTANCE = 0.009; // ~1km from center (2x2km total)
+        const MAP_SIZE = 100; // 100x100 characters (10km x 10km)
+        const CELL_SIZE_METERS = 100; // 100m per character (10000m/100=100m)
+        const MOVE_DISTANCE = 0.009; // Degrees per movement (~1km)
+        const MAX_DISTANCE = 0.045; // ~5km from center (10x10km total)
         
         // ================ STATE MANAGEMENT ================
         let currentLat = 40.7128; // New York
@@ -156,6 +174,7 @@
         let currentDataSource = { name: "Global Dataset", resolution: 90 };
         let elevationCache = new Map();
         let currentElevationGrid = null;
+        let osmFeatures = [];
 
         // ================ ELEVATION DATASETS ================
         const elevationDatasets = [
@@ -171,7 +190,7 @@
                     maxZ: 85
                 },
                 getElevation: async function(lat, lon) {
-                    const zoom = 10; // Using zoom level 10 as requested
+                    const zoom = 10;
                     
                     // Convert lat/lon to tile coordinates
                     const latRad = lat * Math.PI / 180;
@@ -192,7 +211,7 @@
                             const canvas = document.createElement('canvas');
                             canvas.width = 256;
                             canvas.height = 256;
-                            const ctx = canvas.getContext('2d', { willReadFrequently: true }); // Performance optimization
+                            const ctx = canvas.getContext('2d', { willReadFrequently: true });
                             ctx.drawImage(img, 0, 0);
                             
                             // Store the image data in cache
@@ -220,50 +239,106 @@
             }
         ];
 
-        // ================ ELEVATION FUNCTIONS ================
-        async function getElevation(lat, lon) {
-            const cacheKey = `${lat.toFixed(5)},${lon.toFixed(5)}`;
-            
-            if (elevationCache.has(cacheKey)) {
-                return elevationCache.get(cacheKey);
-            }
-            
-            // Use the global dataset
-            const dataset = elevationDatasets[0];
-            currentDataSource = {
-                name: dataset.name,
-                resolution: dataset.resolution
-            };
+        // ================ OSM DATA FETCHING ================
+        async function fetchOSMFeatures(lat, lon) {
+            const radius = 0.045; // ~5km radius (10km diameter)
+            const bbox = [
+                lon - radius,
+                lat - radius,
+                lon + radius,
+                lat + radius
+            ].join(',');
             
             try {
-                const elevation = await dataset.getElevation(lat, lon);
-                elevationCache.set(cacheKey, elevation);
-                return elevation;
+                const response = await fetch(`https://api.openstreetmap.org/api/0.6/map?bbox=${bbox}`);
+                const xml = await response.text();
+                return parseOSMXML(xml);
             } catch (e) {
-                console.error("Error getting elevation:", e);
-                return 0; // Fallback
+                console.error("Error fetching OSM data:", e);
+                return [];
             }
         }
 
-        // ================ TERRAIN GENERATION ================
+        function parseOSMXML(xml) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(xml, "text/xml");
+            const features = [];
+            
+            // Parse nodes (points of interest)
+            const nodes = doc.getElementsByTagName('node');
+            for (let node of nodes) {
+                const id = node.getAttribute('id');
+                const lat = parseFloat(node.getAttribute('lat'));
+                const lon = parseFloat(node.getAttribute('lon'));
+                
+                const tags = {};
+                for (let tag of node.getElementsByTagName('tag')) {
+                    tags[tag.getAttribute('k')] = tag.getAttribute('v');
+                }
+                
+                features.push({
+                    type: 'node',
+                    id,
+                    lat,
+                    lon,
+                    tags
+                });
+            }
+            
+            // Parse ways (lines/polygons like roads, buildings)
+            const ways = doc.getElementsByTagName('way');
+            for (let way of ways) {
+                const id = way.getAttribute('id');
+                const nodeRefs = [];
+                
+                for (let nd of way.getElementsByTagName('nd')) {
+                    nodeRefs.push(nd.getAttribute('ref'));
+                }
+                
+                const tags = {};
+                for (let tag of way.getElementsByTagName('tag')) {
+                    tags[tag.getAttribute('k')] = tag.getAttribute('v');
+                }
+                
+                features.push({
+                    type: 'way',
+                    id,
+                    nodeRefs,
+                    tags
+                });
+            }
+            
+            return features;
+        }
+
+        // ================ MAP RENDERING ================
         async function generateMap() {
             if (isLoading) return;
             isLoading = true;
             
-            updateStatus("Loading elevation data...");
+            updateStatus("Loading data sources...");
             updateCoords();
             
             document.getElementById('map').className = 'loading';
-            document.getElementById('map').textContent = 'Rendering terrain...';
+            document.getElementById('map').innerHTML = `
+                <div class="loading-spinner"></div>
+                <div>Loading terrain and OSM data...</div>
+            `;
             
             try {
+                // Load elevation data
                 currentElevationGrid = await generateElevationGrid();
+                
+                // Load OSM data
+                osmFeatures = await fetchOSMFeatures(currentLat, currentLon);
+                
+                // Render combined map
                 renderMap(currentElevationGrid);
-                updateStatus(`Ready | ${currentDataSource.name} | 2x2km area`);
+                updateStatus(`Ready | ${currentDataSource.name} + OSM | 10x10km area`);
                 updateLocationInfo();
             } catch (error) {
                 console.error("Map generation failed:", error);
-                document.getElementById('map').textContent = "Error: Could not load terrain data";
+                document.getElementById('map').innerHTML = "Error: Could not load map data";
                 updateStatus("Failed to generate map");
             } finally {
                 isLoading = false;
@@ -275,7 +350,7 @@
             const metersPerDegreeLat = 111320;
             const metersPerDegreeLon = 111320 * Math.cos(currentLat * Math.PI/180);
             
-            // Calculate boundaries to stay within 2x2km
+            // Calculate boundaries to stay within 10x10km
             const centerLat = currentLat;
             const centerLon = currentLon;
             
@@ -285,11 +360,11 @@
                     const lat = centerLat + (y - MAP_SIZE/2) * (CELL_SIZE_METERS / metersPerDegreeLat);
                     const lon = centerLon + (x - MAP_SIZE/2) * (CELL_SIZE_METERS / metersPerDegreeLon);
                     
-                    // Check if we're within 1km of center (2x2km total area)
+                    // Check if we're within 5km of center (10x10km total area)
                     const distLat = Math.abs(lat - centerLat) * metersPerDegreeLat;
                     const distLon = Math.abs(lon - centerLon) * metersPerDegreeLon;
                     
-                    if (distLat > 1000 || distLon > 1000) {
+                    if (distLat > 5000 || distLon > 5000) {
                         grid[y][x] = 0; // Out of bounds
                         continue;
                     }
@@ -310,6 +385,9 @@
             let mapOutput = '';
             const centerElev = grid[Math.floor(MAP_SIZE/2)][Math.floor(MAP_SIZE/2)];
             
+            // Create a grid of OSM features
+            const osmGrid = createOSMFeatureGrid();
+            
             for (let y = 0; y < MAP_SIZE; y++) {
                 for (let x = 0; x < MAP_SIZE; x++) {
                     const elev = grid[y][x];
@@ -321,20 +399,28 @@
                         continue;
                     }
                     
-                    // Relative elevation to center
-                    const relElev = elev - centerElev;
-                    
-                    if (elev < 10) {
-                        char = '≈'; cls = 'water';
-                    } else if (Math.abs(relElev) < 5) {
-                        char = '·'; cls = 'road';
-                    } else if (relElev > 20) {
-                        char = '█'; cls = 'building';
-                    } else if (relElev < -5) {
-                        char = '≈'; cls = 'water';
+                    // Check for OSM features first (they override elevation)
+                    if (osmGrid[y] && osmGrid[y][x]) {
+                        const feature = osmGrid[y][x];
+                        if (feature.type === 'water') {
+                            char = '≈'; cls = 'water';
+                        } else if (feature.type === 'road') {
+                            char = '·'; cls = 'road';
+                        } else if (feature.type === 'building') {
+                            char = '█'; cls = 'building';
+                        } else if (feature.type === 'park') {
+                            char = '♣'; cls = 'park';
+                        } else if (feature.type === 'forest') {
+                            char = '♠'; cls = 'forest';
+                        } else {
+                            // Default to elevation-based rendering
+                            char = getElevationChar(elev, centerElev);
+                            cls = getElevationClass(elev, centerElev);
+                        }
                     } else {
-                        char = '·'; 
-                        cls = 'ground';
+                        // Use elevation-based rendering
+                        char = getElevationChar(elev, centerElev);
+                        cls = getElevationClass(elev, centerElev);
                     }
                     
                     mapOutput += `<span class="${cls}" data-x="${x}" data-y="${y}">${char}</span>`;
@@ -346,7 +432,167 @@
             document.getElementById('map').className = '';
         }
 
-        // ================ CLICK HANDLER FOR ELEVATION ================
+        function createOSMFeatureGrid() {
+            const grid = Array(MAP_SIZE).fill().map(() => Array(MAP_SIZE).fill(null));
+            const metersPerDegreeLat = 111320;
+            const metersPerDegreeLon = 111320 * Math.cos(currentLat * Math.PI/180);
+            
+            // Process OSM features
+            for (const feature of osmFeatures) {
+                if (feature.type === 'node') {
+                    // Point features (trees, landmarks, etc.)
+                    const y = Math.floor(MAP_SIZE/2 - (feature.lat - currentLat) * metersPerDegreeLat / CELL_SIZE_METERS);
+                    const x = Math.floor(MAP_SIZE/2 + (feature.lon - currentLon) * metersPerDegreeLon / CELL_SIZE_METERS);
+                    
+                    if (y >= 0 && y < MAP_SIZE && x >= 0 && x < MAP_SIZE) {
+                        if (feature.tags.natural === 'tree') {
+                            grid[y][x] = { type: 'tree' };
+                        } else if (feature.tags.amenity) {
+                            grid[y][x] = { type: 'amenity' };
+                        }
+                    }
+                } else if (feature.type === 'way') {
+                    // Line/polygon features (roads, buildings, etc.)
+                    if (feature.tags.highway) {
+                        // Road
+                        const coords = getWayCoordinates(feature);
+                        drawLineOnGrid(grid, coords, { type: 'road' });
+                    } else if (feature.tags.building) {
+                        // Building
+                        const coords = getWayCoordinates(feature);
+                        drawPolygonOnGrid(grid, coords, { type: 'building' });
+                    } else if (feature.tags.leisure === 'park' || feature.tags.landuse === 'grass') {
+                        // Park or green area
+                        const coords = getWayCoordinates(feature);
+                        drawPolygonOnGrid(grid, coords, { type: 'park' });
+                    } else if (feature.tags.natural === 'water') {
+                        // Water body
+                        const coords = getWayCoordinates(feature);
+                        drawPolygonOnGrid(grid, coords, { type: 'water' });
+                    } else if (feature.tags.natural === 'wood' || feature.tags.landuse === 'forest') {
+                        // Forest
+                        const coords = getWayCoordinates(feature);
+                        drawPolygonOnGrid(grid, coords, { type: 'forest' });
+                    }
+                }
+            }
+            
+            return grid;
+        }
+
+        function getWayCoordinates(way) {
+            const coords = [];
+            const metersPerDegreeLat = 111320;
+            const metersPerDegreeLon = 111320 * Math.cos(currentLat * Math.PI/180);
+            
+            // Find all nodes for this way
+            for (const nodeRef of way.nodeRefs) {
+                const node = osmFeatures.find(f => f.type === 'node' && f.id === nodeRef);
+                if (node) {
+                    const y = MAP_SIZE/2 - (node.lat - currentLat) * metersPerDegreeLat / CELL_SIZE_METERS;
+                    const x = MAP_SIZE/2 + (node.lon - currentLon) * metersPerDegreeLon / CELL_SIZE_METERS;
+                    coords.push({ x, y });
+                }
+            }
+            
+            return coords;
+        }
+
+        function drawLineOnGrid(grid, coords, feature) {
+            for (let i = 0; i < coords.length - 1; i++) {
+                const from = coords[i];
+                const to = coords[i + 1];
+                drawBresenhamLine(grid, from, to, feature);
+            }
+        }
+
+        function drawPolygonOnGrid(grid, coords, feature) {
+            // Simple polygon fill (for small areas in our grid)
+            if (coords.length < 3) return;
+            
+            // Close the polygon
+            coords.push(coords[0]);
+            
+            // Draw outline
+            drawLineOnGrid(grid, coords, feature);
+            
+            // Simple fill (this is a very basic approach)
+            const minY = Math.max(0, Math.floor(Math.min(...coords.map(c => c.y))));
+            const maxY = Math.min(MAP_SIZE-1, Math.ceil(Math.max(...coords.map(c => c.y))));
+            
+            for (let y = minY; y <= maxY; y++) {
+                const intersections = [];
+                for (let i = 0; i < coords.length - 1; i++) {
+                    const from = coords[i];
+                    const to = coords[i + 1];
+                    
+                    if ((from.y <= y && to.y > y) || (to.y <= y && from.y > y)) {
+                        const x = from.x + (to.x - from.x) * (y - from.y) / (to.y - from.y);
+                        intersections.push(x);
+                    }
+                }
+                
+                intersections.sort((a, b) => a - b);
+                for (let i = 0; i < intersections.length; i += 2) {
+                    const startX = Math.max(0, Math.floor(intersections[i]));
+                    const endX = Math.min(MAP_SIZE-1, Math.ceil(intersections[i + 1] || intersections[i]));
+                    
+                    for (let x = startX; x <= endX; x++) {
+                        if (!grid[y][x] || grid[y][x].type !== 'road') { // Don't override roads
+                            grid[y][x] = feature;
+                        }
+                    }
+                }
+            }
+        }
+
+        function drawBresenhamLine(grid, from, to, feature) {
+            let x0 = Math.round(from.x);
+            let y0 = Math.round(from.y);
+            const x1 = Math.round(to.x);
+            const y1 = Math.round(to.y);
+            
+            const dx = Math.abs(x1 - x0);
+            const dy = Math.abs(y1 - y0);
+            const sx = (x0 < x1) ? 1 : -1;
+            const sy = (y0 < y1) ? 1 : -1;
+            let err = dx - dy;
+            
+            while (true) {
+                if (y0 >= 0 && y0 < MAP_SIZE && x0 >= 0 && x0 < MAP_SIZE) {
+                    if (!grid[y0][x0] || grid[y0][x0].type !== 'road') { // Don't override roads
+                        grid[y0][x0] = feature;
+                    }
+                }
+                
+                if (x0 === x1 && y0 === y1) break;
+                const e2 = 2 * err;
+                if (e2 > -dy) { err -= dy; x0 += sx; }
+                if (e2 < dx) { err += dx; y0 += sy; }
+            }
+        }
+
+        function getElevationChar(elev, centerElev) {
+            const relElev = elev - centerElev;
+            
+            if (elev < 10) return '≈';
+            if (Math.abs(relElev) < 5) return '·';
+            if (relElev > 20) return '█';
+            if (relElev < -5) return '≈';
+            return '·';
+        }
+
+        function getElevationClass(elev, centerElev) {
+            const relElev = elev - centerElev;
+            
+            if (elev < 10) return 'water';
+            if (Math.abs(relElev) < 5) return 'road';
+            if (relElev > 20) return 'building';
+            if (relElev < -5) return 'water';
+            return 'ground';
+        }
+
+        // ================ INTERACTIVITY ================
         function setupMapClickHandler() {
             const mapElement = document.getElementById('map');
             const tooltip = document.getElementById('tooltip');
@@ -377,12 +623,24 @@
                     const lat = currentLat + (y - MAP_SIZE/2) * (CELL_SIZE_METERS / metersPerDegreeLat);
                     const lon = currentLon + (x - MAP_SIZE/2) * (CELL_SIZE_METERS / metersPerDegreeLon);
                     
+                    // Check for OSM features
+                    let featureInfo = "";
+                    const osmGrid = createOSMFeatureGrid();
+                    if (osmGrid[y] && osmGrid[y][x]) {
+                        const feature = osmGrid[y][x];
+                        if (feature.type === 'road') featureInfo = " (Road)";
+                        else if (feature.type === 'building') featureInfo = " (Building)";
+                        else if (feature.type === 'park') featureInfo = " (Park/Green Area)";
+                        else if (feature.type === 'water') featureInfo = " (Water Body)";
+                        else if (feature.type === 'forest') featureInfo = " (Forest)";
+                    }
+                    
                     document.getElementById('elevation-info').textContent = 
-                        `Elevation: ${elevation.toFixed(1)} meters | Coordinates: ${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+                        `Elevation: ${elevation.toFixed(1)} meters${featureInfo} | Coordinates: ${lat.toFixed(6)}, ${lon.toFixed(6)}`;
                     
                     // Show tooltip at click position
                     tooltip.style.display = 'block';
-                    tooltip.textContent = `${elevation.toFixed(1)}m`;
+                    tooltip.textContent = `${elevation.toFixed(1)}m${featureInfo}`;
                     tooltip.style.left = `${e.clientX + 10}px`;
                     tooltip.style.top = `${e.clientY + 10}px`;
                     
@@ -409,8 +667,20 @@
                     const elevation = currentElevationGrid[y][x];
                     
                     if (elevation !== 0) {
+                        // Check for OSM features
+                        let featureInfo = "";
+                        const osmGrid = createOSMFeatureGrid();
+                        if (osmGrid[y] && osmGrid[y][x]) {
+                            const feature = osmGrid[y][x];
+                            if (feature.type === 'road') featureInfo = " (Road)";
+                            else if (feature.type === 'building') featureInfo = " (Building)";
+                            else if (feature.type === 'park') featureInfo = " (Park)";
+                            else if (feature.type === 'water') featureInfo = " (Water)";
+                            else if (feature.type === 'forest') featureInfo = " (Forest)";
+                        }
+                        
                         tooltip.style.display = 'block';
-                        tooltip.textContent = `${elevation.toFixed(1)}m`;
+                        tooltip.textContent = `${elevation.toFixed(1)}m${featureInfo}`;
                         tooltip.style.left = `${e.clientX + 10}px`;
                         tooltip.style.top = `${e.clientY + 10}px`;
                     } else {
@@ -447,10 +717,10 @@
                 const country = data.address?.country || "Unknown";
                 
                 document.getElementById('location-info').textContent = 
-                    `${city}, ${country} | Using: ${currentDataSource.name}`;
+                    `${city}, ${country} | Using: ${currentDataSource.name} + OSM`;
             } catch (e) {
                 document.getElementById('location-info').textContent = 
-                    `Using: ${currentDataSource.name}`;
+                    `Using: ${currentDataSource.name} + OSM`;
             }
         }
 
