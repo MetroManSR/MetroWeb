@@ -1,3 +1,12 @@
+async function handleGenerate() {
+    try {
+        await getElevations();
+    } catch (error) {
+        console.error("Error:", error);
+        document.getElementById('terrainOutput').value = "Error generating terrain map";
+    }
+}
+
 async function getElevations() {
     const latInput = document.getElementById('latitude').value;
     const lonInput = document.getElementById('longitude').value;
