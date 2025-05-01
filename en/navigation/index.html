@@ -168,7 +168,7 @@
             
             try {
                 // Clear previous scene
-                scene.getMeshes().forEach(mesh => mesh.dispose());
+                scene.meshes.forEach(mesh => mesh.dispose());
                 
                 // Create new terrain
                 await createTerrain(currentLat, currentLon);
