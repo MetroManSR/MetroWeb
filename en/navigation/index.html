@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Simple ASCII Map</title>
+    <title>Fixed ASCII Map with OSM</title>
     <style>
         body {
             font-family: 'Courier New', monospace;
@@ -89,9 +89,7 @@
         .water { color: #5af; }
         .park { color: #5c5; }
         .forest { color: #3a5; }
-        .elev-low { color: #5af; }
-        .elev-med { color: #8cf; }
-        .elev-high { color: #ba9; }
+        .ground { color: #ba9; }
         .loading {
             display: flex;
             justify-content: center;
@@ -102,7 +100,7 @@
     </style>
 </head>
 <body>
-    <h1>Simple ASCII Map</h1>
+    <h1>Fixed ASCII Map with OSM</h1>
     
     <div class="control-panel">
         <div class="input-group">
@@ -153,7 +151,7 @@
     </div>
 
     <script>
-        // ================ SIMPLE CONFIGURATION ================
+        // ================ CONFIGURATION ================
         const MAP_SIZE = 100; // 100x100 grid
         
         // ================ STATE ================
@@ -161,28 +159,29 @@
         let currentLon = -74.0060;
         let currentZoom = 100; // Meters per cell
         let currentMove = 1000; // Meters to move
-        
+        let mapData = null;
+
         // ================ MAP FUNCTIONS ================
         async function loadMap() {
             document.getElementById('map').className = 'loading';
             document.getElementById('map').innerHTML = 'Loading map data...';
             
             try {
-                // Calculate how many degrees to show based on zoom
+                // Calculate the area to load
                 const metersPerDegree = 111320;
                 const latSpan = (currentZoom * MAP_SIZE) / metersPerDegree;
                 const lonSpan = (currentZoom * MAP_SIZE) / (metersPerDegree * Math.cos(currentLat * Math.PI/180));
                 
-                // Get OSM data for the visible area
-                const osmData = await getOSMData(
+                // Get OSM data
+                mapData = await getOSMData(
                     currentLat - latSpan/2,
                     currentLon - lonSpan/2,
                     currentLat + latSpan/2,
                     currentLon + lonSpan/2
                 );
                 
-                // Generate ASCII map
-                renderMap(osmData);
+                // Render the map
+                renderMap();
                 
                 // Update location info
                 updateLocationInfo();
@@ -204,6 +203,9 @@
                     way[natural=water](${bbox});
                     way[leisure=park](${bbox});
                     way[landuse=forest](${bbox});
+                    relation[building](${bbox});
+                    relation[waterway](${bbox});
+                    relation[natural=water](${bbox});
                 );
                 out geom;
             `;
@@ -212,73 +214,79 @@
             return await response.json();
         }
         
-        function renderMap(osmData) {
-            let map = '';
-            const centerX = MAP_SIZE/2;
-            const centerY = MAP_SIZE/2;
+        function renderMap() {
+            if (!mapData) return;
             
-            // First pass: Draw elevation background
-            for (let y = 0; y < MAP_SIZE; y++) {
-                for (let x = 0; x < MAP_SIZE; x++) {
-                    // Simple elevation simulation (would use real data in production)
-                    const distToCenter = Math.sqrt(Math.pow(x-centerX, 2) + Math.pow(y-centerY, 2));
-                    const elev = 100 - (distToCenter * 2);
-                    
-                    if (elev < 10) {
-                        map += `<span class="elev-low">~</span>`;
-                    } else if (elev < 50) {
-                        map += `<span class="elev-med">.</span>`;
-                    } else {
-                        map += `<span class="elev-high">^</span>`;
-                    }
-                }
-                map += '\n';
-            }
+            // Create empty map grid
+            let mapGrid = Array(MAP_SIZE).fill().map(() => Array(MAP_SIZE).fill({type: 'ground', char: '.'}));
             
-            // Second pass: Draw OSM features
-            osmData.elements.forEach(feature => {
+            // Process all OSM features
+            mapData.elements.forEach(feature => {
                 if (!feature.geometry) return;
                 
-                // Convert OSM coordinates to our grid
+                // Convert coordinates to our grid
+                const metersPerDegree = 111320;
                 const points = feature.geometry.map(coord => {
-                    const x = centerX + (coord.lon - currentLon) * (111320 * Math.cos(currentLat * Math.PI/180)) / currentZoom;
-                    const y = centerY - (coord.lat - currentLat) * 111320 / currentZoom;
-                    return { x, y };
-                });
+                    const x = Math.round(MAP_SIZE/2 + (coord.lon - currentLon) * 
+                              (metersPerDegree * Math.cos(currentLat * Math.PI/180)) / currentZoom);
+                    const y = Math.round(MAP_SIZE/2 - (coord.lat - currentLat) * metersPerDegree / currentZoom);
+                    return {x, y};
+                }).filter(p => p.x >= 0 && p.x < MAP_SIZE && p.y >= 0 && p.y < MAP_SIZE);
                 
-                // Draw lines for roads/paths
-                if (feature.tags?.highway) {
-                    for (let i = 0; i < points.length-1; i++) {
-                        drawLine(map, points[i], points[i+1], 
-                                feature.tags.highway === 'motorway' ? 'major-road' : 'road');
-                    }
-                }
+                if (points.length === 0) return;
                 
-                // Draw buildings
+                // Determine feature type
+                let featureType = 'ground';
+                let char = '.';
+                
                 if (feature.tags?.building) {
-                    drawPolygon(map, points, 'building');
+                    featureType = 'building';
+                    char = '#';
+                } 
+                else if (feature.tags?.highway) {
+                    featureType = feature.tags.highway === 'motorway' ? 'major-road' : 'road';
+                    char = featureType === 'major-road' ? '=' : '-';
+                }
+                else if (feature.tags?.waterway || feature.tags?.natural === 'water') {
+                    featureType = 'water';
+                    char = '~';
+                }
+                else if (feature.tags?.leisure === 'park') {
+                    featureType = 'park';
+                    char = 'P';
+                }
+                else if (feature.tags?.landuse === 'forest' || feature.tags?.natural === 'wood') {
+                    featureType = 'forest';
+                    char = 'F';
                 }
                 
-                // Draw water
-                if (feature.tags?.waterway || feature.tags?.natural === 'water') {
-                    drawPolygon(map, points, 'water');
-                }
-                
-                // Draw parks/forests
-                if (feature.tags?.leisure === 'park') {
-                    drawPolygon(map, points, 'park');
-                }
-                if (feature.tags?.landuse === 'forest' || feature.tags?.natural === 'wood') {
-                    drawPolygon(map, points, 'forest');
+                // Draw lines for linear features
+                if (feature.tags?.highway || feature.tags?.waterway) {
+                    for (let i = 0; i < points.length-1; i++) {
+                        drawLineOnGrid(mapGrid, points[i], points[i+1], {type: featureType, char});
+                    }
+                } 
+                // Draw polygons for area features
+                else {
+                    drawPolygonOnGrid(mapGrid, points, {type: featureType, char});
                 }
             });
             
-            document.getElementById('map').innerHTML = map;
+            // Convert grid to ASCII string
+            let mapString = '';
+            for (let y = 0; y < MAP_SIZE; y++) {
+                for (let x = 0; x < MAP_SIZE; x++) {
+                    const cell = mapGrid[y][x];
+                    mapString += `<span class="${cell.type}">${cell.char}</span>`;
+                }
+                mapString += '\n';
+            }
+            
+            document.getElementById('map').innerHTML = mapString;
             document.getElementById('map').className = '';
         }
         
-        function drawLine(map, from, to, className) {
-            // Simple line drawing (Bresenham's algorithm)
+        function drawLineOnGrid(grid, from, to, feature) {
             let x0 = Math.round(from.x);
             let y0 = Math.round(from.y);
             const x1 = Math.round(to.x);
@@ -292,10 +300,11 @@
             
             while (true) {
                 if (x0 >= 0 && x0 < MAP_SIZE && y0 >= 0 && y0 < MAP_SIZE) {
-                    const pos = y0 * (MAP_SIZE + 1) + x0;
-                    map = map.substring(0, pos) + 
-                          `<span class="${className}">#</span>` + 
-                          map.substring(pos + 1);
+                    // Only overwrite if not a more important feature
+                    if (grid[y0][x0].type === 'ground' || 
+                        (grid[y0][x0].type === 'road' && feature.type === 'major-road')) {
+                        grid[y0][x0] = feature;
+                    }
                 }
                 
                 if (x0 === x1 && y0 === y1) break;
@@ -305,34 +314,41 @@
             }
         }
         
-        function drawPolygon(map, points, className) {
+        function drawPolygonOnGrid(grid, points, feature) {
             if (points.length < 3) return;
             
             // Draw outline
             for (let i = 0; i < points.length; i++) {
                 const from = points[i];
                 const to = points[(i+1)%points.length];
-                drawLine(map, from, to, className);
+                drawLineOnGrid(grid, from, to, feature);
             }
             
-            // Simple fill (would use scanline in production)
-            const center = points.reduce((acc, p) => {
-                acc.x += p.x;
-                acc.y += p.y;
-                return acc;
-            }, {x:0, y:0});
-            center.x /= points.length;
-            center.y /= points.length;
+            // Simple fill - scanline algorithm
+            const minY = Math.max(0, Math.min(...points.map(p => p.y)));
+            const maxY = Math.min(MAP_SIZE-1, Math.max(...points.map(p => p.y)));
             
-            for (let r = 1; r < 5; r++) {
-                for (let a = 0; a < Math.PI*2; a += 0.1) {
-                    const x = Math.round(center.x + Math.cos(a)*r);
-                    const y = Math.round(center.y + Math.sin(a)*r);
-                    if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
-                        const pos = y * (MAP_SIZE + 1) + x;
-                        map = map.substring(0, pos) + 
-                              `<span class="${className}">#</span>` + 
-                              map.substring(pos + 1);
+            for (let y = minY; y <= maxY; y++) {
+                const intersections = [];
+                for (let i = 0; i < points.length; i++) {
+                    const p1 = points[i];
+                    const p2 = points[(i+1)%points.length];
+                    
+                    if ((p1.y <= y && p2.y > y) || (p2.y <= y && p1.y > y)) {
+                        const x = p1.x + (p2.x - p1.x) * (y - p1.y) / (p2.y - p1.y);
+                        intersections.push(x);
+                    }
+                }
+                
+                intersections.sort((a,b) => a - b);
+                for (let i = 0; i < intersections.length; i += 2) {
+                    const startX = Math.max(0, Math.floor(intersections[i]));
+                    const endX = Math.min(MAP_SIZE-1, Math.ceil(intersections[i+1] || intersections[i]));
+                    
+                    for (let x = startX; x <= endX; x++) {
+                        if (grid[y][x].type === 'ground') {
+                            grid[y][x] = feature;
+                        }
                     }
                 }
             }
