@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Fixed ASCII Map with OSM</title>
+    <title>Clear ASCII Map with OSM</title>
     <style>
         body {
             font-family: 'Courier New', monospace;
@@ -20,8 +20,8 @@
             max-width: 1000px;
         }
         #map {
-            font-size: 8px;
-            line-height: 8px;
+            font-size: 10px;
+            line-height: 10px;
             letter-spacing: 1px;
             white-space: pre;
             overflow: auto;
@@ -82,14 +82,14 @@
             margin: 10px auto;
             max-width: 800px;
         }
-        /* Map Colors */
-        .building { color: #f88; }
-        .road { color: #fd5; }
-        .major-road { color: #fa0; }
-        .water { color: #5af; }
-        .park { color: #5c5; }
-        .forest { color: #3a5; }
-        .ground { color: #ba9; }
+        /* Map Colors - Now More Visible */
+        .building { color: #f88; font-weight: bold; }  /* Red buildings */
+        .road { color: #fd5; }                        /* Yellow roads */
+        .major-road { color: #fa0; font-weight: bold;} /* Orange major roads */
+        .water { color: #5af; }                       /* Blue water */
+        .park { color: #5c5; }                        /* Green parks */
+        .forest { color: #3a5; }                      /* Dark green forests */
+        .ground { color: #ba9; }                      /* Tan ground */
         .loading {
             display: flex;
             justify-content: center;
@@ -100,7 +100,7 @@
     </style>
 </head>
 <body>
-    <h1>Fixed ASCII Map with OSM</h1>
+    <h1>Clear ASCII Map with OSM Features</h1>
     
     <div class="control-panel">
         <div class="input-group">
@@ -114,7 +114,6 @@
                 <option value="500">500m</option>
                 <option value="1000" selected>1km</option>
                 <option value="2000">2km</option>
-                <option value="5000">5km</option>
             </select>
             
             <span>Zoom:</span>
@@ -127,9 +126,9 @@
     </div>
     
     <div class="info-panel">
-        <div>Location: <span id="location-info">Loading...</span></div>
+        <div>Location: <span id="location-info">New York, US</span></div>
         <div>Coordinates: <span id="coords">40.7128, -74.0060</span></div>
-        <div>Click map for details: <span id="elevation-info">-</span></div>
+        <div>Click map: <span id="elevation-info">-</span></div>
     </div>
     
     <div class="controls">
@@ -137,7 +136,7 @@
         <button id="moveNorth">↑ North</button>
         <div></div>
         <button id="moveWest">← West</button>
-        <button id="recenter">Reset View</button>
+        <button id="recenter">Reset</button>
         <button id="moveEast">East →</button>
         <div></div>
         <button id="moveSouth">↓ South</button>
@@ -153,6 +152,15 @@
     <script>
         // ================ CONFIGURATION ================
         const MAP_SIZE = 100; // 100x100 grid
+        const FEATURE_CHARS = {
+            'building': '#',
+            'major-road': '=',
+            'road': '-',
+            'water': '~',
+            'park': 'P',
+            'forest': 'F',
+            'ground': '.'
+        };
         
         // ================ STATE ================
         let currentLat = 40.7128; // New York
@@ -164,7 +172,7 @@
         // ================ MAP FUNCTIONS ================
         async function loadMap() {
             document.getElementById('map').className = 'loading';
-            document.getElementById('map').innerHTML = 'Loading map data...';
+            document.getElementById('map').innerHTML = 'Loading OSM data...';
             
             try {
                 // Calculate the area to load
@@ -182,12 +190,10 @@
                 
                 // Render the map
                 renderMap();
-                
-                // Update location info
                 updateLocationInfo();
                 
             } catch (error) {
-                document.getElementById('map').innerHTML = 'Error loading map';
+                document.getElementById('map').innerHTML = 'Error loading map data';
                 console.error(error);
             }
         }
@@ -203,9 +209,6 @@
                     way[natural=water](${bbox});
                     way[leisure=park](${bbox});
                     way[landuse=forest](${bbox});
-                    relation[building](${bbox});
-                    relation[waterway](${bbox});
-                    relation[natural=water](${bbox});
                 );
                 out geom;
             `;
@@ -217,8 +220,10 @@
         function renderMap() {
             if (!mapData) return;
             
-            // Create empty map grid
-            let mapGrid = Array(MAP_SIZE).fill().map(() => Array(MAP_SIZE).fill({type: 'ground', char: '.'}));
+            // Create empty map grid filled with ground
+            let mapGrid = Array(MAP_SIZE).fill().map(() => 
+                Array(MAP_SIZE).fill({type: 'ground', char: FEATURE_CHARS.ground})
+            );
             
             // Process all OSM features
             mapData.elements.forEach(feature => {
@@ -235,40 +240,41 @@
                 
                 if (points.length === 0) return;
                 
-                // Determine feature type
+                // Determine feature type and character
                 let featureType = 'ground';
-                let char = '.';
+                let char = FEATURE_CHARS.ground;
                 
                 if (feature.tags?.building) {
                     featureType = 'building';
-                    char = '#';
+                    char = FEATURE_CHARS.building;
                 } 
                 else if (feature.tags?.highway) {
-                    featureType = feature.tags.highway === 'motorway' ? 'major-road' : 'road';
-                    char = featureType === 'major-road' ? '=' : '-';
+                    featureType = ['motorway', 'trunk', 'primary'].includes(feature.tags.highway) 
+                        ? 'major-road' : 'road';
+                    char = FEATURE_CHARS[featureType];
                 }
                 else if (feature.tags?.waterway || feature.tags?.natural === 'water') {
                     featureType = 'water';
-                    char = '~';
+                    char = FEATURE_CHARS.water;
                 }
                 else if (feature.tags?.leisure === 'park') {
                     featureType = 'park';
-                    char = 'P';
+                    char = FEATURE_CHARS.park;
                 }
                 else if (feature.tags?.landuse === 'forest' || feature.tags?.natural === 'wood') {
                     featureType = 'forest';
-                    char = 'F';
+                    char = FEATURE_CHARS.forest;
                 }
                 
-                // Draw lines for linear features
+                // Draw lines for linear features (roads, waterways)
                 if (feature.tags?.highway || feature.tags?.waterway) {
                     for (let i = 0; i < points.length-1; i++) {
-                        drawLineOnGrid(mapGrid, points[i], points[i+1], {type: featureType, char});
+                        drawLine(mapGrid, points[i], points[i+1], {type: featureType, char});
                     }
                 } 
-                // Draw polygons for area features
+                // Draw polygons for area features (buildings, water, parks)
                 else {
-                    drawPolygonOnGrid(mapGrid, points, {type: featureType, char});
+                    drawPolygon(mapGrid, points, {type: featureType, char});
                 }
             });
             
@@ -286,11 +292,10 @@
             document.getElementById('map').className = '';
         }
         
-        function drawLineOnGrid(grid, from, to, feature) {
-            let x0 = Math.round(from.x);
-            let y0 = Math.round(from.y);
-            const x1 = Math.round(to.x);
-            const y1 = Math.round(to.y);
+        // Simple line drawing between two points
+        function drawLine(grid, from, to, feature) {
+            let x0 = from.x, y0 = from.y;
+            const x1 = to.x, y1 = to.y;
             
             const dx = Math.abs(x1 - x0);
             const dy = Math.abs(y1 - y0);
@@ -301,8 +306,9 @@
             while (true) {
                 if (x0 >= 0 && x0 < MAP_SIZE && y0 >= 0 && y0 < MAP_SIZE) {
                     // Only overwrite if not a more important feature
-                    if (grid[y0][x0].type === 'ground' || 
-                        (grid[y0][x0].type === 'road' && feature.type === 'major-road')) {
+                    const current = grid[y0][x0];
+                    if (current.type === 'ground' || 
+                        (current.type === 'road' && feature.type === 'major-road')) {
                         grid[y0][x0] = feature;
                     }
                 }
@@ -314,20 +320,20 @@
             }
         }
         
-        function drawPolygonOnGrid(grid, points, feature) {
+        // Simple polygon filling
+        function drawPolygon(grid, points, feature) {
             if (points.length < 3) return;
             
             // Draw outline
             for (let i = 0; i < points.length; i++) {
-                const from = points[i];
-                const to = points[(i+1)%points.length];
-                drawLineOnGrid(grid, from, to, feature);
+                drawLine(grid, points[i], points[(i+1)%points.length], feature);
             }
             
-            // Simple fill - scanline algorithm
+            // Find bounding box
             const minY = Math.max(0, Math.min(...points.map(p => p.y)));
             const maxY = Math.min(MAP_SIZE-1, Math.max(...points.map(p => p.y)));
             
+            // Simple fill - scan horizontal lines
             for (let y = minY; y <= maxY; y++) {
                 const intersections = [];
                 for (let i = 0; i < points.length; i++) {
