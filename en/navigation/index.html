@@ -119,7 +119,7 @@
 
         // ================ LOAD AND RENDER ================
         function loadMap() {
-            scene.clear();
+            scene.dispose();
             const { elevationData, roads, buildings } = generateMockData();
             
             // Create terrain
