@@ -1,576 +1,164 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Advanced ASCII Terrain Map with OSM Features</title>
+    <title>3D Terrain Map with Babylon.js</title>
     <style>
-        body {
-            font-family: 'Courier New', monospace;
-            background: #121212;
-            color: #e0e0e0;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
+        body { margin: 0; overflow: hidden; font-family: Arial; }
+        #renderCanvas { width: 100%; height: 100%; touch-action: none; }
+        #controls {
+            position: absolute; top: 10px; left: 10px;
+            background: rgba(0,0,0,0.7); padding: 10px; color: white;
+            border-radius: 5px;
         }
-        #map-container {
-            background: #1e1e1e;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            margin: 0 auto 20px;
-            max-width: 1000px;
-        }
-        #map {
-            font-size: 10px;
-            line-height: 10px;
-            letter-spacing: 1px;
-            white-space: pre;
-            overflow: auto;
-            max-height: 600px;
-            padding: 10px;
-            background: #222;
-            border-radius: 4px;
-            cursor: crosshair;
-            margin: 0 auto;
-        }
-        .control-panel {
-            background: #252525;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            justify-content: center;
-            align-items: center;
-        }
-        input, select {
-            background: #252525;
-            color: white;
-            border: 1px solid #444;
-            padding: 8px;
-            border-radius: 4px;
-            min-width: 120px;
-        }
-        button {
-            background: #333;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: inherit;
-        }
-        .info-panel {
-            font-family: monospace;
-            background: #252525;
-            padding: 10px;
-            border-radius: 4px;
-            margin: 10px auto;
-            max-width: 800px;
-        }
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin: 20px auto;
-            max-width: 800px;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 5px;
-        }
-        .legend-color {
-            width: 15px;
-            height: 15px;
-            margin-right: 8px;
-            border-radius: 3px;
-        }
-        /* Elevation Color Classes (6 levels) */
-        .elev-0 { color: #5af; }  /* Water/Lowest: 0-100m */
-        .elev-1 { color: #8cf; }  /* Low: 100-200m */
-        .elev-2 { color: #acf; }  /* Medium-Low: 200-300m */
-        .elev-3 { color: #ba9; }  /* Medium: 300-400m */
-        .elev-4 { color: #cb9; }  /* Medium-High: 400-500m */
-        .elev-5 { color: #dc9; }  /* High: 500m+ */
-        /* OSM Feature Classes */
-        .road { color: #fd5; }
-        .major-road { color: #fa0; font-weight: bold; }
-        .building { color: #f88; font-weight: bold; }
-        .water { color: #5af; }
-        .park { color: #5c5; }
-        .forest { color: #3a5; }
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 300px;
-            flex-direction: column;
-        }
+        button { margin: 5px; }
     </style>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
 </head>
 <body>
-    <h1>Advanced ASCII Terrain Map with OSM Features</h1>
-    
-    <div class="control-panel">
-        <div class="input-group">
-            <input type="text" id="addressInput" placeholder="Search address">
-            <button id="searchAddress">Search</button>
-        </div>
-        
-        <div class="input-group">
-            <span>Move:</span>
-            <select id="moveDistance">
-                <option value="500">500m</option>
-                <option value="1000" selected>1km</option>
-                <option value="2000">2km</option>
-                <option value="5000">5km</option>
-            </select>
-            
-            <span>Zoom:</span>
-            <select id="zoomLevel">
-                <option value="200">Far (200m/cell)</option>
-                <option value="100" selected>Normal (100m/cell)</option>
-                <option value="50">Close (50m/cell)</option>
-            </select>
-        </div>
-    </div>
-    
-    <div class="info-panel">
-        <div>Location: <span id="location-info">Loading...</span></div>
+    <div id="controls">
+        <input type="text" id="addressInput" placeholder="Search address">
+        <button id="searchAddress">Search</button>
         <div>Coordinates: <span id="coords">-33.4550, -70.6600</span></div>
-        <div>Elevation: <span id="elevation-info">-</span></div>
     </div>
-    
-    <div class="legend">
-        <div class="legend-item"><div class="legend-color" style="background: #5af;"></div>Water (0-100m)</div>
-        <div class="legend-item"><div class="legend-color" style="background: #8cf;"></div>Low (100-200m)</div>
-        <div class="legend-item"><div class="legend-color" style="background: #acf;"></div>Medium-Low (200-300m)</div>
-        <div class="legend-item"><div class="legend-color" style="background: #ba9;"></div>Medium (300-400m)</div>
-        <div class="legend-item"><div class="legend-color" style="background: #cb9;"></div>Medium-High (400-500m)</div>
-        <div class="legend-item"><div class="legend-color" style="background: #dc9;"></div>High (500m+)</div>
-        <div class="legend-item"><div class="legend-color" style="background: #fd5;"></div>Roads</div>
-        <div class="legend-item"><div class="legend-color" style="background: #fa0;"></div>Major Roads</div>
-        <div class="legend-item"><div class="legend-color" style="background: #f88;"></div>Buildings</div>
-    </div>
-    
-    <div class="controls">
-        <div></div>
-        <button id="moveNorth">↑ North</button>
-        <div></div>
-        <button id="moveWest">← West</button>
-        <button id="recenter">Reset View</button>
-        <button id="moveEast">East →</button>
-        <div></div>
-        <button id="moveSouth">↓ South</button>
-        <div></div>
-    </div>
-    
-    <div id="map-container">
-        <div id="map" class="loading">
-            Loading terrain data...
-        </div>
-    </div>
+    <canvas id="renderCanvas"></canvas>
 
     <script>
-        // ================ CONFIGURATION ================
-        const MAP_SIZE = 100; // 100x100 grid
-        const ELEVATION_RANGES = [100, 200, 300, 400, 500]; // 6 levels (0-100, 100-200, etc.)
-        const TERRAIN_CHAR = '•'; // Using bullet character for better visibility
-        
-        // ================ STATE ================
-        let currentLat = -33.4550; // Los Héroes, Santiago
-        let currentLon = -70.6600;
-        let currentZoom = 100; // meters per cell
-        let currentMove = 1000; // meters to move
-        let elevationData = [];
-        let osmFeatures = [];
+        // ================ INITIALIZE BABYLON ================
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+        const scene = new BABYLON.Scene(engine);
+        scene.clearColor = new BABYLON.Color4(0.1, 0.1, 0.2, 1);
 
-        // ================ MAP FUNCTIONS ================
-        async function loadMap() {
-            document.getElementById('map').className = 'loading';
-            document.getElementById('map').innerHTML = 'Loading terrain data...';
-            
-            try {
-                // Generate elevation data (in production, use real API)
-                await generateElevationData();
-                
-                // Load OSM features (in production, use Overpass API)
-                await loadOSMFeatures();
-                
-                // Render the map
-                renderMap();
-                updateLocationInfo();
-                
-            } catch (error) {
-                document.getElementById('map').innerHTML = 'Error loading map data';
-                console.error(error);
-            }
-        }
-        
-        async function generateElevationData() {
-            // Simulated elevation data - creates realistic terrain patterns
-            elevationData = [];
-            const centerX = MAP_SIZE/2;
-            const centerY = MAP_SIZE/2;
-            
-            // Generate base elevation with Perlin-like noise
-            for (let y = 0; y < MAP_SIZE; y++) {
-                elevationData[y] = [];
-                for (let x = 0; x < MAP_SIZE; x++) {
-                    // Distance from center affects base elevation
-                    const distToCenter = Math.sqrt(
-                        Math.pow(x-centerX, 2) + Math.pow(y-centerY, 2)
-                    );
-                    
-                    // Generate elevation with multiple noise layers
-                    const baseElev = 300; // Base elevation in meters
-                    const largeFeatures = 150 * Math.sin(x/20) * Math.cos(y/25);
-                    const mediumFeatures = 80 * Math.sin(x/5) * Math.cos(y/7);
-                    const smallFeatures = 30 * (Math.random() - 0.5);
-                    
-                    // Combine all features
-                    let elevation = baseElev + largeFeatures + mediumFeatures + smallFeatures;
-                    
-                    // Create a river valley
-                    const riverEffect = 100 * Math.exp(-Math.pow((x-50)/15, 2));
-                    elevation -= riverEffect;
-                    
-                    // Ensure elevation doesn't go below sea level
-                    elevation = Math.max(0, elevation);
-                    
-                    elevationData[y][x] = elevation;
-                }
-            }
-        }
-        
-        async function loadOSMFeatures() {
-            // Simulated OSM data - in production use Overpass API
-            osmFeatures = [
-                // Major road (EW)
-                {
-                    type: 'major-road',
-                    coords: generateStraightPath(10, 50, 90, 50)
-                },
-                // Major road (NS)
-                {
-                    type: 'major-road',
-                    coords: generateStraightPath(50, 10, 50, 90)
-                },
-                // Smaller roads
-                {
-                    type: 'road',
-                    coords: generateCurvedPath(20, 30, 80, 70)
-                },
-                {
-                    type: 'road',
-                    coords: generateStraightPath(30, 20, 70, 80)
-                },
-                // Buildings
-                {
-                    type: 'building',
-                    coords: generateRectangle(35, 35, 10, 15)
-                },
-                {
-                    type: 'building',
-                    coords: generateRectangle(60, 60, 12, 12)
-                },
-                {
-                    type: 'building',
-                    coords: generateRectangle(25, 65, 8, 20)
-                },
-                // Water (river)
-                {
-                    type: 'water',
-                    coords: generateRiver()
-                },
-                // Park
-                {
-                    type: 'park',
-                    coords: generateRectangle(70, 20, 25, 25)
-                }
-            ];
-            
-            // Helper functions for generating shapes
-            function generateStraightPath(x1, y1, x2, y2) {
-                const points = [];
-                const steps = Math.max(Math.abs(x2-x1), Math.abs(y2-y1));
-                for (let i = 0; i <= steps; i++) {
-                    const t = i/steps;
-                    points.push({
-                        x: Math.round(x1 + t*(x2-x1)),
-                        y: Math.round(y1 + t*(y2-y1))
-                    });
-                }
-                return points;
-            }
-            
-            function generateCurvedPath(x1, y1, x2, y2) {
-                const points = [];
-                const steps = 30;
-                const ctrlX = (x1 + x2)/2 + (Math.random() * 20 - 10);
-                const ctrlY = (y1 + y2)/2 + (Math.random() * 20 - 10);
-                
-                for (let i = 0; i <= steps; i++) {
-                    const t = i/steps;
-                    // Quadratic Bezier curve
-                    const x = Math.pow(1-t, 2)*x1 + 2*(1-t)*t*ctrlX + Math.pow(t, 2)*x2;
-                    const y = Math.pow(1-t, 2)*y1 + 2*(1-t)*t*ctrlY + Math.pow(t, 2)*y2;
-                    points.push({
-                        x: Math.round(x),
-                        y: Math.round(y)
-                    });
-                }
-                return points;
-            }
-            
-            function generateRectangle(x, y, width, height) {
-                return [
-                    {x, y},
-                    {x: x+width, y},
-                    {x: x+width, y: y+height},
-                    {x, y: y+height}
-                ];
-            }
-            
-            function generateRiver() {
-                const points = [];
-                for (let x = 0; x <= MAP_SIZE; x += 5) {
-                    const y = 50 + 15 * Math.sin(x/15);
-                    points.push({x, y: Math.round(y)});
-                }
-                // Add some width to the river
-                const riverWithWidth = [];
-                points.forEach(point => {
-                    for (let dy = -2; dy <= 2; dy++) {
-                        riverWithWidth.push({
-                            x: point.x,
-                            y: point.y + dy
-                        });
-                    }
-                });
-                return riverWithWidth;
-            }
-        }
-        
-        function renderMap() {
-            // Create empty grid
-            const grid = Array(MAP_SIZE).fill().map(() => 
-                Array(MAP_SIZE).fill({type: 'elevation', elevation: 0})
+        // Camera
+        const camera = new BABYLON.ArcRotateCamera(
+            "camera", 
+            -Math.PI / 2, Math.PI / 4, 50, 
+            new BABYLON.Vector3(0, 0, 0), 
+            scene
+        );
+        camera.attachControl(canvas, true);
+        camera.upperBetaLimit = Math.PI / 2.2; // Prevent flipping
+        camera.lowerRadiusLimit = 10;
+        camera.upperRadiusLimit = 200;
+
+        // Light
+        const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+        light.intensity = 0.8;
+
+        // ================ TERRAIN GENERATION ================
+        function createTerrain(elevationData) {
+            const size = 100; // Grid size
+            const terrain = new BABYLON.MeshBuilder.CreateGround(
+                "terrain", 
+                { width: size, height: size, subdivisions: size - 1 }, 
+                scene
             );
-            
-            // Apply elevation data
-            for (let y = 0; y < MAP_SIZE; y++) {
-                for (let x = 0; x < MAP_SIZE; x++) {
-                    grid[y][x] = {
-                        type: 'elevation',
-                        elevation: elevationData[y][x],
-                        char: TERRAIN_CHAR
-                    };
-                }
+
+            // Apply elevation (heightmap)
+            const vertexData = BABYLON.VertexData.ExtractFromMesh(terrain);
+            for (let i = 0; i < vertexData.positions.length; i += 3) {
+                const x = Math.round(vertexData.positions[i] + size/2);
+                const z = Math.round(vertexData.positions[i+2] + size/2);
+                vertexData.positions[i+1] = elevationData[z][x] / 50; // Scale down height
             }
-            
-            // Draw OSM features
-            osmFeatures.forEach(feature => {
-                if (feature.type === 'road' || feature.type === 'major-road') {
-                    drawLine(grid, feature.coords, feature.type);
-                } else {
-                    drawPolygon(grid, feature.coords, feature.type);
-                }
-            });
-            
-            // Convert grid to HTML
-            let mapHTML = '';
-            for (let y = 0; y < MAP_SIZE; y++) {
-                for (let x = 0; x < MAP_SIZE; x++) {
-                    const cell = grid[y][x];
-                    let cssClass = '';
-                    
-                    if (cell.type === 'elevation') {
-                        cssClass = getElevationClass(cell.elevation);
-                    } else {
-                        cssClass = cell.type;
-                    }
-                    
-                    mapHTML += `<span class="${cssClass}">${cell.char}</span>`;
-                }
-                mapHTML += '\n';
-            }
-            
-            document.getElementById('map').innerHTML = mapHTML;
-            document.getElementById('map').className = '';
+            vertexData.applyToMesh(terrain);
+
+            // Material (color by elevation)
+            const terrainMat = new BABYLON.StandardMaterial("terrainMat", scene);
+            terrainMat.diffuseColor = new BABYLON.Color3(0.4, 0.6, 0.3);
+            terrain.material = terrainMat;
+            return terrain;
         }
-        
-        function getElevationClass(elevation) {
-            for (let i = 0; i < ELEVATION_RANGES.length; i++) {
-                if (elevation < ELEVATION_RANGES[i]) {
-                    return `elev-${i}`;
-                }
-            }
-            return `elev-${ELEVATION_RANGES.length}`;
+
+        // ================ OSM FEATURES ================
+        function createRoad(points, width = 0.3, isMajor = false) {
+            const road = BABYLON.MeshBuilder.CreateRibbon("road", {
+                pathArray: points.map(p => new BABYLON.Vector3(p.x - 50, 0.1, p.y - 50)),
+                closeArray: false,
+                sideOrientation: BABYLON.Mesh.DOUBLESIDE
+            }, scene);
+            road.scaling.y = width;
+            const mat = new BABYLON.StandardMaterial("roadMat", scene);
+            mat.diffuseColor = isMajor ? new BABYLON.Color3(1, 0.6, 0) : new BABYLON.Color3(1, 0.8, 0.3);
+            road.material = mat;
         }
-        
-        function drawLine(grid, points, featureType) {
-            for (let i = 0; i < points.length - 1; i++) {
-                const from = points[i];
-                const to = points[i+1];
-                drawBresenhamLine(grid, from, to, featureType);
-            }
+
+        function createBuilding(x, y, width, height, depth = 2) {
+            const building = BABYLON.MeshBuilder.CreateBox("building", {
+                width, height: depth, depth: height
+            }, scene);
+            building.position = new BABYLON.Vector3(x - 50, depth/2, y - 50);
+            const mat = new BABYLON.StandardMaterial("buildingMat", scene);
+            mat.diffuseColor = new BABYLON.Color3(0.9, 0.3, 0.3);
+            building.material = mat;
         }
-        
-        function drawPolygon(grid, points, featureType) {
-            // Draw outline
-            drawLine(grid, [...points, points[0]], featureType);
-            
-            // Simple fill algorithm
-            const minY = Math.max(0, Math.min(...points.map(p => p.y)));
-            const maxY = Math.min(MAP_SIZE-1, Math.max(...points.map(p => p.y)));
-            
-            for (let y = minY; y <= maxY; y++) {
-                const intersections = [];
-                for (let i = 0; i < points.length; i++) {
-                    const p1 = points[i];
-                    const p2 = points[(i+1)%points.length];
-                    
-                    if ((p1.y <= y && p2.y > y) || (p2.y <= y && p1.y > y)) {
-                        const x = p1.x + (p2.x - p1.x) * (y - p1.y) / (p2.y - p1.y);
-                        intersections.push(x);
-                    }
-                }
-                
-                intersections.sort((a,b) => a - b);
-                for (let i = 0; i < intersections.length; i += 2) {
-                    const startX = Math.max(0, Math.floor(intersections[i]));
-                    const endX = Math.min(MAP_SIZE-1, Math.ceil(intersections[i+1] || intersections[i]));
-                    
-                    for (let x = startX; x <= endX; x++) {
-                        // Don't overwrite more important features
-                        if (grid[y][x].type === 'elevation' || 
-                            (grid[y][x].type === 'road' && featureType === 'major-road')) {
-                            grid[y][x] = {
-                                type: featureType,
-                                char: TERRAIN_CHAR
-                            };
-                        }
-                    }
+
+        // ================ MOCK DATA (REPLACE WITH REAL API CALLS) ================
+        function generateMockData() {
+            // Elevation data (simulated)
+            const elevationData = [];
+            for (let z = 0; z < 100; z++) {
+                elevationData[z] = [];
+                for (let x = 0; x < 100; x++) {
+                    elevationData[z][x] = 20 * Math.sin(x/10) * Math.cos(z/10) + 30;
                 }
             }
+
+            // OSM features (simulated)
+            const roads = [
+                { points: [{x: 10, y: 50}, {x: 90, y: 50}], isMajor: true },
+                { points: [{x: 50, y: 10}, {x: 50, y: 90}], isMajor: true }
+            ];
+            const buildings = [
+                { x: 35, y: 35, w: 5, h: 8 },
+                { x: 60, y: 60, w: 6, h: 6 }
+            ];
+
+            return { elevationData, roads, buildings };
         }
-        
-        function drawBresenhamLine(grid, from, to, featureType) {
-            let x0 = Math.round(from.x);
-            let y0 = Math.round(from.y);
-            const x1 = Math.round(to.x);
-            const y1 = Math.round(to.y);
+
+        // ================ LOAD AND RENDER ================
+        function loadMap() {
+            scene.clear();
+            const { elevationData, roads, buildings } = generateMockData();
             
-            const dx = Math.abs(x1 - x0);
-            const dy = Math.abs(y1 - y0);
-            const sx = (x0 < x1) ? 1 : -1;
-            const sy = (y0 < y1) ? 1 : -1;
-            let err = dx - dy;
-            
-            while (true) {
-                if (x0 >= 0 && x0 < MAP_SIZE && y0 >= 0 && y0 < MAP_SIZE) {
-                    // Only overwrite if not a more important feature
-                    const current = grid[y0][x0];
-                    if (current.type === 'elevation' || 
-                        (current.type === 'road' && featureType === 'major-road')) {
-                        grid[y0][x0] = {
-                            type: featureType,
-                            char: TERRAIN_CHAR
-                        };
-                    }
-                }
-                
-                if (x0 === x1 && y0 === y1) break;
-                const e2 = 2 * err;
-                if (e2 > -dy) { err -= dy; x0 += sx; }
-                if (e2 < dx) { err += dx; y0 += sy; }
-            }
+            // Create terrain
+            createTerrain(elevationData);
+
+            // Add roads
+            roads.forEach(road => createRoad(road.points, 0.5, road.isMajor));
+
+            // Add buildings
+            buildings.forEach(b => createBuilding(b.x, b.y, b.w, b.h));
         }
 
         // ================ NAVIGATION ================
         function moveMap(dLat, dLon) {
-            const metersPerDegree = 111320;
-            currentLat += (dLat * currentMove) / metersPerDegree;
-            currentLon += (dLon * currentMove) / (metersPerDegree * Math.cos(currentLat * Math.PI/180));
+            // In a real app, fetch new terrain data for these coordinates
+            console.log(`Moving to ${dLat}, ${dLon}`);
             updateCoords();
-            loadMap();
         }
-        
-        function updateControls() {
-            currentMove = parseInt(document.getElementById('moveDistance').value);
-            currentZoom = parseInt(document.getElementById('zoomLevel').value);
-            loadMap();
-        }
-        
-        // ================ LOCATION SERVICES ================
-        async function searchAddress() {
-            const address = document.getElementById('addressInput').value.trim();
-            if (!address) return;
-            
-            try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
-                const results = await response.json();
-                
-                if (results.length > 0) {
-                    currentLat = parseFloat(results[0].lat);
-                    currentLon = parseFloat(results[0].lon);
-                    updateCoords();
-                    loadMap();
-                } else {
-                    alert("Location not found");
-                }
-            } catch (e) {
-                alert("Error searching for location");
-            }
-        }
-        
-        async function updateLocationInfo() {
-            try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${currentLat}&lon=${currentLon}&zoom=16`);
-                const data = await response.json();
-                const location = data.address?.city || data.address?.town || 
-                               data.address?.village || data.address?.country || "Unknown";
-                document.getElementById('location-info').textContent = location;
-            } catch (e) {
-                document.getElementById('location-info').textContent = "Unknown";
-            }
-        }
-        
+
         function updateCoords() {
             document.getElementById('coords').textContent = 
                 `${currentLat.toFixed(5)}, ${currentLon.toFixed(5)}`;
         }
-        
-        // ================ INITIALIZATION ================
-        document.getElementById('moveNorth').addEventListener('click', () => moveMap(1, 0));
-        document.getElementById('moveSouth').addEventListener('click', () => moveMap(-1, 0));
-        document.getElementById('moveWest').addEventListener('click', () => moveMap(0, -1));
-        document.getElementById('moveEast').addEventListener('click', () => moveMap(0, 1));
-        document.getElementById('recenter').addEventListener('click', () => {
-            currentLat = -33.4550;
-            currentLon = -70.6600;
-            updateCoords();
-            loadMap();
+
+        // ================ INITIALIZE ================
+        let currentLat = -33.4550;
+        let currentLon = -70.6600;
+
+        // UI Events
+        document.getElementById('searchAddress').addEventListener('click', () => {
+            alert("In a real app, this would geocode the address and update the map.");
         });
-        
-        document.getElementById('searchAddress').addEventListener('click', searchAddress);
-        document.getElementById('addressInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchAddress();
-        });
-        
-        document.getElementById('moveDistance').addEventListener('change', updateControls);
-        document.getElementById('zoomLevel').addEventListener('change', updateControls);
-        
-        // Initial load
+
+        // First load
         loadMap();
+
+        // Run the engine
+        engine.runRenderLoop(() => scene.render());
+        window.addEventListener('resize', () => engine.resize());
     </script>
 </body>
 </html>
