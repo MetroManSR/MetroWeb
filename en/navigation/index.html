@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>3D Terrain with OSM Data</title>
+    <title>3D Terrain with Real OSM Data</title>
     <style>
         body { margin: 0; overflow: hidden; font-family: Arial; }
         #renderCanvas { width: 100%; height: 100%; touch-action: none; }
@@ -51,56 +51,52 @@
             camera.upperRadiusLimit = 2000;
 
             // Light
-            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
-            light.intensity = 0.8;
+            new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene).intensity = 0.8;
 
             return { scene, engine, camera };
         };
 
-        // ================ TERRAIN ================
-        const createTerrain = (elevationData) => {
+        // ================ REAL ELEVATION DATA ================
+        const fetchRealElevation = async (lat, lon) => {
+            try {
+                const response = await fetch(
+                    `https://api.opentopodata.org/v1/ned?locations=${lat},${lon}`
+                );
+                const data = await response.json();
+                return data.results[0].elevation;
+            } catch (error) {
+                console.error("Elevation API Error:", error);
+                return 0;
+            }
+        };
+
+        // ================ TERRAIN GENERATION ================
+        const createTerrain = async (lat, lon) => {
             const subdivisions = 100;
-            const terrain = BABYLON.MeshBuilder.CreateGroundFromHeightMap(
+            const baseElevation = await fetchRealElevation(lat, lon);
+            
+            const terrain = BABYLON.MeshBuilder.CreateGround(
                 "terrain",
-                createHeightMapTexture(elevationData, subdivisions),
                 {
                     width: TERRAIN_SIZE,
                     height: TERRAIN_SIZE,
                     subdivisions,
-                    minHeight: 0,
-                    maxHeight: 100
+                    updatable: true
                 },
                 scene
             );
 
+            // Apply elevation
+            const positions = terrain.getVerticesData(BABYLON.VertexBuffer.PositionKind);
+            for (let i = 2; i < positions.length; i += 3) {
+                positions[i] = baseElevation + (Math.random() * 20); // Add minor variation
+            }
+            terrain.updateVerticesData(BABYLON.VertexBuffer.PositionKind, positions);
+
             // Material
             const terrainMat = new BABYLON.StandardMaterial("terrainMat", scene);
-            terrainMat.diffuseTexture = new BABYLON.Texture("https://assets.babylonjs.com/textures/grass.png", scene);
+            terrainMat.diffuseColor = new BABYLON.Color3(0.4, 0.6, 0.3);
             terrain.material = terrainMat;
-
-            return terrain;
-        };
-
-        const createHeightMapTexture = (data, size) => {
-            const canvas = document.createElement("canvas");
-            canvas.width = size;
-            canvas.height = size;
-            const ctx = canvas.getContext("2d");
-            const imageData = ctx.createImageData(size, size);
-
-            for (let y = 0; y < size; y++) {
-                for (let x = 0; x < size; x++) {
-                    const idx = (y * size + x) * 4;
-                    const elevation = data[y]?.[x] || 0;
-                    const val = Math.floor((elevation / 100) * 255);
-                    imageData.data[idx] = val;
-                    imageData.data[idx+1] = val;
-                    imageData.data[idx+2] = val;
-                    imageData.data[idx+3] = 255;
-                }
-            }
-            ctx.putImageData(imageData, 0, 0);
-            return canvas;
         };
 
         // ================ OSM RENDERING ================
@@ -111,7 +107,6 @@
                     way[~"highway"~"motorway|trunk|primary|secondary|tertiary|residential"]
                     (around:${radius},${lat},${lon});
                     way["building"](around:${radius},${lat},${lon});
-                );
                 out geom;`;
 
             try {
@@ -142,15 +137,12 @@
                 )
             );
 
-            const road = BABYLON.MeshBuilder.CreateTube("road", {
+            BABYLON.MeshBuilder.CreateTube("road", {
                 path: points,
                 radius: isMajor ? 5 : 3,
                 tessellation: 4
-            }, scene);
-
-            const mat = new BABYLON.StandardMaterial("roadMat", scene);
-            mat.diffuseColor = isMajor ? new BABYLON.Color3(0.9, 0.5, 0) : new BABYLON.Color3(0.8, 0.8, 0.6);
-            road.material = mat;
+            }, scene).material = new BABYLON.StandardMaterial("roadMat", scene)
+                .diffuseColor = isMajor ? new BABYLON.Color3(0.9, 0.5, 0) : new BABYLON.Color3(0.8, 0.8, 0.6);
         };
 
         const createBuilding = (geometry) => {
@@ -163,15 +155,11 @@
                 )
             );
 
-            const building = BABYLON.MeshBuilder.ExtrudePolygon("building", {
+            BABYLON.MeshBuilder.ExtrudePolygon("building", {
                 shape: polygon,
                 depth: baseHeight
-            }, scene);
-
-            building.position.y = baseHeight / 2;
-            const mat = new BABYLON.StandardMaterial("buildingMat", scene);
-            mat.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
-            building.material = mat;
+            }, scene).material = new BABYLON.StandardMaterial("buildingMat", scene)
+                .diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
         };
 
         // ================ MAIN LOGIC ================
@@ -179,12 +167,11 @@
             document.getElementById("loading").style.display = "block";
             
             try {
-                // Clear old scene
+                // Clear previous scene
                 scene.getMeshes().forEach(mesh => mesh.dispose());
                 
-                // Generate terrain (mock elevation)
-                const elevationData = generateMockElevation();
-                createTerrain(elevationData);
+                // Create new terrain
+                await createTerrain(currentLat, currentLon);
 
                 // Fetch and render OSM
                 const osmData = await fetchOSMData(currentLat, currentLon);
@@ -196,18 +183,6 @@
             } finally {
                 document.getElementById("loading").style.display = "none";
             }
-        };
-
-        const generateMockElevation = () => {
-            const size = 100;
-            const data = [];
-            for (let y = 0; y < size; y++) {
-                data[y] = [];
-                for (let x = 0; x < size; x++) {
-                    data[y][x] = 30 * Math.sin(x/10) * Math.cos(y/10) + 50;
-                }
-            }
-            return data;
         };
 
         // ================ UI CONTROLS ================
@@ -240,10 +215,7 @@
             initEngine();
             await loadMap();
             
-            // Event listeners
             document.getElementById("searchAddress").addEventListener("click", searchAddress);
-            
-            // Render loop
             engine.runRenderLoop(() => scene.render());
             window.addEventListener("resize", () => engine.resize());
         });
