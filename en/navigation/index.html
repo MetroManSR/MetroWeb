@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Simple OSM Tile Map</title>
+    <title>OSM Feature Overlay Map</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,20 +11,32 @@
         }
         #map-container {
             margin: 0 auto;
-            max-width: 1200px;
+            max-width: 800px;
         }
         #map {
             display: grid;
-            grid-template-columns: repeat(auto-fill, 64px);
+            grid-template-columns: repeat(50, 16px);
             gap: 0;
-            background: #e0e0e0;
+            background: #ffffff;
             border: 1px solid #999;
-        }
-        .tile {
-            width: 64px;
-            height: 64px;
-            background-size: cover;
             image-rendering: pixelated;
+        }
+        .cell {
+            width: 16px;
+            height: 16px;
+            box-sizing: border-box;
+        }
+        .road {
+            background-color: #888888;
+        }
+        .building {
+            background-color: #ff0000;
+        }
+        .water {
+            background-color: #5af;
+        }
+        .empty {
+            background-color: #ffffff;
         }
         #controls {
             margin: 20px 0;
@@ -60,7 +72,7 @@
     </style>
 </head>
 <body>
-    <h1>Simple OSM Tile Map (Zoom 12)</h1>
+    <h1>OSM Feature Overlay Map</h1>
     
     <div id="controls">
         <div>
@@ -74,8 +86,6 @@
             <button id="moveSouth">↓ South</button>
             <button id="moveWest">← West</button>
             <button id="moveEast">→ East</button>
-            <button id="zoomIn">+ Zoom In</button>
-            <button id="zoomOut">- Zoom Out</button>
         </div>
         <div id="status">Ready</div>
     </div>
@@ -86,76 +96,205 @@
 
     <script>
         // Configuration
-        const TILE_SIZE = 256; // OSM tile size in pixels
-        const DISPLAY_SIZE = 64; // How big to display each tile in pixels
-        const ZOOM = 12; // Fixed zoom level
-        const TILES_X = 10; // Number of tiles horizontally
-        const TILES_Y = 10; // Number of tiles vertically
+        const CELL_SIZE = 16; // Size of each square in pixels
+        const GRID_WIDTH = 50; // Number of cells wide
+        const GRID_HEIGHT = 50; // Number of cells tall
+        const CELL_RESOLUTION = 10; // Meters per cell (approximate)
+        const ZOOM = 16; // Zoom level for OSM data
         
         // State
         let centerLat = 40.7128; // New York
         let centerLon = -74.0060;
         let isLoading = false;
         
-        // Convert lat/lon to tile numbers
-        function latLonToTile(lat, lon, zoom) {
-            const x = Math.floor((lon + 180) / 360 * Math.pow(2, zoom));
-            const y = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
-            return { x, y };
-        }
-        
-        // Convert tile numbers to lat/lon of top-left corner
-        function tileToLatLon(x, y, zoom) {
-            const n = Math.pow(2, zoom);
-            const lon = x / n * 360 - 180;
-            const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))) * 180 / Math.PI;
-            return { lat, lon };
-        }
-        
-        // Generate tile URL
-        function getTileUrl(x, y, zoom) {
-            return `https://tile.openstreetmap.org/${zoom}/${x}/${y}.png`;
-        }
-        
-        // Load and display tiles
-        async function loadTiles() {
-            if (isLoading) return;
-            isLoading = true;
-            updateStatus("Loading tiles...");
-            
-            const centerTile = latLonToTile(centerLat, centerLon, ZOOM);
-            const startX = centerTile.x - Math.floor(TILES_X / 2);
-            const startY = centerTile.y - Math.floor(TILES_Y / 2);
-            
+        // Initialize map grid
+        function initMap() {
             const mapElement = document.getElementById('map');
             mapElement.innerHTML = '';
             
+            for (let y = 0; y < GRID_HEIGHT; y++) {
+                for (let x = 0; x < GRID_WIDTH; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell empty';
+                    cell.dataset.x = x;
+                    cell.dataset.y = y;
+                    mapElement.appendChild(cell);
+                }
+            }
+        }
+        
+        // Convert lat/lon to meters (approximate)
+        function latLonToMeters(lat, lon) {
+            const earthRadius = 6378137; // Earth's radius in meters
+            const x = lon * (Math.PI / 180) * earthRadius;
+            const y = Math.log(Math.tan((lat + 90) * (Math.PI / 360))) * earthRadius;
+            return { x, y };
+        }
+        
+        // Convert meters to lat/lon (approximate)
+        function metersToLatLon(x, y) {
+            const earthRadius = 6378137;
+            const lon = (x / earthRadius) * (180 / Math.PI);
+            const lat = (2 * Math.atan(Math.exp(y / earthRadius)) - (Math.PI / 2)) * (180 / Math.PI);
+            return { lat, lon };
+        }
+        
+        // Fetch OSM data for the current view
+        async function fetchOSMData() {
+            if (isLoading) return;
+            isLoading = true;
+            updateStatus("Loading OSM data...");
+            
+            const centerMeters = latLonToMeters(centerLat, centerLon);
+            const radius = (GRID_WIDTH * CELL_RESOLUTION) / 2;
+            
+            const minLon = metersToLatLon(centerMeters.x - radius, centerMeters.y).lon;
+            const minLat = metersToLatLon(centerMeters.x, centerMeters.y - radius).lat;
+            const maxLon = metersToLatLon(centerMeters.x + radius, centerMeters.y).lon;
+            const maxLat = metersToLatLon(centerMeters.x, centerMeters.y + radius).lat;
+            
+            const bbox = `${minLon},${minLat},${maxLon},${maxLat}`;
+            
             try {
-                for (let y = 0; y < TILES_Y; y++) {
-                    for (let x = 0; x < TILES_X; x++) {
-                        const tileX = startX + x;
-                        const tileY = startY + y;
+                // Query for roads, buildings, and water features
+                const query = `
+                    [out:json];
+                    (
+                        way[highway](${bbox});
+                        way[building](${bbox});
+                        way[waterway](${bbox});
+                        way[natural=water](${bbox});
+                    );
+                    out body;
+                    >;
+                    out skel qt;
+                `;
+                
+                const response = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                processOSMData(data);
+                updateStatus("OSM data loaded");
+            } catch (error) {
+                console.error("Error fetching OSM data:", error);
+                updateStatus("Error loading OSM data");
+            } finally {
+                isLoading = false;
+            }
+        }
+        
+        // Process OSM data and update the map
+        function processOSMData(data) {
+            // Clear existing features
+            const cells = document.querySelectorAll('#map .cell');
+            cells.forEach(cell => {
+                cell.className = 'cell empty';
+            });
+            
+            // Process ways (roads, buildings, water)
+            data.elements.forEach(element => {
+                if (element.type === 'way' && element.nodes) {
+                    let featureType = '';
+                    
+                    if (element.tags?.highway) {
+                        featureType = 'road';
+                    } else if (element.tags?.building) {
+                        featureType = 'building';
+                    } else if (element.tags?.waterway || element.tags?.natural === 'water') {
+                        featureType = 'water';
+                    }
+                    
+                    if (featureType) {
+                        // Convert nodes to screen coordinates
+                        const points = element.nodes.map(node => {
+                            if (node.lat && node.lon) {
+                                const meters = latLonToMeters(node.lat, node.lon);
+                                const centerMeters = latLonToMeters(centerLat, centerLon);
+                                
+                                const x = Math.floor(GRID_WIDTH/2 + (meters.x - centerMeters.x) / CELL_RESOLUTION);
+                                const y = Math.floor(GRID_HEIGHT/2 - (meters.y - centerMeters.y) / CELL_RESOLUTION);
+                                
+                                return { x, y };
+                            }
+                            return null;
+                        }).filter(p => p !== null);
                         
-                        const tileElement = document.createElement('div');
-                        tileElement.className = 'tile';
-                        tileElement.style.backgroundImage = `url(${getTileUrl(tileX, tileY, ZOOM)})`;
-                        tileElement.title = `Tile X: ${tileX}, Y: ${tileY}, Z: ${ZOOM}`;
+                        // Draw the feature
+                        if (points.length > 1) {
+                            for (let i = 0; i < points.length - 1; i++) {
+                                drawLine(points[i], points[i+1], featureType);
+                            }
+                        }
                         
-                        mapElement.appendChild(tileElement);
-                        
-                        // Add a small delay between requests to avoid overloading
-                        if ((y * TILES_X + x) % 5 === 0) {
-                            await new Promise(resolve => setTimeout(resolve, 50));
+                        // For buildings and water, fill the area
+                        if (featureType === 'building' || featureType === 'water') {
+                            fillPolygon(points, featureType);
                         }
                     }
                 }
-                updateStatus(`Loaded ${TILES_X * TILES_Y} tiles at zoom ${ZOOM}`);
-                updateCoords();
-            } catch (error) {
-                console.error("Error loading tiles:", error);
-                updateStatus("Error loading tiles");
-            } finally {
-                isLoading = false;
+            });
+        }
+        
+        // Draw a line between two points (for roads)
+        function drawLine(p1, p2, featureType) {
+            const dx = Math.abs(p2.x - p1.x);
+            const dy = Math.abs(p2.y - p1.y);
+            const sx = (p1.x < p2.x) ? 1 : -1;
+            const sy = (p1.y < p2.y) ? 1 : -1;
+            let err = dx - dy;
+            
+            while (true) {
+                if (p1.x >= 0 && p1.x < GRID_WIDTH && p1.y >= 0 && p1.y < GRID_HEIGHT) {
+                    const cell = document.querySelector(`#map .cell[data-x="${p1.x}"][data-y="${p1.y}"]`);
+                    if (cell && !cell.classList.contains('building') && !cell.classList.contains('water')) {
+                        cell.className = `cell ${featureType}`;
+                    }
+                }
+                
+                if (p1.x === p2.x && p1.y === p2.y) break;
+                const e2 = 2 * err;
+                if (e2 > -dy) { err -= dy; p1.x += sx; }
+                if (e2 < dx) { err += dx; p1.y += sy; }
+            }
+        }
+        
+        // Fill a polygon (for buildings and water)
+        function fillPolygon(points, featureType) {
+            if (points.length < 3) return;
+            
+            // Close the polygon
+            points.push(points[0]);
+            
+            // Find bounding box
+            const minY = Math.max(0, Math.floor(Math.min(...points.map(p => p.y)));
+            const maxY = Math.min(GRID_HEIGHT-1, Math.ceil(Math.max(...points.map(p => p.y)));
+            
+            for (let y = minY; y <= maxY; y++) {
+                const intersections = [];
+                
+                // Find intersections with polygon edges
+                for (let i = 0; i < points.length - 1; i++) {
+                    const p1 = points[i];
+                    const p2 = points[i+1];
+                    
+                    if ((p1.y <= y && p2.y > y) || (p2.y <= y && p1.y > y)) {
+                        const x = p1.x + (p2.x - p1.x) * (y - p1.y) / (p2.y - p1.y);
+                        intersections.push(x);
+                    }
+                }
+                
+                // Sort intersections and fill between pairs
+                intersections.sort((a, b) => a - b);
+                for (let i = 0; i < intersections.length; i += 2) {
+                    const startX = Math.max(0, Math.floor(intersections[i]));
+                    const endX = Math.min(GRID_WIDTH-1, Math.ceil(intersections[i+1] || intersections[i]));
+                    
+                    for (let x = startX; x <= endX; x++) {
+                        const cell = document.querySelector(`#map .cell[data-x="${x}"][data-y="${y}"]`);
+                        if (cell) {
+                            cell.className = `cell ${featureType}`;
+                        }
+                    }
+                }
             }
         }
         
@@ -163,7 +302,8 @@
         function moveMap(dLat, dLon) {
             centerLat += dLat;
             centerLon += dLon;
-            loadTiles();
+            updateCoords();
+            fetchOSMData();
         }
         
         // Update coordinate display
@@ -189,22 +329,20 @@
             
             centerLat = lat;
             centerLon = lon;
-            loadTiles();
+            updateCoords();
+            fetchOSMData();
         }
         
         // Initialize
-        document.getElementById('moveNorth').addEventListener('click', () => moveMap(0.02, 0));
-        document.getElementById('moveSouth').addEventListener('click', () => moveMap(-0.02, 0));
-        document.getElementById('moveWest').addEventListener('click', () => moveMap(0, -0.02));
-        document.getElementById('moveEast').addEventListener('click', () => moveMap(0, 0.02));
+        document.getElementById('moveNorth').addEventListener('click', () => moveMap(0.002, 0));
+        document.getElementById('moveSouth').addEventListener('click', () => moveMap(-0.002, 0));
+        document.getElementById('moveWest').addEventListener('click', () => moveMap(0, -0.002));
+        document.getElementById('moveEast').addEventListener('click', () => moveMap(0, 0.002));
         document.getElementById('goToCoords').addEventListener('click', goToCoordinates);
         
-        // Zoom buttons are disabled since we're fixing zoom at 12
-        document.getElementById('zoomIn').disabled = true;
-        document.getElementById('zoomOut').disabled = true;
-        
-        // Load initial tiles
-        loadTiles();
+        // Initialize the map
+        initMap();
+        fetchOSMData();
     </script>
 </body>
 </html>
