@@ -19,8 +19,8 @@ language: en
         <td>Affix</td>
     </tr>
     <tr>
-        <td>Opposite</td>
-        <td>Nek-</td>
+        <td>Negation</td>
+        <td>Nek / Ne-</td>
         <td>Nationality / Origin</td>
         <td>-iop-</td>
     </tr>
@@ -106,7 +106,7 @@ language: en
         <td>Diminutive</td>
         <td>-alk-</td>
         <td>To punch with</td>
-        <td>-uc-</td>
+        <td>-uchm-</td>
     </tr>
     <tr>
         <td>Son of, descendant</td>
@@ -166,6 +166,12 @@ language: en
         <td>To be</td>
         <td>-es-</td>
         <td>To be in temporal or new state</td>
-        <td>-ac-/-est-</td>
+        <td>-est-</td>
+    </tr>
+    <tr>
+        <td>Passive Voice</td>
+        <td>-ac-</td>
+        <td>Conceptual Opposite</td>
+        <td>Tan-</td>
     </tr>
 </table>
