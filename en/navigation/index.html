@@ -1,262 +1,210 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>3D Cubic Terrain with OSM Features</title>
+    <title>Simple OSM Tile Map</title>
     <style>
         body {
+            font-family: Arial, sans-serif;
             margin: 0;
-            overflow: hidden;
-            font-family: Arial;
-            background: #121212;
-            color: #e0e0e0;
+            padding: 20px;
+            background: #f0f0f0;
         }
-        #renderCanvas {
-            width: 100%;
-            height: 100%;
-            touch-action: none;
+        #map-container {
+            margin: 0 auto;
+            max-width: 1200px;
+        }
+        #map {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 64px);
+            gap: 0;
+            background: #e0e0e0;
+            border: 1px solid #999;
+        }
+        .tile {
+            width: 64px;
+            height: 64px;
+            background-size: cover;
+            image-rendering: pixelated;
         }
         #controls {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(30, 30, 30, 0.8);
+            margin: 20px 0;
             padding: 15px;
-            border-radius: 8px;
-            color: white;
-            z-index: 10;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        button, input, select {
-            background: #333;
-            color: white;
-            border: 1px solid #444;
+        #coords {
+            font-family: monospace;
+            margin: 10px 0;
             padding: 8px;
-            border-radius: 4px;
-            margin: 4px;
-        }
-        .legend {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(30, 30, 30, 0.8);
-            padding: 10px;
-            border-radius: 8px;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 5px 0;
-        }
-        .legend-color {
-            width: 15px;
-            height: 15px;
-            margin-right: 8px;
+            background: #eee;
             border-radius: 3px;
         }
+        button, input {
+            padding: 8px 12px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: #333;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
-    <script src="https://cdn.babylonjs.com/babylon.js"></script>
 </head>
 <body>
+    <h1>Simple OSM Tile Map (Zoom 12)</h1>
+    
     <div id="controls">
-        <input type="text" id="addressInput" placeholder="Search address">
-        <button id="searchAddress">Search</button>
-        <div>Coordinates: <span id="coords">-33.4550, -70.6600</span></div>
-        
-        <div style="margin-top: 10px;">
-            <span>Move:</span>
-            <select id="moveDistance">
-                <option value="500">500m</option>
-                <option value="1000" selected>1km</option>
-                <option value="2000">2km</option>
-            </select>
-            
-            <span>Zoom:</span>
-            <select id="zoomLevel">
-                <option value="50">50m</option>
-                <option value="100" selected>100m</option>
-                <option value="200">200m</option>
-            </select>
+        <div>
+            <input type="number" id="latInput" placeholder="Latitude" value="40.7128" step="0.0001">
+            <input type="number" id="lonInput" placeholder="Longitude" value="-74.0060" step="0.0001">
+            <button id="goToCoords">Go</button>
         </div>
-        
-        <div style="margin-top: 10px;">
+        <div id="coords">Latitude: 40.7128, Longitude: -74.0060</div>
+        <div>
             <button id="moveNorth">↑ North</button>
-            <button id="moveWest">← West</button>
-            <button id="moveEast">East →</button>
             <button id="moveSouth">↓ South</button>
-            <button id="recenter">Reset</button>
+            <button id="moveWest">← West</button>
+            <button id="moveEast">→ East</button>
+            <button id="zoomIn">+ Zoom In</button>
+            <button id="zoomOut">- Zoom Out</button>
         </div>
+        <div id="status">Ready</div>
     </div>
     
-    <div class="legend">
-        <div class="legend-item"><div class="legend-color" style="background: #5af;"></div>Water</div>
-        <div class="legend-item"><div class="legend-color" style="background: #8cf;"></div>Low</div>
-        <div class="legend-item"><div class="legend-color" style="background: #acf;"></div>Medium-Low</div>
-        <div class="legend-item"><div class="legend-color" style="background: #ba9;"></div>Medium</div>
-        <div class="legend-item"><div class="legend-color" style="background: #cb9;"></div>Medium-High</div>
-        <div class="legend-item"><div class="legend-color" style="background: #dc9;"></div>High</div>
-        <div class="legend-item"><div class="legend-color" style="background: #fa0;"></div>Roads</div>
-        <div class="legend-item"><div class="legend-color" style="background: #f88;"></div>Buildings</div>
+    <div id="map-container">
+        <div id="map"></div>
     </div>
 
-    <canvas id="renderCanvas"></canvas>
-
     <script>
-        // ================ CONFIGURATION ================
-        const CUBE_SIZE = 1; // 1m³ cubes
-        const VIEW_RADIUS = 50; // 50m radius around center
-        const ELEVATION_RANGES = [100, 200, 300, 400, 500];
+        // Configuration
+        const TILE_SIZE = 256; // OSM tile size in pixels
+        const DISPLAY_SIZE = 64; // How big to display each tile in pixels
+        const ZOOM = 12; // Fixed zoom level
+        const TILES_X = 10; // Number of tiles horizontally
+        const TILES_Y = 10; // Number of tiles vertically
         
-        // ================ STATE ================
-        let scene, engine;
-        let currentLat = -33.4550;
-        let currentLon = -70.6600;
-        let currentMove = 1000;
-        let currentZoom = 100;
-        let cubes = [];
-
-        // ================ BABYLON INIT ================
-        const initEngine = () => {
-            const canvas = document.getElementById("renderCanvas");
-            engine = new BABYLON.Engine(canvas, true);
-            scene = new BABYLON.Scene(engine);
-            scene.clearColor = new BABYLON.Color4(0.1, 0.1, 0.2, 1);
+        // State
+        let centerLat = 40.7128; // New York
+        let centerLon = -74.0060;
+        let isLoading = false;
+        
+        // Convert lat/lon to tile numbers
+        function latLonToTile(lat, lon, zoom) {
+            const x = Math.floor((lon + 180) / 360 * Math.pow(2, zoom));
+            const y = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
+            return { x, y };
+        }
+        
+        // Convert tile numbers to lat/lon of top-left corner
+        function tileToLatLon(x, y, zoom) {
+            const n = Math.pow(2, zoom);
+            const lon = x / n * 360 - 180;
+            const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))) * 180 / Math.PI;
+            return { lat, lon };
+        }
+        
+        // Generate tile URL
+        function getTileUrl(x, y, zoom) {
+            return `https://tile.openstreetmap.org/${zoom}/${x}/${y}.png`;
+        }
+        
+        // Load and display tiles
+        async function loadTiles() {
+            if (isLoading) return;
+            isLoading = true;
+            updateStatus("Loading tiles...");
             
-            // Camera
-            const camera = new BABYLON.ArcRotateCamera(
-                "camera", 
-                -Math.PI / 2, Math.PI / 3, 150, 
-                new BABYLON.Vector3(0, 0, 0), 
-                scene
-            );
-            camera.attachControl(canvas, true);
-            camera.lowerRadiusLimit = 50;
-            camera.upperRadiusLimit = 500;
+            const centerTile = latLonToTile(centerLat, centerLon, ZOOM);
+            const startX = centerTile.x - Math.floor(TILES_X / 2);
+            const startY = centerTile.y - Math.floor(TILES_Y / 2);
             
-            // Light
-            new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene).intensity = 0.8;
-        };
-
-        // ================ CUBE GENERATION ================
-        const generateTerrainCubes = () => {
-            // Clear existing cubes
-            cubes.forEach(cube => cube.dispose());
-            cubes = [];
+            const mapElement = document.getElementById('map');
+            mapElement.innerHTML = '';
             
-            // Generate Perlin-like terrain
-            for (let x = -VIEW_RADIUS; x <= VIEW_RADIUS; x++) {
-                for (let z = -VIEW_RADIUS; z <= VIEW_RADIUS; z++) {
-                    // Distance from center affects base elevation
-                    const dist = Math.sqrt(x*x + z*z);
-                    if (dist > VIEW_RADIUS) continue;
-                    
-                    // Generate elevation with noise
-                    const elevation = 30 + 
-                        20 * Math.sin(x/10) * Math.cos(z/15) + 
-                        10 * (Math.random() - 0.5);
-                    
-                    // Create cubes from ground up to elevation
-                    for (let y = 0; y < elevation; y++) {
-                        const cube = BABYLON.MeshBuilder.CreateBox("cube", { size: CUBE_SIZE }, scene);
-                        cube.position = new BABYLON.Vector3(x, y, z);
+            try {
+                for (let y = 0; y < TILES_Y; y++) {
+                    for (let x = 0; x < TILES_X; x++) {
+                        const tileX = startX + x;
+                        const tileY = startY + y;
                         
-                        // Color by elevation
-                        cube.material = new BABYLON.StandardMaterial("mat", scene);
-                        if (y < 5) {
-                            cube.material.diffuseColor = new BABYLON.Color3(0.2, 0.3, 0.8); // Water
-                        } else {
-                            const level = ELEVATION_RANGES.findIndex(r => y < r);
-                            const colors = [
-                                new BABYLON.Color3(0.3, 0.5, 0.9),  // Low
-                                new BABYLON.Color3(0.4, 0.6, 0.95), // Medium-Low
-                                new BABYLON.Color3(0.6, 0.7, 0.6),  // Medium
-                                new BABYLON.Color3(0.7, 0.8, 0.5),  // Medium-High
-                                new BABYLON.Color3(0.8, 0.9, 0.4)   // High
-                            ];
-                            cube.material.diffuseColor = colors[level >= 0 ? level : colors.length - 1];
+                        const tileElement = document.createElement('div');
+                        tileElement.className = 'tile';
+                        tileElement.style.backgroundImage = `url(${getTileUrl(tileX, tileY, ZOOM)})`;
+                        tileElement.title = `Tile X: ${tileX}, Y: ${tileY}, Z: ${ZOOM}`;
+                        
+                        mapElement.appendChild(tileElement);
+                        
+                        // Add a small delay between requests to avoid overloading
+                        if ((y * TILES_X + x) % 5 === 0) {
+                            await new Promise(resolve => setTimeout(resolve, 50));
                         }
-                        
-                        cubes.push(cube);
                     }
                 }
-            }
-        };
-
-        // ================ OSM FEATURES ================
-        const renderOSMFeatures = () => {
-            // Simulated roads (in real app, use Overpass API)
-            const createRoad = (path, isMajor) => {
-                const road = BABYLON.MeshBuilder.CreateTube("road", {
-                    path: path.map(p => new BABYLON.Vector3(p.x, 0.5, p.y)),
-                    radius: isMajor ? 1.5 : 1,
-                    tessellation: 4
-                }, scene);
-                road.material = new BABYLON.StandardMaterial("roadMat", scene);
-                road.material.diffuseColor = isMajor ? new BABYLON.Color3(1, 0.6, 0) : new BABYLON.Color3(1, 0.8, 0.3);
-            };
-
-            // Major road (EW)
-            createRoad(
-                Array.from({length: 50}, (_, i) => ({x: i-25, y: 0})),
-                true
-            );
-            
-            // Minor road (NS)
-            createRoad(
-                Array.from({length: 50}, (_, i) => ({x: 0, y: i-25})),
-                false
-            );
-            
-            // Buildings
-            const createBuilding = (x, z, width, depth, height) => {
-                const building = BABYLON.MeshBuilder.CreateBox("building", {
-                    width, height, depth
-                }, scene);
-                building.position = new BABYLON.Vector3(x, height/2, z);
-                building.material = new BABYLON.StandardMaterial("buildingMat", scene);
-                building.material.diffuseColor = new BABYLON.Color3(0.9, 0.3, 0.3);
-            };
-            
-            createBuilding(10, 10, 8, 8, 15);
-            createBuilding(-15, -15, 12, 8, 20);
-        };
-
-        // ================ NAVIGATION ================
-        const moveMap = (dLat, dLon) => {
-            const metersPerDegree = 111320;
-            currentLat += (dLat * currentMove) / metersPerDegree;
-            currentLon += (dLon * currentMove) / (metersPerDegree * Math.cos(currentLat * Math.PI/180));
-            updateCoords();
-            generateTerrainCubes();
-            renderOSMFeatures();
-        };
-
-        const updateCoords = () => {
-            document.getElementById('coords').textContent = 
-                `${currentLat.toFixed(5)}, ${currentLon.toFixed(5)}`;
-        };
-
-        // ================ INITIALIZATION ================
-        window.addEventListener('DOMContentLoaded', () => {
-            initEngine();
-            generateTerrainCubes();
-            renderOSMFeatures();
-            
-            // Event listeners
-            document.getElementById('moveNorth').addEventListener('click', () => moveMap(1, 0));
-            document.getElementById('moveSouth').addEventListener('click', () => moveMap(-1, 0));
-            document.getElementById('moveWest').addEventListener('click', () => moveMap(0, -1));
-            document.getElementById('moveEast').addEventListener('click', () => moveMap(0, 1));
-            document.getElementById('recenter').addEventListener('click', () => {
-                currentLat = -33.4550;
-                currentLon = -70.6600;
+                updateStatus(`Loaded ${TILES_X * TILES_Y} tiles at zoom ${ZOOM}`);
                 updateCoords();
-                generateTerrainCubes();
-                renderOSMFeatures();
-            });
+            } catch (error) {
+                console.error("Error loading tiles:", error);
+                updateStatus("Error loading tiles");
+            } finally {
+                isLoading = false;
+            }
+        }
+        
+        // Move the map
+        function moveMap(dLat, dLon) {
+            centerLat += dLat;
+            centerLon += dLon;
+            loadTiles();
+        }
+        
+        // Update coordinate display
+        function updateCoords() {
+            document.getElementById('coords').textContent = 
+                `Latitude: ${centerLat.toFixed(4)}, Longitude: ${centerLon.toFixed(4)}`;
+        }
+        
+        // Update status message
+        function updateStatus(msg) {
+            document.getElementById('status').textContent = msg;
+        }
+        
+        // Go to specific coordinates
+        function goToCoordinates() {
+            const lat = parseFloat(document.getElementById('latInput').value);
+            const lon = parseFloat(document.getElementById('lonInput').value);
             
-            // Run render loop
-            engine.runRenderLoop(() => scene.render());
-            window.addEventListener('resize', () => engine.resize());
-        });
+            if (isNaN(lat) || isNaN(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+                alert("Please enter valid coordinates\nLatitude: -90 to 90\nLongitude: -180 to 180");
+                return;
+            }
+            
+            centerLat = lat;
+            centerLon = lon;
+            loadTiles();
+        }
+        
+        // Initialize
+        document.getElementById('moveNorth').addEventListener('click', () => moveMap(0.02, 0));
+        document.getElementById('moveSouth').addEventListener('click', () => moveMap(-0.02, 0));
+        document.getElementById('moveWest').addEventListener('click', () => moveMap(0, -0.02));
+        document.getElementById('moveEast').addEventListener('click', () => moveMap(0, 0.02));
+        document.getElementById('goToCoords').addEventListener('click', goToCoordinates);
+        
+        // Zoom buttons are disabled since we're fixing zoom at 12
+        document.getElementById('zoomIn').disabled = true;
+        document.getElementById('zoomOut').disabled = true;
+        
+        // Load initial tiles
+        loadTiles();
     </script>
 </body>
 </html>
