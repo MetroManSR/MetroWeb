@@ -7,6 +7,38 @@ layout: base
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script type="module" src="/assets/js/default-scripts.js"></script>
+  <script type="module">
+    // Import Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+    // Fetch Firebase configuration from environment variables
+    const firebaseConfig = {
+      apiKey: process.env.FIREBASE_API_KEY,
+      authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+      appId: process.env.FIREBASE_APP_ID
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // Login function
+    window.firebaseSignIn = () => {
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          console.log("Usuario autenticado:", result.user);
+          alert(`Bienvenido, ${result.user.displayName}`);
+        })
+        .catch((error) => {
+          console.error("Error al autenticar:", error);
+        });
+    };
+  </script>
 </head>
 <body>
   <div class="intro-header"></div>
@@ -20,8 +52,6 @@ layout: base
       </div>
     {% endif %}
 
-    <!-- Add a dynamic text string here -->
-
     <button class="button-82-pushable" onclick="history.back()">
       <span class="button-82-shadow"></span>
       <span class="button-82-edge"></span>
@@ -29,10 +59,14 @@ layout: base
         <div id="backbutton"></div>
       </span> 
     </button>
-    {{ content }}
-    <button class="button-17" role="button" onclick="knlangRedirect()">
-      <img src="https://img.icons8.com/?size=35&id=95094&format=png&color=000000"/>
+
+    <!-- Botón de autenticación con Firebase -->
+    <button class="button-17" role="button" onclick="firebaseSignIn()">
+      Iniciar sesión con Google
     </button> 
+
+    {{ content }}
+
     {% if page.after-content %}
       <div class="after-content">
         {% for file in page.after-content %}
@@ -40,9 +74,10 @@ layout: base
         {% endfor %}
       </div>
     {% endif %}
+
     <!-- Error button container -->
     <div id="error-button-container" style="display:none; position:fixed; bottom:10px; right:10px; z-index:1000;">
-      <button id="error-button" style="background-color:red; color:white; border:none; padding:5px 10px; cursor:pointer;">Errors</button>
+      <button id="error-button" style="background-color:red; color:white; border:none; padding:5px 10px; cursor:pointer;">Errores</button>
       <div id="error-dropdown" style="display:none; background-color:white; border:1px solid red; max-width:200px; max-height:300px; overflow:auto; padding:10px; box-shadow:0px 4px 8px rgba(0,0,0,0.1);"></div>
     </div>
   </main>
