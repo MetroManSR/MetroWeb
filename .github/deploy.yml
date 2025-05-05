@@ -1,0 +1,17 @@
+name: Deploy to Firebase
+on: [push]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Authenticate with Firebase
+        run: firebase login:ci --token "${{ secrets.FIREBASE_API_KEY }}"
+
+      - name: Deploy to Firebase
+        run: firebase deploy --only hosting
