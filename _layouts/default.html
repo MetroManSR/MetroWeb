@@ -7,41 +7,43 @@ layout: base
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script type="module" src="/assets/js/default-scripts.js"></script>
-  <script type="module">
-    // Import Firebase SDK
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+  
+    <script type="module">
+  // Import the Firebase SDK
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
 
-    // Fetch Firebase configuration from environment variables
-    const firebaseConfig = {
-      apiKey: process.env.FIREBASE_API_KEY,
-      authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-      messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-      appId: process.env.FIREBASE_APP_ID,
-      measurementId: process.env.FIREBASE_MEASUREMENT_ID
-    };
+  // Firebase configuration using environment variables
+  const firebaseConfig = {
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID,
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID
+  };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const analytics = getAnalytics(app);
-    const provider = new GoogleAuthProvider();
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const analytics = getAnalytics(app);
+  const provider = new GoogleAuthProvider();
 
-    // Login function
-    window.firebaseSignIn = () => {
-      signInWithPopup(auth, provider)
-        .then((result) => {
-          console.log("Usuario autenticado:", result.user);
-          alert(`Bienvenido, ${result.user.displayName}`);
-        })
-        .catch((error) => {
-          console.error("Error al autenticar:", error);
-        });
-    };
-  </script>
+  // Make sure the function is globally accessible
+  window.firebaseSignIn = () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        console.log("Usuario autenticado:", result.user);
+        alert(`Bienvenido, ${result.user.displayName}`);
+      })
+      .catch((error) => {
+        console.error("Error al autenticar:", error);
+      });
+  };
+</script>
+  
 </head>
 <body>
   <div class="intro-header"></div>
