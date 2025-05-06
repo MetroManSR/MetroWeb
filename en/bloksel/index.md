@@ -49,10 +49,8 @@ Download the latest prototype builds:
 
 ## ❓ FAQ  
 **Q: Is multiplayer available yet?**  
-A: Not in the current prototype – [see roadmap](https://github.com/MetroManSR/Bloksel/blob/main/ROADMAP.md) for progress.  
-
-**Q: Can I mod Bloksel?**  
-A: Experimental mod support starts in `v0.7.x` (odd version = unstable).  
+**Q: Is it multiplayer?**  
+A: Not yet, we need funding to host the VPS servers.
 
 **Q: Why no mobile builds?**  
 A: Desktop-first focus – Android/iOS may come post-`v1.0`.  
