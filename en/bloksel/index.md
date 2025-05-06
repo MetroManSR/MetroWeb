@@ -43,13 +43,12 @@ Download the latest prototype builds:
 ## 🔗 Stay Connected  
 - [💬 Discord](https://discord.gg/r7RPWAeCZa) – Chat with devs, share builds, get support  
 - [📜 GitHub](https://github.com/MetroManSR/Bloksel) – Source code, issues, and roadmap  
-- [📣 Twitter/X](https://twitter.com/) – *(Optional: Add if applicable)*  
 
 ---
 
 ## ❓ FAQ  
-**Q: Is multiplayer available yet?**  
-**Q: Is it multiplayer?**  
+
+**Q: Is multiplayer available yet?**
 A: Not yet, we need funding to host the VPS servers.
 
 **Q: Why no mobile builds?**  
