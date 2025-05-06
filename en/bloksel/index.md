@@ -1,10 +1,14 @@
-
+---
+layout: default
+language: en
+title: Bloksel
+---
 
 # Play Bloksel
 
 🌌 **The voxel engine where imagination meets infinite scale**  
 
-Download the latest prototype builds across platforms:  
+Download the latest prototype builds:  
 
 ---
 
