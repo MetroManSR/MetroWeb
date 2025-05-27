@@ -23,9 +23,9 @@ Somos una comunidad **independiente** sin vínculo oficial con la empresa.
 
 ### **🔗 Únete a la Conversación**  
 ¡Conéctate con otros amantes del metro! Usa estos enlaces:  
-- Discord: [https://discord.gg/z7AfQZZaGD](https://discord.gg/z7AfQZZaGD)  
-- WhatsApp: [https://chat.whatsapp.com/CP7reOBykhsB1kEickwjEs](https://chat.whatsapp.com/CP7reOBykhsB1kEickwjEs)  
-- Reddit: [https://www.reddit.com/r/metrosantiago/s/S9wvlFkjjF](https://www.reddit.com/r/metrosantiago/s/S9wvlFkjjF)  
+- Discord: [Link](https://discord.gg/z7AfQZZaGD)  
+- WhatsApp: [Link](https://chat.whatsapp.com/H1ECcZwlVxZFpwmG85GxCB)  
+- Reddit: [Link](https://www.reddit.com/r/metrosantiago/s/S9wvlFkjjF)  
 
 ### **🌐 Enlaces Oficiales del Metro de Santiago**  
 - [Sitio web](https://www.metro.cl)  
