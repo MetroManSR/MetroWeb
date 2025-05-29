@@ -14,13 +14,13 @@ language: es
     <img src="https://github.com/user-attachments/assets/f9fa4e5f-248f-4247-b1f5-a258c5ac192d" alt="Discord" style="height: 80px; width: auto;">
   </a>
   <a href="https://chat.whatsapp.com/H1ECcZwlVxZFpwmG85GxCB" style="text-align: center;">
-    <img src="InShot_20250528_142908643.jpg" alt="WhatsApp" style="height: 80px; width: auto;">
+    <img src="https://github.com/user-attachments/assets/5c1cbea1-5048-4e16-b3ae-3ad0d6b50f80" alt="WhatsApp" style="height: 80px; width: auto;">
   </a>
   <a href="https://www.reddit.com/r/metrosantiago/s/S9wvlFkjjF" style="text-align: center;">
-    <img src="InShot_20250528_142818215.jpg" alt="Reddit" style="height: 80px; width: auto;">
+    <img src="https://github.com/user-attachments/assets/94a232e7-2777-40d0-9f00-a9f13da717e7" alt="Reddit" style="height: 80px; width: auto;">
   </a>
   <a href="https://t.me/metrosantiago" style="text-align: center;">
-    <img src="InShot_20250528_145545342.jpg" alt="Telegram" style="height: 80px; width: auto;">
+    <img src="https://github.com/user-attachments/assets/c6fbdcfb-6cbd-4e56-86eb-6298783fafa1" alt="Telegram" style="height: 80px; width: auto;">
   </a>
   
  
