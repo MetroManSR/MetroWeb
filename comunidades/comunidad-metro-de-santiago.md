@@ -11,7 +11,7 @@ language: es
 
 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 30px 0;">
   <a href="https://discord.gg/z7AfQZZaGD" style="text-align: center;">
-    <img src="InShot_20250528_143609702.jpg" alt="Discord" style="height: 80px; width: auto;">
+    <img src="./InShot_20250528_143609702.jpg" alt="Discord" style="height: 80px; width: auto;">
   </a>
   <a href="https://chat.whatsapp.com/H1ECcZwlVxZFpwmG85GxCB" style="text-align: center;">
     <img src="InShot_20250528_142908643.jpg" alt="WhatsApp" style="height: 80px; width: auto;">
