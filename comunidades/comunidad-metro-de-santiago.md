@@ -9,22 +9,87 @@ language: es
 ### **🔗 Únete a la Conversación**  
 ¡Conéctate con otros amantes del metro! Usa estos enlaces: 
 
-<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 30px 0;">
-  <a href="https://discord.gg/z7AfQZZaGD" style="text-align: center;">
-    <img src="https://github.com/user-attachments/assets/f9fa4e5f-248f-4247-b1f5-a258c5ac192d" alt="Discord" style="height: 80px; width: auto;">
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; margin: 30px 0; place-items: center;">
+  <a href="https://discord.gg/z7AfQZZaGD" class="social-circle">
+    <img src="https://github.com/user-attachments/assets/f9fa4e5f-248f-4247-b1f5-a258c5ac192d" alt="Discord">
   </a>
-  <a href="https://chat.whatsapp.com/H1ECcZwlVxZFpwmG85GxCB" style="text-align: center;">
-    <img src="https://github.com/user-attachments/assets/5c1cbea1-5048-4e16-b3ae-3ad0d6b50f80" alt="WhatsApp" style="height: 80px; width: auto;">
+  <a href="https://chat.whatsapp.com/H1ECcZwlVxZFpwmG85GxCB" class="social-circle">
+    <img src="https://github.com/user-attachments/assets/5c1cbea1-5048-4e16-b3ae-3ad0d6b50f80" alt="WhatsApp">
   </a>
-  <a href="https://www.reddit.com/r/metrosantiago/s/S9wvlFkjjF" style="text-align: center;">
-    <img src="https://github.com/user-attachments/assets/94a232e7-2777-40d0-9f00-a9f13da717e7" alt="Reddit" style="height: 80px; width: auto;">
+  <a href="https://www.reddit.com/r/metrosantiago/s/S9wvlFkjjF" class="social-circle">
+    <img src="https://github.com/user-attachments/assets/94a232e7-2777-40d0-9f00-a9f13da717e7" alt="Reddit">
   </a>
-  <a href="https://t.me/metrosantiago" style="text-align: center;">
-    <img src="https://github.com/user-attachments/assets/c6fbdcfb-6cbd-4e56-86eb-6298783fafa1" alt="Telegram" style="height: 80px; width: auto;">
+  <a href="https://t.me/metrosantiago" class="social-circle">
+    <img src="https://github.com/user-attachments/assets/c6fbdcfb-6cbd-4e56-86eb-6298783fafa1" alt="Telegram">
   </a>
-  
- 
 </div>
+
+<style>
+  .social-circle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid #ff0000;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .social-circle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(255, 0, 0, 0.1);
+    transform: scale(0);
+    transition: transform 0.3s ease;
+  }
+  
+  .social-circle:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 8px 16px rgba(255, 0, 0, 0.2);
+    border-color: #ff3333;
+  }
+  
+  .social-circle:active {
+    transform: translateY(0) scale(0.95);
+  }
+  
+  .social-circle:hover::before {
+    transform: scale(1);
+  }
+  
+  .social-circle img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    z-index: 1;
+  }
+  
+  .social-circle:hover img {
+    transform: scale(1.1);
+  }
+  
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(255, 0, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+  }
+  
+  .social-circle:focus {
+    outline: none;
+    animation: pulse 0.75s;
+  }
+</style>
 
 Un espacio para pasajeros frecuentes y fans del metro de Santiago. Aquí encontrarás actualizaciones, discusiones y recursos sobre la red de transporte y trenes urbanos.  
 
