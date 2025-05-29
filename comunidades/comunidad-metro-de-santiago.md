@@ -33,11 +33,11 @@ language: es
     height: 120px;
     border-radius: 50%;
     border: 3px solid #ff0000;
-    background: white;
+    overflow: hidden; /* This clips the image to the circle */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     position: relative;
-    overflow: hidden;
+    background: transparent;
   }
   
   .social-circle::before {
@@ -51,10 +51,11 @@ language: es
     background: rgba(255, 0, 0, 0.1);
     transform: scale(0);
     transition: transform 0.3s ease;
+    z-index: 1;
   }
   
   .social-circle:hover {
-    transform: translateY(-5px) scale(1.05);
+    transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(255, 0, 0, 0.2);
     border-color: #ff3333;
   }
@@ -68,11 +69,10 @@ language: es
   }
   
   .social-circle img {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
+    width: 100%; /* Image will fill container but maintain aspect ratio */
+    height: 100%;
+    object-fit: cover; /* This will crop the image to fill the circle */
     transition: transform 0.3s ease;
-    z-index: 1;
   }
   
   .social-circle:hover img {
