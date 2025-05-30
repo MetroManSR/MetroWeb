@@ -1,5 +1,6 @@
-# 📜 Lineamientos de la Comunidad  
-**Aplicable en:** WhatsApp, Telegram, Discord, Reddit  
+# 📜 Lineamientos de la [Comunidad)
+](https://miniurl.cl/comunidadmetrostgo) 
+**Aplicable en:** WhatsApp, Telegram, Discord, Reddit 
 
 ---
 
