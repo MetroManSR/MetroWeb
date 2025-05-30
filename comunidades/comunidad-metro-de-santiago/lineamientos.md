@@ -1,6 +1,6 @@
-# 📜 Lineamientos de la [Comunidad)
-](https://miniurl.cl/comunidadmetrostgo) 
-**Aplicable en:** WhatsApp, Telegram, Discord, Reddit 
+# 📜 Lineamientos
+
+**Aplicable en:** WhatsApp, Telegram, Discord, Reddit. [Comunidad](https://miniurl.cl/comunidadmetrostgo)  
 
 ---
 
