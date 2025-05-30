@@ -8,14 +8,15 @@
 ### 1. Seguridad del Metro de Santiago 🚇 (Cero Tolerancia)  
 - **Información sensible:**  
   - ❌ Mapas de dependencias restringidas (salas de control, túneles privados, etc.).  
-  - ❌ Claves radiales, protocolos de emergencia, o códigos internos *(compartir fragmentos sin contexto también está prohibido)*.  
+  - ❌ Claves radiales, protocolos de emergencia, o códigos internos. Esto tiene un límite, está permitido responder preguntas, pero sin demasiado detalle evitando generar difusión masiva.
   - ❌ Ubicaciones exactas de cámaras de seguridad o puntos ciegos.  
   - *Excepción:* Discusión de casos específicos **con aprobación previa de moderadores**.  
 
 - **Promoción de actos delictivos:**  
   - ❌ Incitar a evadir pagos, saltar torniquetes o dañar infraestructura.  
-  - ❌ Organizar acciones que violen el **Términos de Servicio de Metro** (ej.: "hagamos un flashmob en vías").  
-  - ❌ Compartir métodos para burlar sistemas de seguridad.  
+  - ❌ Organizar acciones que violen los **Términos de Servicio de Metro** (ej.: "hagamos un flashmob en vías").  
+  - ❌ Compartir métodos para burlar sistemas de seguridad.
+    
 
 ### 2. Plataformas y Enlaces  
 - **WhatsApp/Telegram:**  
@@ -50,8 +51,8 @@
 
 ## ⚠️ Sanciones Escalonadas  
 1. **Leve** (ej.: spam): Aviso + borrado.  
-2. **Grave** (ej.: filtraciones Metro): Expulsión permanente + reporte a autoridades.  
-
+2. **Grave** (ej.: filtraciones Metro): Expulsión permanente.  
+(Este Sistema evolucionará con el tiempo)
 ---
 
 ## 🔍 Otras Reglas Clave  
