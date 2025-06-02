@@ -1,10 +1,9 @@
-Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comunidad Metro de Santiago. 
-
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reportar Problemas - MetroMan</title>
+  <title>Reportar Problemas en Metro de Santiago</title>
   <style>
     body { font-family: 'Arial', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
     .form-group { margin-bottom: 15px; }
@@ -59,76 +58,89 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
       border-radius: 5px;
     }
     
-    /* Quantity input */
-    .quantity-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .quantity-group input {
-      width: 80px;
-      text-align: center;
-    }
-    
-    /* Loading spinner */
-    .spinner {
-      display: inline-block;
+    /* Status indicators */
+    .line-status {
+      position: absolute;
+      top: -8px;
+      right: -8px;
       width: 20px;
       height: 20px;
-      border: 3px solid rgba(255,255,255,.3);
       border-radius: 50%;
-      border-top-color: white;
-      animation: spin 1s ease-in-out infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    /* Unselect button */
-    .unselect-btn {
-      background: #f44336;
-      margin-top: 10px;
-      padding: 8px;
-      font-size: 0.9em;
-    }
-    
-    /* Report summary */
-    .report-summary {
+      font-size: 12px;
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 5px;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    .status-good { 
+      background: #4CAF50;
+      content: '✓';
+    }
+    .status-warning { 
+      background: #FFC107;
+      color: black;
+    }
+    .status-bad { 
+      background: #F44336; 
     }
 
-    /* Status indicators */
-.line-status {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-}
-.status-good { 
-  background: #4CAF50;
-  content: '✓';
-}
-.status-warning { 
-  background: #FFC107;
-  color: black;
-}
-.status-bad { 
-  background: #F44336; 
-}
+    /* Alert message */
+    .alert {
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      display: none;
+    }
+    .alert-success {
+      background-color: #dff0d8;
+      border-color: #d6e9c6;
+      color: #3c763d;
+    }
+    .alert-error {
+      background-color: #f2dede;
+      border-color: #ebccd1;
+      color: #a94442;
+    }
+    .close-alert {
+      float: right;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* Reload button */
+    .reload-btn {
+      background: #6c757d;
+      margin-bottom: 15px;
+      padding: 8px 15px;
+      font-size: 0.9em;
+      width: auto;
+      display: inline-block;
+    }
+
+    /* Report link */
+    .report-link {
+      color: #0066cc;
+      text-decoration: underline;
+      margin-top: 15px;
+      display: inline-block;
+    }
   </style>
 </head>
 <body>
   <h1>Reportar Problema en el Metro</h1>
+  
+  <!-- Alert messages -->
+  <div id="successAlert" class="alert alert-success">
+    <span class="close-alert" onclick="this.parentElement.style.display='none'">&times;</span>
+    <span id="successMessage">¡Reporte enviado con éxito!</span>
+  </div>
+  
+  <div id="errorAlert" class="alert alert-error">
+    <span class="close-alert" onclick="this.parentElement.style.display='none'">&times;</span>
+    <span id="errorMessage">Error al enviar el reporte</span>
+    <button onclick="retryLastAction()" style="margin-top: 10px; background: #f44336;">Intentar nuevamente</button>
+  </div>
   
   <div class="active-line" id="activeLineDisplay">Seleccione una línea</div>
   
@@ -157,6 +169,7 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
         <option value="Combinación Suspendida">Combinación Suspendida</option>
         <option value="Corte de Energía">Corte de Energía en las Vías</option>
         <option value="Apagón">Apagón, Estaciones a oscuras</option>
+        <option value="Frenazo">Frenada Brusca de Tren</option>
         <option value="Avería Tren">Avería de Tren</option>
         <option value="Avería Vía">Avería en la Vía</option>
       </select>
@@ -170,29 +183,17 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
   </form>
   
   <h2>Últimos Reportes</h2>
+  <button class="reload-btn" onclick="loadReports(selectedLine)">↻ Recargar Reportes</button>
   <div id="reportsList"></div>
+  
+  <a href="https://github.com/MetroManSR/MetroWeb/issues" class="report-link" target="_blank">Reporta o sugiere aquí</a>
   
   <script>
     // Initialize with no line selected
     let selectedLine = null;
     let isLoading = false;
-    
-    // Update quantity label based on problem type
-    const problemaSelect = document.getElementById('problema');
-    
-    
- /*   problemaSelect.addEventListener('change', () => {
-      const problemType = problemaSelect.value;
-      if (problemType === 'Colapso' || problemType === 'Cierre Estación') {
-        cantidadLabel.textContent = 'estación(es)';
-      } else if (problemType === 'Lleno' || problemType === 'Avería Tren') {
-        cantidadLabel.textContent = 'tren(es)';
-      } else if (problemType === 'Avería Vía' || problemType === 'Corte de Energía') {
-        cantidadLabel.textContent = 'sección(es)';
-      } else {
-        cantidadLabel.textContent = 'incidente(s)';
-      }
-    });*/
+    let lastAction = null;
+    let lastActionArgs = null;
     
     // Add click handlers to line buttons
     document.querySelectorAll('.line-btn').forEach(btn => {
@@ -257,6 +258,10 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
       document.getElementById('submitBtn').innerHTML = '<div class="spinner"></div>';
       isLoading = true;
       
+      // Store last action for retry
+      lastAction = submitReport;
+      lastActionArgs = [e];
+      
       try {
         const response = await fetch('https://api.bloksel.com/metroCredentials/reportar', {
           method: 'POST',
@@ -264,22 +269,21 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
           body: JSON.stringify({
             linea: document.getElementById('linea').value,
             problema: document.getElementById('problema').value,
-        /*    cantidad: document.getElementById('cantidad').value,*/
             descripcion: `${document.getElementById('problema').value}`
           })
         });
         
         if (response.ok) {
-          alert('¡Reporte enviado con éxito!');
+          showSuccess('¡Reporte enviado con éxito!');
           e.target.reset();
           loadReports(selectedLine);
           updateLineStatuses();
         } else {
           const error = await response.json();
-          alert(`Error: ${error.error || 'Error desconocido'}`);
+          showError(`Error: ${error.error || 'Error desconocido'}`);
         }
       } catch (err) {
-        alert('Error de conexión');
+        showError('Error de conexión');
       } finally {
         button.disabled = false;
         document.getElementById('submitBtn').innerHTML = '<span id="submitText">Enviar Reporte</span>';
@@ -287,9 +291,57 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
       }
     });
     
+    async function submitReport(e) {
+      // This is separated for the retry functionality
+      const response = await fetch('https://api.bloksel.com/metroCredentials/reportar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          linea: document.getElementById('linea').value,
+          problema: document.getElementById('problema').value,
+          descripcion: `${document.getElementById('problema').value}`
+        })
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Error desconocido');
+      }
+      
+      return response;
+    }
+    
+    function showSuccess(message) {
+      document.getElementById('successMessage').textContent = message;
+      document.getElementById('successAlert').style.display = 'block';
+      document.getElementById('errorAlert').style.display = 'none';
+      
+      // Hide after 5 seconds
+      setTimeout(() => {
+        document.getElementById('successAlert').style.display = 'none';
+      }, 5000);
+    }
+    
+    function showError(message) {
+      document.getElementById('errorMessage').textContent = message;
+      document.getElementById('errorAlert').style.display = 'block';
+      document.getElementById('successAlert').style.display = 'none';
+    }
+    
+    function retryLastAction() {
+      if (lastAction) {
+        document.getElementById('errorAlert').style.display = 'none';
+        lastAction.apply(null, lastActionArgs);
+      }
+    }
+    
     async function loadReports(line = null) {
       const container = document.getElementById('reportsList');
       container.innerHTML = '<p>Cargando reportes...</p>';
+      
+      // Store last action for retry
+      lastAction = loadReports;
+      lastActionArgs = [line];
       
       try {
         const response = await fetch('https://api.bloksel.com/metroCredentials/reportes');
@@ -363,45 +415,48 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
         }
       } catch (err) {
         console.error('Error al cargar reportes:', err);
-        container.innerHTML = '<p>Error al cargar los reportes. Intente nuevamente.</p>';
+        container.innerHTML = `
+          <p>Error al cargar los reportes.</p>
+          <button onclick="retryLastAction()" style="background: #f44336;">Intentar nuevamente</button>
+        `;
       }
     }
     
-async function updateLineStatuses() {
-  try {
-    const response = await fetch('https://api.bloksel.com/metroCredentials/reportes');
-    const data = await response.json();
-    const reports = Array.isArray(data) ? data : (data.reports || []);
-    
-    document.querySelectorAll('.line-btn').forEach(btn => {
-      const line = btn.dataset.line;
-      const lineReports = reports.filter(r => r.linea === line && r.status !== 'resuelto');
-      const statusEl = document.createElement('div');
-      statusEl.className = 'line-status';
-      
-      if (lineReports.length === 0) {
-        statusEl.className += ' status-good';
-        statusEl.textContent = '✓'; // Checkmark for good status
-      } else if (lineReports.length < 3) {
-        statusEl.className += ' status-warning';
-        statusEl.textContent = '!'; // Exclamation for warning
-      } else {
-        statusEl.className += ' status-bad';
-        statusEl.textContent = '✗'; // X mark for bad status
+    async function updateLineStatuses() {
+      try {
+        const response = await fetch('https://api.bloksel.com/metroCredentials/reportes');
+        const data = await response.json();
+        const reports = Array.isArray(data) ? data : (data.reports || []);
+        
+        document.querySelectorAll('.line-btn').forEach(btn => {
+          const line = btn.dataset.line;
+          const lineReports = reports.filter(r => r.linea === line && r.status !== 'resuelto');
+          const statusEl = document.createElement('div');
+          statusEl.className = 'line-status';
+          
+          if (lineReports.length === 0) {
+            statusEl.className += ' status-good';
+            statusEl.textContent = '✓'; // Checkmark for good status
+          } else if (lineReports.length < 3) {
+            statusEl.className += ' status-warning';
+            statusEl.textContent = '!'; // Exclamation for warning
+          } else {
+            statusEl.className += ' status-bad';
+            statusEl.textContent = '✗'; // X mark for bad status
+          }
+          
+          // Remove existing status if any
+          const existingStatus = btn.querySelector('.line-status');
+          if (existingStatus) {
+            btn.removeChild(existingStatus);
+          }
+          
+          btn.appendChild(statusEl);
+        });
+      } catch (err) {
+        console.error('Error al actualizar estados:', err);
       }
-      
-      // Remove existing status if any
-      const existingStatus = btn.querySelector('.line-status');
-      if (existingStatus) {
-        btn.removeChild(existingStatus);
-      }
-      
-      btn.appendChild(statusEl);
-    });
-  } catch (err) {
-    console.error('Error al actualizar estados:', err);
-  }
-}
+    }
     
     // Function to set background images for buttons
     function setButtonBackgrounds() {
