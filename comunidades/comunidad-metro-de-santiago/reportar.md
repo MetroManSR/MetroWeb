@@ -43,7 +43,7 @@
     .line-4 { background: #6c3483; color: white; }
     .line-4A { background: #00a14e; color: white; }
     .line-5 { background: #f58220; color: black; }
-    .line-5B { background: #8bc34a; color: black; }
+    .line-6 { background: #8bc34a; color: black; }
     
     /* Status indicators */
     .line-status {
@@ -175,7 +175,12 @@
     async function loadReports(line = null) {
       try {
         const response = await fetch('https://api.bloksel.com/metroCredentials/reportes');
-        let reports = await response.json();
+
+
+    let reports = await response.json();
+       
+              console.log(reports) 
+    
         
         if (line) {
           reports = reports.filter(r => r.linea === line);
