@@ -67,7 +67,7 @@
       button.textContent = 'Enviando...';
       
       try {
-        const response = await fetch('https://api.bloksel.com/metroCredentials/metro/reportar', {
+        const response = await fetch('https://api.bloksel.com/metroCredentials/reportar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -95,7 +95,7 @@
     
     async function loadReports() {
       try {
-        const response = await fetch('https://api.bloksel.com/metroCredentials/metro/reportes');
+        const response = await fetch('https://api.bloksel.com/metroCredentials/reportes');
         const reports = await response.json();
         
         const container = document.getElementById('reportsList');
