@@ -46,24 +46,7 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
     .line-btn:hover {
       opacity: 0.9;
     }
-    
-    /* Status indicators */
-    .line-status {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      font-size: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-    }
-    .status-good { background: #4CAF50; }
-    .status-warning { background: #FFC107; }
-    .status-bad { background: #F44336; }
+
     
     .report-form { display: none; margin-top: 20px; }
     .active-line { 
@@ -115,6 +98,33 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
       justify-content: space-between;
       margin-bottom: 5px;
     }
+
+    /* Status indicators */
+.line-status {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+}
+.status-good { 
+  background: #4CAF50;
+  content: '✓';
+}
+.status-warning { 
+  background: #FFC107;
+  color: black;
+}
+.status-bad { 
+  background: #F44336; 
+}
   </style>
 </head>
 <body>
@@ -357,42 +367,41 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
       }
     }
     
-    // Update line status indicators
-    async function updateLineStatuses() {
-      try {
-        const response = await fetch('https://api.bloksel.com/metroCredentials/reportes');
-        const data = await response.json();
-        const reports = Array.isArray(data) ? data : (data.reports || []);
-        
-        document.querySelectorAll('.line-btn').forEach(btn => {
-          const line = btn.dataset.line;
-          const lineReports = reports.filter(r => r.linea === line && r.status !== 'resuelto');
-          const statusEl = document.createElement('div');
-          statusEl.className = 'line-status';
-          
-          if (lineReports.length === 0) {
-            statusEl.className += ' status-good';
-            statusEl.textContent = '✓';
-          } else if (lineReports.length < 3) {
-            statusEl.className += ' status-warning';
-            statusEl.textContent = lineReports.length;
-          } else {
-            statusEl.className += ' status-bad';
-            statusEl.textContent = lineReports.length;
-          }
-          
-          // Remove existing status if any
-          const existingStatus = btn.querySelector('.line-status');
-          if (existingStatus) {
-            btn.removeChild(existingStatus);
-          }
-          
-          btn.appendChild(statusEl);
-        });
-      } catch (err) {
-        console.error('Error al actualizar estados:', err);
+async function updateLineStatuses() {
+  try {
+    const response = await fetch('https://api.bloksel.com/metroCredentials/reportes');
+    const data = await response.json();
+    const reports = Array.isArray(data) ? data : (data.reports || []);
+    
+    document.querySelectorAll('.line-btn').forEach(btn => {
+      const line = btn.dataset.line;
+      const lineReports = reports.filter(r => r.linea === line && r.status !== 'resuelto');
+      const statusEl = document.createElement('div');
+      statusEl.className = 'line-status';
+      
+      if (lineReports.length === 0) {
+        statusEl.className += ' status-good';
+        statusEl.textContent = '✓'; // Checkmark for good status
+      } else if (lineReports.length < 3) {
+        statusEl.className += ' status-warning';
+        statusEl.textContent = '!'; // Exclamation for warning
+      } else {
+        statusEl.className += ' status-bad';
+        statusEl.textContent = '✗'; // X mark for bad status
       }
-    }
+      
+      // Remove existing status if any
+      const existingStatus = btn.querySelector('.line-status');
+      if (existingStatus) {
+        btn.removeChild(existingStatus);
+      }
+      
+      btn.appendChild(statusEl);
+    });
+  } catch (err) {
+    console.error('Error al actualizar estados:', err);
+  }
+}
     
     // Function to set background images for buttons
     function setButtonBackgrounds() {
