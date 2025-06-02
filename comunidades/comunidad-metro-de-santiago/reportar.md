@@ -273,11 +273,11 @@
           })
         });
 
-        console.log(response) 
+        //console.log(response) 
 
-        const data = response.json
+        //const data = response.json
         
-        if (response.ok&&data.success) {
+        if (response.ok) {
           showSuccess('¡Reporte enviado con éxito!');
           e.target.reset();
           loadReports(selectedLine);
