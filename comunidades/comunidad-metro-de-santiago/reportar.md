@@ -1,4 +1,3 @@
-# Reportar Problemas - MetroMan
 
 <html lang="es">
 <head>
@@ -32,18 +31,26 @@
       font-weight: bold;
       position: relative;
       border: 2px solid transparent;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
     }
     .line-btn:hover {
       opacity: 0.9;
     }
-    /* Line colors */
-    .line-1 { background: #e30613; color: white; }
-    .line-2 { background: #0097a9; color: white; }
-    .line-3 { background: #f9c000; color: black; }
-    .line-4 { background: #6c3483; color: white; }
-    .line-4A { background: #00a14e; color: white; }
-    .line-5 { background: #f58220; color: black; }
-    .line-6 { background: #8bc34a; color: black; }
+    /* Line colors - fallback if image not available */
+    .line-1 { background-color: #e30613; color: white; }
+    .line-2 { background-color: #0097a9; color: white; }
+    .line-3 { background-color: #f9c000; color: black; }
+    .line-4 { background-color: #6c3483; color: white; }
+    .line-4A { background-color: #00a14e; color: white; }
+    .line-5 { background-color: #f58220; color: black; }
+    .line-5B { background-color: #8bc34a; color: black; }
     
     /* Status indicators */
     .line-status {
@@ -85,7 +92,7 @@
     <div class="line-btn line-4" data-line="4">Línea 4</div>
     <div class="line-btn line-4A" data-line="4A">Línea 4A</div>
     <div class="line-btn line-5" data-line="5">Línea 5</div>
-    <div class="line-btn line-5B" data-line="5B">Línea 5B</div>
+    <div class="line-btn line-5B" data-line="6">Línea 6</div>
   </div>
   
   <form id="reportForm" class="report-form">
@@ -175,12 +182,10 @@
     async function loadReports(line = null) {
       try {
         const response = await fetch('https://api.bloksel.com/metroCredentials/reportes');
-
-
-    let reports = await response.json();
-       
-              console.log(reports) 
-    
+        const data = await response.json();
+        
+        // Handle both direct array response and object with reports property
+        let reports = Array.isArray(data) ? data : (data.reports || []);
         
         if (line) {
           reports = reports.filter(r => r.linea === line);
@@ -189,16 +194,17 @@
         const container = document.getElementById('reportsList');
         container.innerHTML = reports.map(report => `
           <div class="report">
-            <strong>Línea ${report.linea}</strong> - ${report.problema}
-            <span class="status ${report.status}">${
-              report.status.replace('_', ' ')
+            <strong>Línea ${report.linea}</strong> - ${report.problema || report.problem || 'Sin tipo'}
+            <span class="status ${report.status || 'pendiente'}">${
+              (report.status || 'pendiente').replace('_', ' ')
             }</span>
-            <p>${report.descripcion || 'Sin descripción'}</p>
-            <small>${new Date(report.created_at).toLocaleString()}</small>
+            <p>${report.descripcion || report.description || 'Sin descripción'}</p>
+            <small>${report.created_at ? new Date(report.created_at).toLocaleString() : 'Fecha no disponible'}</small>
           </div>
         `).join('');
       } catch (err) {
         console.error('Error al cargar reportes:', err);
+        document.getElementById('reportsList').innerHTML = '<p>Error al cargar los reportes. Intente nuevamente.</p>';
       }
     }
     
@@ -206,9 +212,8 @@
     async function updateLineStatuses() {
       try {
         const response = await fetch('https://api.bloksel.com/metroCredentials/reportes');
-        const reports = await response.json();
-
-        console.log("Hola", reports) 
+        const data = await response.json();
+        const reports = Array.isArray(data) ? data : (data.reports || []);
         
         document.querySelectorAll('.line-btn').forEach(btn => {
           const line = btn.dataset.line;
@@ -240,7 +245,19 @@
       }
     }
     
+    // Function to set background images for buttons
+    function setButtonBackgrounds() {
+      const buttons = document.querySelectorAll('.line-btn');
+      buttons.forEach(btn => {
+        const line = btn.dataset.line;
+        // You can set the background image URL here
+        // Example: btn.style.backgroundImage = `url('images/line-${line}.jpg')`;
+        // For now, we'll just keep the color fallback
+      });
+    }
+    
     // Initial load
+    setButtonBackgrounds();
     updateLineStatuses();
     loadReports();
   </script>
