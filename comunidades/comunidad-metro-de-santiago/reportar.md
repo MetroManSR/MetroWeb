@@ -123,13 +123,13 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
   <div class="active-line" id="activeLineDisplay">Seleccione una línea</div>
   
   <div class="line-buttons">
-    <div class="line-btn line-1" data-line="1">Línea 1</div>
-    <div class="line-btn line-2" data-line="2">Línea 2</div>
-    <div class="line-btn line-3" data-line="3">Línea 3</div>
-    <div class="line-btn line-4" data-line="4">Línea 4</div>
-    <div class="line-btn line-4A" data-line="4A">Línea 4A</div>
-    <div class="line-btn line-5" data-line="5">Línea 5</div>
-    <div class="line-btn line-5B" data-line="6">Línea 6</div>
+    <div class="line-btn line-1" data-line="1"></div>
+    <div class="line-btn line-2" data-line="2"></div>
+    <div class="line-btn line-3" data-line="3"></div>
+    <div class="line-btn line-4" data-line="4"></div>
+    <div class="line-btn line-4A" data-line="4A"></div>
+    <div class="line-btn line-5" data-line="5"></div>
+    <div class="line-btn line-5B" data-line="6"></div>
   </div>
   
   <form id="reportForm" class="report-form">
@@ -152,19 +152,11 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
       </select>
     </div>
     
-    <div class="form-group">
-      <label for="cantidad">Cantidad:</label>
-      <div class="quantity-group">
-        <input type="number" id="cantidad" min="1" max="100" value="1" required>
-        <span id="cantidadLabel">tren(es)</span>
-      </div>
-    </div>
-    
     <button type="submit" id="submitBtn">
       <span id="submitText">Enviar Reporte</span>
     </button>
     
-    <button type="button" class="unselect-btn" id="unselectBtn">Cambiar Línea</button>
+    <button type="button" class="unselect-btn" id="unselectBtn">Deseleccionar Línea</button>
   </form>
   
   <h2>Últimos Reportes</h2>
@@ -177,7 +169,7 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
     
     // Update quantity label based on problem type
     const problemaSelect = document.getElementById('problema');
-    const cantidadLabel = document.getElementById('cantidadLabel');
+    
     
     problemaSelect.addEventListener('change', () => {
       const problemType = problemaSelect.value;
