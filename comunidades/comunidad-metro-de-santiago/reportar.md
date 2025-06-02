@@ -181,7 +181,7 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
     const problemaSelect = document.getElementById('problema');
     
     
-    problemaSelect.addEventListener('change', () => {
+ /*   problemaSelect.addEventListener('change', () => {
       const problemType = problemaSelect.value;
       if (problemType === 'Colapso' || problemType === 'Cierre Estación') {
         cantidadLabel.textContent = 'estación(es)';
@@ -192,7 +192,7 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
       } else {
         cantidadLabel.textContent = 'incidente(s)';
       }
-    });
+    });*/
     
     // Add click handlers to line buttons
     document.querySelectorAll('.line-btn').forEach(btn => {
@@ -264,7 +264,7 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
           body: JSON.stringify({
             linea: document.getElementById('linea').value,
             problema: document.getElementById('problema').value,
-            cantidad: document.getElementById('cantidad').value,
+        /*    cantidad: document.getElementById('cantidad').value,*/
             descripcion: `${document.getElementById('problema').value} (${document.getElementById('cantidad').value} ${cantidadLabel.textContent.split('(')[0].trim()})`
           })
         });
