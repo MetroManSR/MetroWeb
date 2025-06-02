@@ -1,3 +1,6 @@
+# Reportar Problemas - MetroMan
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
