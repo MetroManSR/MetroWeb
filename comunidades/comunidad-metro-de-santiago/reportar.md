@@ -285,9 +285,11 @@
         } else {
           const error = await response.json();
           showError(`Error: ${error.error || 'Error desconocido'}`);
+
         }
       } catch (err) {
         showError('Error de conexión');
+        console.log(err) 
       } finally {
         button.disabled = false;
         document.getElementById('submitBtn').innerHTML = '<span id="submitText">Enviar Reporte</span>';
