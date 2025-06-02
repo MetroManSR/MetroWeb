@@ -207,6 +207,8 @@
       try {
         const response = await fetch('https://api.bloksel.com/metroCredentials/reportes');
         const reports = await response.json();
+
+        console.log(reports) 
         
         document.querySelectorAll('.line-btn').forEach(btn => {
           const line = btn.dataset.line;
