@@ -272,8 +272,12 @@
             descripcion: `${document.getElementById('problema').value}`
           })
         });
+
+        console.log(response) 
+
+        const data = response.json
         
-        if (response.ok) {
+        if (response.ok&&data.success) {
           showSuccess('¡Reporte enviado con éxito!');
           e.target.reset();
           loadReports(selectedLine);
