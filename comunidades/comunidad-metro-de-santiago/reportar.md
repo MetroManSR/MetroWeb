@@ -265,7 +265,7 @@ Si encuentras un error favor reportar a MetroMan en una de las Redes de la Comun
             linea: document.getElementById('linea').value,
             problema: document.getElementById('problema').value,
         /*    cantidad: document.getElementById('cantidad').value,*/
-            descripcion: `${document.getElementById('problema').value})`
+            descripcion: `${document.getElementById('problema').value}`
           })
         });
         
