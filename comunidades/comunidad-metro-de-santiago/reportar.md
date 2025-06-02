@@ -249,12 +249,31 @@
     function setButtonBackgrounds() {
       const buttons = document.querySelectorAll('.line-btn');
       buttons.forEach(btn => {
-        const line = btn.dataset.line;
-        // You can set the background image URL here
-        // Example: btn.style.backgroundImage = `url('images/line-${line}.jpg')`;
-        // For now, we'll just keep the color fallback
-      });
+    const line = btn.dataset.line;
+    // Set the background image based on the line number
+    btn.style.backgroundImage = `url('https://upload.wikimedia.org/wikipedia/commons/thumb/${getLineImagePath(line)}')`;
+    // You might want to add some background styling for better appearance
+    btn.style.backgroundSize = 'contain';
+    btn.style.backgroundRepeat = 'no-repeat';
+    btn.style.backgroundPosition = 'center';
+});
+
+
     }
+
+    function getLineImagePath(line) {
+    // This function returns the appropriate image path segment for each line
+    switch(line) {
+        case '1': return '3/38/Santiago_de_Chile_L1.svg/600px-Santiago_de_Chile_L1.svg.png';
+        case '2': return 'd/de/Santiago_de_Chile_L2.svg/600px-Santiago_de_Chile_L2.svg.png';
+        case '3': return '9/9f/Santiago_de_Chile_L3.svg/599px-Santiago_de_Chile_L3.svg.png';
+        case '4': return 'b/bb/Santiago_de_Chile_L4.svg/600px-Santiago_de_Chile_L4.svg.png';
+        case '4A': return 'a/ac/Santiago_de_Chile_L4A.svg/599px-Santiago_de_Chile_L4A.svg.png';
+        case '5': return '1/1e/Santiago_de_Chile_L5.svg/600px-Santiago_de_Chile_L5.svg.png';
+        case '6': return '2/22/Santiago_de_Chile_L6.svg/600px-Santiago_de_Chile_L6.svg.png';
+        default: return ''; // fallback for unknown lines
+    }
+}
     
     // Initial load
     setButtonBackgrounds();
