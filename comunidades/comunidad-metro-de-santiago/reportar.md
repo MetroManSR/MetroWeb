@@ -90,13 +90,13 @@
   <div class="active-line" id="activeLineDisplay"></div>
   
   <div class="line-buttons">
-    <div class="line-btn line-1" data-line="1">Línea 1</div>
-    <div class="line-btn line-2" data-line="2">Línea 2</div>
-    <div class="line-btn line-3" data-line="3">Línea 3</div>
-    <div class="line-btn line-4" data-line="4">Línea 4</div>
-    <div class="line-btn line-4A" data-line="4A">Línea 4A</div>
-    <div class="line-btn line-5" data-line="5">Línea 5</div>
-    <div class="line-btn line-5B" data-line="6">Línea 6</div>
+    <div class="line-btn line-1" data-line="1"></div>
+    <div class="line-btn line-2" data-line="2"></div>
+    <div class="line-btn line-3" data-line="3"></div>
+    <div class="line-btn line-4" data-line="4"></div>
+    <div class="line-btn line-4A" data-line="4A"></div>
+    <div class="line-btn line-5" data-line="5"></div>
+    <div class="line-btn line-5B" data-line="6"></div>
   </div>
   
   <form id="reportForm" class="report-form">
@@ -107,9 +107,15 @@
       <select id="problema" required>
         <option value="">Seleccione un problema</option>
         <option value="Retraso">Retraso en el servicio</option>
-        <option value="Avería">Avería en trenes</option>
-        <option value="Infraestructura">Problema de infraestructura</option>
-        <option value="Atención">Mala atención al cliente</option>
+        <option value="Colapso">Estaciones Colapsadas</option>
+        <option value="Lleno">Trenes Llenos</option>
+        <option value="Parcial">Servicio Interrumpido</option>
+        <option value="Cierre Estación">Estación Cerrada</option>
+        <option value="Combinación Suspendida">Combinación Suspendida</option>
+         <option value="Corte de Energía">Corte de Energía en las Vías</option>
+         <option value="Apagón">Apagón, Estaciones a oscuras</option>
+         <option value="Avería Tren">Avería de Tren</option>
+         <option value="Avería Vía">Avería en la Vía (seleccionar si no es Avería de Tren ni Equipamientos)</option>
         <option value="Otro">Otro problema</option>
       </select>
     </div>
