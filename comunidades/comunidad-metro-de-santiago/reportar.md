@@ -24,26 +24,30 @@
       margin: 20px 0;
     }
     .line-btn {
-      padding: 15px 5px;
-      text-align: center;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-      position: relative;
-      border: 2px solid transparent;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      min-height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-    }
+  padding: 15px 5px;
+  text-align: center;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  position: relative;
+  border: 2px solid transparent;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+  color: white;
+}
+
+  
     .line-btn:hover {
       opacity: 0.9;
     }
     /* Line colors - fallback if image not available */
+    /*
     .line-1 { background-color: #e30613; color: white; }
     .line-2 { background-color: #0097a9; color: white; }
     .line-3 { background-color: #f9c000; color: black; }
@@ -51,7 +55,7 @@
     .line-4A { background-color: #00a14e; color: white; }
     .line-5 { background-color: #f58220; color: black; }
     .line-5B { background-color: #8bc34a; color: black; }
-    
+    */
     /* Status indicators */
     .line-status {
       position: absolute;
