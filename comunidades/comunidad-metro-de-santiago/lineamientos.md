@@ -1,4 +1,4 @@
-# 📜 Lineamientos
+# 📜 Lineamientos  
 
 **Aplicable en:** WhatsApp, Telegram, Discord, Reddit. [Comunidad](https://miniurl.cl/comunidadmetrostgo)  
 
@@ -9,59 +9,67 @@
 ### 1. Seguridad del Metro de Santiago 🚇 (Cero Tolerancia)  
 - **Información sensible:**  
   - ❌ Mapas de dependencias restringidas (salas de control, túneles privados, etc.).  
-  - ❌ Claves radiales, protocolos de emergencia, o códigos internos. Esto tiene un límite, está permitido responder preguntas, pero sin demasiado detalle evitando generar difusión masiva.
+  - ❌ Claves radiales, protocolos de emergencia, o códigos internos.  
+    - *Límite:* Se permite responder preguntas genéricas (ej.: "¿Cómo funciona el protocolo ante incendios?"), pero **no** compartir detalles técnicos.  
   - ❌ Ubicaciones exactas de cámaras de seguridad o puntos ciegos.  
-  - *Excepción:* Discusión de casos específicos **con aprobación previa de moderadores**.  
-
+  
 - **Promoción de actos delictivos:**  
   - ❌ Incitar a evadir pagos, saltar torniquetes o dañar infraestructura.  
+    - *Nota:* Debates teóricos sobre políticas tarifarias **sí** están permitidos si son constructivos (ej.: "¿Cómo mejorar la fiscalización?").  
   - ❌ Organizar acciones que violen los **Términos de Servicio de Metro** (ej.: "hagamos un flashmob en vías").  
-  - ❌ Compartir métodos para burlar sistemas de seguridad.
-    
+  - ❌ Compartir métodos para burlar sistemas de seguridad (ej.: "Cómo clonar tarjetas BIP!").  
 
 ### 2. Plataformas y Enlaces  
 - **WhatsApp/Telegram:**  
-  - Enlaces externos = eliminación inmediata (2 strikes = expulsión).  
-  - *Permitido:* Enlaces a noticias oficiales de Metro (ej.: [www.metro.cl](https://www.metro.cl)).  
-- **Discord:** Permitido pero no abusar. Prohibido Links a otros Discords. 
-- **Reddit:** Permitido pero no abusar ni publicar links nada que ver.
+  - ❌ Enlaces externos no oficiales = eliminación inmediata (WhatsApp: 2 strikes = Expulsión / Telegram: Escalonado Automático, eliminación inmediata).  
+  - ✅ Permitido: Enlaces a [www.metro.cl](https://www.metro.cl) o medios verificados (ej.: EMOL, TVN).  
+- **Discord/Reddit:**  
+  - ✅ Enlaces externos permitidos (máx. 1 por post), pero **no** a:  
+    - Servidores de Discord.  
+    - Contenido irrelevante (ej.: memes sin relación con Metro).  
 
 ### 3. Contenido Gráfico/Inapropiado  
-- ❌ Videos/fotos de procedimientos internos de Metro (ej.: emergencias médicas, operaciones policiales).    
+- ❌ Videos/fotos de procedimientos internos (emergencias médicas, operaciones policiales).  
+  - *Excepción:* Material de interés público (ej.: fallas visibles en andenes) **debe ser verificado por mods** (tiempo máximo: 6 horas).  
 
 ### 4. Conducta Nociva  
 - **Privacidad:**  
-  - ❌ Doxxing (exponer datos personales de otros usuarios o empleados de Metro).  
-  - ❌ Funas no verificadas por los Moderadores o Administradores.
+  - ❌ Doxxing (exponer datos personales sin consentimiento).  
+  - ❌ Funas no verificadas.  
+    - *Proceso:* Enviar pruebas a mods vía DM (anonimizadas si aplica).  
   - ❌ Grabaciones ocultas en áreas restringidas.  
-- **Spam (Telegram/Discord/WhatsApp):**  
-  - Flood de mensajes/emojis = mute temporal (Discord), Expulsión (Whatsapp y Telegram)
-  - Autopromoción sin permiso = ban.  
+- **Spam:**  
+  - Flood (>5 mensajes/minuto) = mute temporal (Discord) o expulsión (WhatsApp/Telegram).  
+  - Autopromoción reiterada sin permiso = ban permanente.  
 
 ---
 
 ## ✅ Contenido Permitido  
 - **Reportes ciudadanos:**  
-  - Fotos de fallas en andenes/vagones *(si no revelan vulnerabilidades)*.  
-  - Alertas de demoras basadas en información **pública**.
-  - Un Moderador podrá verificar la información y confirmar si es Verídica. 
+  - Fotos de fallas en andenes/vagones (*si no revelan vulnerabilidades*).  
+  - Alertas de demoras basadas en fuentes públicas (ej.: @metrodesantiago en Twitter).  
+  - *Verificación:* Mods responderán en <24 horas con sello de "Confirmado" o "Falso" en Reddit.  
 - **Discusión constructiva:**  
   - Propuestas para mejorar el Metro (ej.: "¿Cómo optimizar la línea 3?").  
+  - Satira/memes (*si no difaman o exponen datos sensibles*).  
 
 ---
 
-## ⚠️ Sanciones Escalonadas  
-1. **Leve** (ej.: spam): Aviso + borrado.  
-2. **Grave** (ej.: filtraciones Metro): Expulsión permanente.  
-(Este Sistema evolucionará con el tiempo)
+## ⚠️ Sanciones Escalonadas WhatsApp 
+1. **Leve** (ej.: spam, enlace no oficial):  
+   - 1er strike: Aviso + borrado.  
+   - 2do strike: Mute/expulsión 24h.  
+2. **Grave** (ej.: filtraciones, doxxing): Ban permanente. 
+
 ---
 
 ## 🔍 Otras Reglas Clave  
-- **Autenticidad:** Cuentas anónimas deben evitar difamaciones.  
-- **Emergencias:** No difundir rumores no verificados (usar solo fuentes oficiales o verificados por Moderación o Administración).  
-- **Derechos de autor:** No compartir material interno de Metro (manuales, planos) que no sean de Acceso Público.  
+- **Autenticidad:** Cuentas anónimas pueden debatir, pero acusaciones requieren pruebas.  
+- **Emergencias:** Rumores no verificados serán marcados como "En revisión" en Reddit o en los Foros de Discord. Usar **solo** fuentes oficiales o verificar autenticidad del registro.  
+- **Derechos de autor:**  
+  - ❌ Manuales/planos internos.  
+  - ✅ Documentos públicos (ej.: informes anuales en [metro.cl](https://www.metro.cl)).  
 
 ---
 
-**¿Dudas?** Contacta al equipo de moderación.  
-*Última actualización: 30/05/2025*  
+*Última actualización: 05/06/2025*  
