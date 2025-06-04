@@ -24,20 +24,21 @@
    2.4 ❌ Lenguaje soez, insultos dirigidos en contra de alguien. 
    
 
-5. PROMOCIÓN Y VENTAS  
+3. PROMOCIÓN Y VENTAS  
    3.1 ❌ Autopromoción/ventas EXCEPTO en:  
        - Discord: Canal #metro-tubers 
        - WhatsApp/Telegram: Solo contenido relacionado a Metro (ej.: fotos de trenes, estaciones)
        - Reddit: Contenido propio relacionado a Metro.
-   3.2 ❌ Promocionar contenido que viole estos lineamientos. 
+   3.2 ❌ Promocionar contenido que viole estos lineamientos.
+   3.3 ❌ Recaudaciones de dinero. 
 
-6. CUMPLIMIENTO LEGAL  
+5. CUMPLIMIENTO LEGAL  
    4.1 ❌ Violar TOS de plataformas:  
        - WhatsApp/Telegram (16+ en Chile)  
        - Discord/Reddit (14+ en chile)  
    4.2 ❌ Cuentas alternativas para evadir bans  
 
-7. TEMÁTICAS Y FORMATO  
+6. TEMÁTICAS Y FORMATO  
    5.1 ❌ Romper temática de canales:  
        - Discord: #reportes solo para reportar
        - WhatsApp: Conversación 100% Metro  
