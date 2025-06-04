@@ -7,35 +7,37 @@
 # 🚫 **CONTENIDO PROHIBIDO EN TODOS LOS ESPACIOS (GRUPOS/DMs/POSTS)**  
 
 1. RESPECTO A METRO
-   1.1 ❌ Compartir información sensible:  
+
+   1.1 ❌ Distribuir información sensible:  
        - Mapas de áreas restringidas (salas de control, túneles técnicos)  
-       - Protocolos de emergencia detallados o claves internas  
+       - Protocolos de emergencia detallados o claves internas sin que se haya preguntado, responder solo la pregunta y lo que se requiera nada más.
        - Ubicaciones exactas de cámaras/puntos ciegos  
    1.2 ❌ Incitar a actos ilegales:  
        - Evasión de pagos, daño a infraestructura, clonación de tarjetas BIP!  
 
-2. COMPORTAMIENTO TÓXICO  
+3. COMPORTAMIENTO TÓXICO  
    2.1 ❌ Acoso, doxxing o funas no verificadas (aplicable en DMs si se reporta con pruebas)  
-   2.2 ❌ Contenido NSFW (incluye nombres/avatars en Discord/Telegram):  
+   2.2 ❌ Contenido NSFW (incluye nombres/avatars en Discord/Telegram/WhatsApp):  
        - Pornografía, gore, violencia explícita  
        - Ejemplos prohibidos: usuario "LaPichulaCaliente69", avatar con desnudos  
-   2.3 ❌ Discriminación o discurso de odio. Esto incluye pero no se limita a hablar fervientemente en contra de una religión, ideología, visión política (donde no está permitido) y otros. 
+   2.3 ❌ Discriminación o discurso de odio. Esto incluye pero no se limita a hablar fervientemente en contra de una religión, ideología, visión política (donde no está permitido) y otros.
+   2.4 ❌ Lenguaje soez, insultos dirigidos en contra de alguien. 
    
 
-4. PROMOCIÓN Y VENTAS  
+5. PROMOCIÓN Y VENTAS  
    3.1 ❌ Autopromoción/ventas EXCEPTO en:  
        - Discord: Canal #metro-tubers 
-       - WhatsApp/Telegram: Solo contenido oficial del Metro (ej.: eventos de metro.cl), o contenido propio relacionado a Metro.
+       - WhatsApp/Telegram: Solo contenido relacionado a Metro (ej.: fotos de trenes, estaciones)
        - Reddit: Contenido propio relacionado a Metro.
    3.2 ❌ Promocionar contenido que viole estos lineamientos. 
 
-5. CUMPLIMIENTO LEGAL  
+6. CUMPLIMIENTO LEGAL  
    4.1 ❌ Violar TOS de plataformas:  
        - WhatsApp/Telegram (16+ en Chile)  
        - Discord/Reddit (14+ en chile)  
    4.2 ❌ Cuentas alternativas para evadir bans  
 
-6. TEMÁTICAS Y FORMATO  
+7. TEMÁTICAS Y FORMATO  
    5.1 ❌ Romper temática de canales:  
        - Discord: #reportes solo para reportar
        - WhatsApp: Conversación 100% Metro  
