@@ -10,16 +10,16 @@ language: es
 ¡Conéctate con otros amantes del metro! Usa estos enlaces: 
 
 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; margin: 30px 0; place-items: center;">
-  <a href="https://discord.gg/z7AfQZZaGD" class="social-circle">
+  <a href="https://miniurl.cl/cmdstgodis" class="social-circle">
     <img src="https://github.com/user-attachments/assets/f9fa4e5f-248f-4247-b1f5-a258c5ac192d" alt="Discord">
   </a>
-  <a href="https://chat.whatsapp.com/H1ECcZwlVxZFpwmG85GxCB" class="social-circle">
+  <a href="https://miniurl.cl/cmdstgowhats" class="social-circle">
     <img src="https://github.com/user-attachments/assets/5c1cbea1-5048-4e16-b3ae-3ad0d6b50f80" alt="WhatsApp">
   </a>
   <a href="https://www.reddit.com/r/metrosantiago/s/S9wvlFkjjF" class="social-circle">
     <img src="https://github.com/user-attachments/assets/94a232e7-2777-40d0-9f00-a9f13da717e7" alt="Reddit">
   </a>
-  <a href="https://t.me/metrosantiago" class="social-circle">
+  <a href="https://miniurl.cl/cmdstgotel" class="social-circle">
     <img src="https://github.com/user-attachments/assets/c6fbdcfb-6cbd-4e56-86eb-6298783fafa1" alt="Telegram">
   </a>
 </div>
