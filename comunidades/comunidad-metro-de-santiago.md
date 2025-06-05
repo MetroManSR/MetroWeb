@@ -16,7 +16,7 @@ language: es
   <a href="https://miniurl.cl/cmdstgowhats" class="social-circle">
     <img src="https://github.com/user-attachments/assets/5c1cbea1-5048-4e16-b3ae-3ad0d6b50f80" alt="WhatsApp">
   </a>
-  <a href="https://www.reddit.com/r/metrosantiago/s/S9wvlFkjjF" class="social-circle">
+  <a href="https://miniurl.cl/cmdstgored" class="social-circle">
     <img src="https://github.com/user-attachments/assets/94a232e7-2777-40d0-9f00-a9f13da717e7" alt="Reddit">
   </a>
   <a href="https://miniurl.cl/cmdstgotel" class="social-circle">
