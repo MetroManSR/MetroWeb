@@ -105,6 +105,9 @@ Un espacio para pasajeros frecuentes y fans del metro de Santiago. Aquí encontr
 Somos una comunidad **independiente** sin vínculo oficial con la empresa.  
 
 **Si representas a Metro S.A. y necesitas contactar al desarrollador del bot**, escribe a `metromanrrss`.  
+
+👌 El Bot es de código Abierto pueden revisar el código [aquí](https://github.com/MetroManSR/MetroBot) 
+
 ### **🌐 Enlaces Oficiales del Metro de Santiago**  
 - [Sitio web](https://www.metro.cl)  
 - [Facebook](https://www.facebook.com/Metrostgo/)  
